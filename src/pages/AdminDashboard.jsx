@@ -65,6 +65,7 @@ const AdminDashboard = () => {
   const [editingCourse, setEditingCourse] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Form state
   const [title, setTitle] = useState('');
@@ -233,7 +234,23 @@ const AdminDashboard = () => {
       const { data } = await axios.get(`${API_URL}/courses/admin`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setCourses(data);
+      
+      // Fetch overview data to compute student counts locally (fixes count=0 issue for remote backend)
+      try {
+        const overviewRes = await axios.get(`${API_URL}/courses/admin/overview/activity`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const overview = overviewRes.data;
+        const enrichedData = data.map(course => {
+          const courseOverview = overview.find(o => o._id === course._id);
+          const active = courseOverview ? courseOverview.activeCount : 0;
+          const inactive = courseOverview ? courseOverview.inactiveCount : 0;
+          return { ...course, enrolledCount: active + inactive };
+        });
+        setCourses(enrichedData);
+      } catch (err) {
+        setCourses(data);
+      }
     } catch (err) {
       setError('Failed to fetch courses');
     } finally {
@@ -650,10 +667,25 @@ const AdminDashboard = () => {
 
   return (
     <div className="flex min-h-screen relative" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      {/* Sidebar - CodeHelp Style */}
-      <aside className="w-64 flex-shrink-0 flex flex-col border-r shadow-sm z-20 sticky top-[72px] h-[calc(100vh-72px)]" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
-        <div className="p-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
+      {/* Mobile Overlay */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 z-40 lg:hidden backdrop-blur-sm transition-opacity"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar - Desktop & Mobile Drawer */}
+      <aside 
+        className={`w-64 flex-shrink-0 flex flex-col shadow-2xl lg:shadow-sm z-50 fixed inset-y-0 left-0 lg:sticky lg:top-[72px] lg:h-[calc(100vh-72px)] transform transition-transform duration-300 ease-in-out ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`} 
+        style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', borderRightWidth: '1px' }}
+      >
+        <div className="p-6 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-color)' }}>
           <h2 className="text-xl font-bold tracking-wide" style={{ color: 'var(--text-primary)' }}>Admin Panel</h2>
+          <button className="lg:hidden p-1.5 rounded-lg hover:bg-[var(--bg-input)] transition-colors cursor-pointer" onClick={() => setMobileMenuOpen(false)} style={{ color: 'var(--text-muted)' }}>
+            <X className="h-5 w-5" />
+          </button>
         </div>
         <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
           {[
@@ -668,8 +700,8 @@ const AdminDashboard = () => {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`w-full relative flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 group overflow-hidden ${isActive ? 'bg-[var(--accent)] text-white shadow-md' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-input)] hover:text-[var(--text-primary)] hover:translate-x-1'}`}
+                onClick={() => { setActiveTab(tab.id); setMobileMenuOpen(false); }}
+                className={`w-full relative flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 group overflow-hidden cursor-pointer ${isActive ? 'bg-[var(--accent)] text-white shadow-md' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-input)] hover:text-[var(--text-primary)] hover:translate-x-1'}`}
               >
                 {isActive && <div className="absolute left-0 top-0 bottom-0 w-1 bg-white rounded-r-md animate-slide-up"></div>}
                 <Icon className={`h-5 w-5 transition-transform duration-300 ${!isActive && 'group-hover:scale-110'}`} />
@@ -681,17 +713,30 @@ const AdminDashboard = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-8 w-full max-w-full overflow-hidden">
+      <main className="flex-1 p-4 md:p-8 w-full max-w-full overflow-hidden">
         <div className="max-w-6xl mx-auto">
           {/* Header Area */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4 border-b pb-6" style={{ borderColor: 'var(--border-color)' }}>
-            <div>
-              <h1 className="text-3xl font-extrabold tracking-tight" style={{ color: 'var(--text-primary)' }}>
-                {activeTab === 'courses' ? 'Manage Courses' : activeTab === 'overview' ? 'Activity Overview' : activeTab === 'settings' ? 'Certificate Settings' : activeTab === 'requests' ? 'Certificate Requests' : 'Doubt Requests'}
-              </h1>
-              <p className="mt-1 text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                View and manage your platform's content and student requests.
-              </p>
+            <div className="flex items-center gap-4">
+              <button 
+                className="lg:hidden p-2 rounded-lg transition-colors hover:bg-[var(--bg-input)] cursor-pointer"
+                onClick={() => setMobileMenuOpen(true)}
+                style={{ color: 'var(--text-primary)' }}
+              >
+                <div className="space-y-1.5">
+                  <span className="block w-6 h-0.5 rounded-full" style={{ backgroundColor: 'currentColor' }}></span>
+                  <span className="block w-6 h-0.5 rounded-full" style={{ backgroundColor: 'currentColor' }}></span>
+                  <span className="block w-4 h-0.5 rounded-full" style={{ backgroundColor: 'currentColor' }}></span>
+                </div>
+              </button>
+              <div>
+                <h1 className="text-3xl font-extrabold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+                  {activeTab === 'courses' ? 'Manage Courses' : activeTab === 'overview' ? 'Activity Overview' : activeTab === 'settings' ? 'Certificate Settings' : activeTab === 'requests' ? 'Certificate Requests' : 'Doubt Requests'}
+                </h1>
+                <p className="mt-1 text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+                  View and manage your platform's content and student requests.
+                </p>
+              </div>
             </div>
             <button
               onClick={() => {
@@ -1383,7 +1428,7 @@ const AdminDashboard = () => {
               <p className="text-sm mt-2 font-medium" style={{ color: 'var(--text-secondary)' }}>Design your formal certificate templates using AI or upload custom graphics.</p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 max-w-3xl mx-auto gap-8">
               {/* Graphic Template Card */}
               <div className="rounded-[1.5rem] border shadow-sm overflow-hidden flex flex-col transition-all duration-300 hover:shadow-lg" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
                 <div className="p-6 md:p-8 border-b" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
@@ -1393,13 +1438,22 @@ const AdminDashboard = () => {
                     </div>
                     <span>Graphic Template</span>
                   </h3>
-                  <p className="text-sm mt-2 font-medium" style={{ color: 'var(--text-secondary)' }}>Upload a high-quality JPG/PNG. The system overlays student data automatically.</p>
+                  <p className="text-sm mt-2 font-medium" style={{ color: 'var(--text-secondary)' }}>Upload a high-quality JPG/PNG background for certificates. The system will automatically overlay the student's name, course, and date on top of this design when generated.</p>
                 </div>
                 
                 <div className="p-6 md:p-8 flex-1 flex flex-col space-y-6">
                   {certificateTemplate && !templateFile && certificateTemplate.startsWith('/') && (
-                    <div className="rounded-xl overflow-hidden border shadow-sm" style={{ borderColor: 'var(--border-color)' }}>
-                      <img src={`https://e-learning-backend-1-r539.onrender.com${certificateTemplate}`} alt="Current" className="w-full h-40 object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+                    <div className="rounded-xl overflow-hidden border shadow-sm relative group" style={{ borderColor: 'var(--border-color)' }}>
+                      <img src={`https://e-learning-backend-1-r539.onrender.com${certificateTemplate}`} alt="Current" className="w-full h-auto max-h-64 object-contain" onError={(e) => { e.target.style.display = 'none'; }} />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
+                        <button 
+                          onClick={() => setCertificateTemplate('')}
+                          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          Remove Template
+                        </button>
+                      </div>
                     </div>
                   )}
                   
@@ -1417,44 +1471,24 @@ const AdminDashboard = () => {
                         <div className="h-14 w-14 rounded-full flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110 shadow-inner" style={{ backgroundColor: 'var(--bg-card)' }}>
                           <Image className="h-6 w-6 text-blue-500" />
                         </div>
-                        <span className="font-bold text-sm mb-1" style={{ color: 'var(--text-primary)' }}>Click to upload template</span>
+                        <span className="font-bold text-sm mb-1" style={{ color: 'var(--text-primary)' }}>{certificateTemplate ? 'Change Template' : 'Click to upload template'}</span>
                         <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>PNG, JPG up to 5MB</span>
                         {templateFile && (
-                          <span className="mt-6 px-4 py-1.5 rounded-full text-xs font-bold border shadow-sm animate-fade-in-up" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', borderColor: 'rgba(59, 130, 246, 0.2)' }}>
-                            {templateFile.name}
-                          </span>
+                          <div className="mt-6 flex flex-col items-center gap-3 animate-fade-in-up">
+                            <span className="px-4 py-1.5 rounded-full text-xs font-bold border shadow-sm" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', borderColor: 'rgba(59, 130, 246, 0.2)' }}>
+                              {templateFile.name}
+                            </span>
+                            <button 
+                              onClick={(e) => { e.preventDefault(); setTemplateFile(null); }}
+                              className="text-xs font-bold text-red-500 hover:text-red-600 transition-colors"
+                            >
+                              Cancel Selection
+                            </button>
+                          </div>
                         )}
                       </label>
                     </div>
                   </div>
-                </div>
-              </div>
-
-              {/* AI Prompt Card */}
-              <div className="rounded-[1.5rem] border shadow-sm overflow-hidden flex flex-col transition-all duration-300 hover:shadow-lg" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
-                <div className="p-6 md:p-8 border-b" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
-                  <h3 className="text-xl font-bold flex items-center space-x-3" style={{ color: 'var(--text-primary)' }}>
-                    <div className="p-2 rounded-lg" style={{ backgroundColor: 'var(--bg-primary)' }}>
-                      <Settings className="h-5 w-5 text-purple-500" />
-                    </div>
-                    <span>AI Prompt Generator</span>
-                  </h3>
-                  <p className="text-sm mt-2 font-medium" style={{ color: 'var(--text-secondary)' }}>Write instructions for the AI to generate an HTML certificate.</p>
-                </div>
-                
-                <div className="p-6 md:p-8 flex-1 flex flex-col">
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-widest border" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}>{`{{name}}`} for Student</span>
-                    <span className="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-widest border" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}>{`{{category}}`} for Course</span>
-                  </div>
-                  
-                  <textarea
-                    value={certificateTemplate}
-                    onChange={(e) => setCertificateTemplate(e.target.value)}
-                    className="w-full flex-1 px-5 py-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all custom-scrollbar shadow-inner text-sm font-medium leading-relaxed"
-                    style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', minHeight: '180px' }}
-                    placeholder="E.g., Create an elegant HTML certificate with a gold border..."
-                  ></textarea>
                 </div>
               </div>
             </div>
@@ -1768,7 +1802,7 @@ const AdminDashboard = () => {
                           <Users className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
                         </div>
                         <span className="border-b border-transparent group-hover/students:border-[var(--accent)]">
-                          {course.students?.length || 0} Students
+                          {course.enrolledCount || 0} Students
                         </span>
                       </button>
                       {course.duration && (
