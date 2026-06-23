@@ -107,7 +107,9 @@ const AdminCourseDetails = () => {
       const formData = new FormData();
       formData.append('video', newVideo.file);
       try {
-        const uploadRes = await axios.post(`${API_URL}/upload`, formData);
+        const uploadRes = await axios.post(`${API_URL}/upload`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${token}` }
+        });
         finalUrl = uploadRes.data.videoUrl;
       } catch (err) {
         setUploadingMedia(false);
@@ -136,7 +138,9 @@ const AdminCourseDetails = () => {
       const formData = new FormData();
       formData.append('document', newNote.file);
       try {
-        const uploadRes = await axios.post(`${API_URL}/upload/document`, formData);
+        const uploadRes = await axios.post(`${API_URL}/upload/document`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${token}` }
+        });
         finalUrl = uploadRes.data.documentUrl;
       } catch (err) {
         setUploadingMedia(false);

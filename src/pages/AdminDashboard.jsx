@@ -438,7 +438,9 @@ const AdminDashboard = () => {
             formData.append('video', videos[i].videoFile);
             try {
               // Upload to backend
-              const uploadRes = await axios.post(`${API_URL}/upload`, formData);
+              const uploadRes = await axios.post(`${API_URL}/upload`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${token}` }
+              });
               videos[i].videoUrl = uploadRes.data.videoUrl;
             } catch (err) {
               setError(`Failed to upload video for Lesson ${i+1}`);
@@ -558,7 +560,9 @@ const AdminDashboard = () => {
       if (addingVideoToCourse.courseType === 'paid' && newVideoState.videoFile) {
         const formData = new FormData();
         formData.append('video', newVideoState.videoFile);
-        const uploadRes = await axios.post(`${API_URL}/upload`, formData);
+        const uploadRes = await axios.post(`${API_URL}/upload`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${token}` }
+        });
         finalVideoUrl = uploadRes.data.videoUrl;
       }
       
