@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   Plus,
@@ -34,7 +34,7 @@ import {
   ClipboardList
 } from 'lucide-react';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://e-learning-backend-tubf.onrender.com/api';
 
 const CATEGORIES = [
   'General',
@@ -58,6 +58,7 @@ const LEVELS = [
 const AdminDashboard = () => {
   const { token } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -87,7 +88,8 @@ const AdminDashboard = () => {
   const [selectedCourseForReviews, setSelectedCourseForReviews] = useState(null);
 
   // Settings State
-  const [activeTab, setActiveTab] = useState('courses'); // 'courses' | 'settings' | 'overview' | 'requests'
+  const activeTab = searchParams.get('tab') || 'courses';
+  const setActiveTab = (tab) => setSearchParams({ tab });
   const [certificateTemplate, setCertificateTemplate] = useState('');
   const [savingSettings, setSavingSettings] = useState(false);
   const [templateFile, setTemplateFile] = useState(null);
@@ -1210,151 +1212,157 @@ const AdminDashboard = () => {
 
         {/* Content specific to Active Tab */}
 
-        {/* â”€â”€â”€ Activity Overview Tab â”€â”€â”€ */}
+        {/* ─── Activity Overview Tab ─── */}
         {activeTab === 'overview' && (
-          <div className="animate-fade-in space-y-8">
+          <div className="animate-fade-in space-y-12">
             {/* Grid View with Search */}
-            <div className="space-y-8">
-                {/* â”€â”€â”€ Formal Global Analytics Hero â”€â”€â”€ */}
+            <div className="space-y-10">
+                {/* ─── Formal Executive Analytics Hero ─── */}
                 {!overviewLoading && overviewData.length > 0 && (
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 animate-slide-up">
-                    {[
-                      { 
-                        title: 'Total Courses', 
-                        value: overviewData.length, 
-                        icon: <BookOpen className="h-5 w-5" style={{ color: 'var(--text-muted)' }} />
-                      },
-                      { 
-                        title: 'Total Enrolled', 
-                        value: overviewData.reduce((acc, course) => acc + course.activeCount + course.inactiveCount, 0), 
-                        icon: <Users className="h-5 w-5" style={{ color: 'var(--text-muted)' }} />
-                      },
-                      { 
-                        title: 'Active Students', 
-                        value: overviewData.reduce((acc, course) => acc + course.activeCount, 0), 
-                        icon: <Sparkles className="h-5 w-5" style={{ color: 'var(--text-muted)' }} />
-                      },
-                      { 
-                        title: 'Avg Perf. Score', 
-                        value: (() => {
-                          let total = 0, count = 0;
-                          overviewData.forEach(c => [...c.activeStudents, ...c.inactiveStudents].forEach(s => {
-                            if(s.performanceScore !== undefined) { total += s.performanceScore; count++; }
-                          }));
-                          return count > 0 ? Math.round(total/count) + '%' : '0%';
-                        })(),
-                        icon: <BarChart3 className="h-5 w-5" style={{ color: 'var(--text-muted)' }} />
-                      }
-                    ].map((stat, idx) => (
-                      <div key={idx} className="p-6 rounded-xl border transition-all duration-300 hover:shadow-lg hover:-translate-y-1 bg-[var(--bg-card)] flex flex-col justify-between group" style={{ borderColor: 'var(--border-color)' }}>
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-sm font-semibold tracking-wide" style={{ color: 'var(--text-secondary)' }}>{stat.title}</h3>
-                          <div className="p-2 rounded-lg bg-[var(--bg-input)] border border-[var(--border-color)]">{stat.icon}</div>
+                  <div className="flex justify-center mb-12 animate-slide-up w-full">
+                    <div className="relative overflow-hidden rounded-[1.5rem] bg-[var(--bg-card)] border border-[var(--border-color)] shadow-sm hover:shadow-xl transition-all duration-700 w-full max-w-5xl group transform hover:-translate-y-1">
+                      <div className="relative h-full p-10 md:p-14 flex flex-col md:flex-row items-center justify-between gap-10 z-10 overflow-hidden">
+                        
+                        {/* Immersive Formal Ambient Gradient */}
+                        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[var(--accent)] opacity-5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/4 group-hover:scale-105 transition-transform duration-1000"></div>
+                        
+                        <div className="flex flex-col md:flex-row items-center gap-8 relative z-20">
+                          {/* Formal Icon Container */}
+                          <div className="relative p-5 rounded-2xl bg-[var(--accent)] shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-500 ease-out">
+                            <BarChart3 className="w-9 h-9 text-white relative z-10" />
+                          </div>
+                          
+                          {/* Formal Typography Context */}
+                          <div className="text-center md:text-left">
+                            <h3 className="text-[var(--text-secondary)] font-bold uppercase tracking-[0.2em] text-xs mb-2 group-hover:text-[var(--accent)] transition-colors duration-500">Total Active Enrollments</h3>
+                            <div className="flex items-center justify-center md:justify-start gap-2.5 mt-1">
+                              <div className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
+                              </div>
+                              <p className="text-[var(--text-muted)] font-medium text-xs tracking-wide">Real-time platform activity</p>
+                            </div>
+                          </div>
                         </div>
-                        <p className="text-3xl font-bold" style={{ color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>{stat.value}</p>
+
+                        {/* Grand Value Display */}
+                        <div className="relative z-20 flex items-baseline gap-3">
+                          <span className="text-6xl md:text-7xl font-semibold tracking-tight text-[var(--text-primary)] drop-shadow-sm group-hover:scale-105 transition-transform duration-700">
+                            {overviewData.reduce((acc, course) => acc + course.activeCount, 0)}
+                          </span>
+                          <span className="text-[var(--text-secondary)] font-medium text-base uppercase tracking-wider">Students</span>
+                        </div>
                       </div>
-                    ))}
+                    </div>
                   </div>
                 )}
 
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Course Analytics Overview</h2>
-                  <div className="relative w-full md:w-96">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: 'var(--text-muted)' }} />
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-8 rounded-[1.5rem] bg-[var(--bg-card)] border border-[var(--border-color)] shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow duration-500">
+                  <div className="absolute top-0 left-0 w-1.5 h-full bg-[var(--accent)]"></div>
+                  <div className="pl-4">
+                    <h2 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Course Performance Matrix</h2>
+                    <p className="text-[var(--text-secondary)] font-medium mt-1.5 text-sm">Comprehensive breakdown of engagement metrics across all active curriculum modules.</p>
+                  </div>
+                  <div className="relative w-full md:w-[450px] group-focus-within:scale-[1.01] transition-transform duration-500">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--text-muted)]" />
                     <input
                       type="text"
                       placeholder="Search courses..."
                       value={overviewSearchQuery}
                       onChange={(e) => setOverviewSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 rounded-full text-sm font-medium transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-                      style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+                      className="w-full pl-12 pr-4 py-3.5 rounded-lg text-sm font-medium transition-all shadow-inner focus:outline-none focus:ring-2 focus:ring-[var(--accent)] bg-[var(--bg-input)] border border-[var(--border-color)] text-[var(--text-primary)] placeholder-[var(--text-muted)]"
                     />
                   </div>
                 </div>
 
                 {overviewLoading ? (
-                  <div className="flex items-center justify-center py-20">
-                    <Loader2 className="h-10 w-10 animate-spin" style={{ color: 'var(--accent)' }} />
+                  <div className="flex items-center justify-center py-32">
+                    <div className="relative">
+                      <div className="w-12 h-12 border-4 border-[var(--border-color)] border-t-[var(--accent)] rounded-full animate-spin"></div>
+                    </div>
                   </div>
                 ) : overviewData.length === 0 ? (
-                  <div className="text-center py-20">
-                    <BarChart3 className="h-16 w-16 mx-auto mb-4 opacity-50" style={{ color: 'var(--text-muted)' }} />
-                    <p style={{ color: 'var(--text-muted)' }}>No courses available.</p>
+                  <div className="text-center py-24 bg-[var(--bg-card)] rounded-[1.5rem] border border-[var(--border-color)] shadow-sm">
+                    <ClipboardList className="h-16 w-16 mx-auto mb-6 opacity-30 text-[var(--text-muted)]" />
+                    <p className="text-lg font-semibold text-[var(--text-primary)]">No analytical data available.</p>
+                    <p className="text-[var(--text-secondary)] mt-2">Activity metrics will appear once courses are populated and active.</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                     {overviewData
                       .filter(c => c.title.toLowerCase().includes(overviewSearchQuery.toLowerCase()))
-                      .map(course => (
-                      <div key={course._id} className="rounded-xl overflow-hidden shadow-sm border transition-all duration-300 hover:shadow-lg hover:-translate-y-1 bg-[var(--bg-card)] flex flex-col group" style={{ borderColor: 'var(--border-color)' }}>
+                      .map((course, idx) => (
+                      <div key={course._id} className="rounded-[1rem] overflow-hidden shadow-sm hover:shadow-xl border border-[var(--border-color)] transition-all duration-500 hover:-translate-y-1.5 bg-[var(--bg-card)] flex flex-col group relative animate-slide-up" style={{ animationDelay: `${idx * 0.1}s`, animationFillMode: 'both' }}>
                         
-                        {course.thumbnail && (
-                          <div className="h-40 relative overflow-hidden flex-shrink-0 bg-[var(--bg-input)] border-b" style={{ borderColor: 'var(--border-color)' }}>
-                            <img src={course.thumbnail?.startsWith('/uploads') ? `${API_URL.replace('/api', '')}${course.thumbnail}` : course.thumbnail} alt={course.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-80"></div>
+                        {course.thumbnail ? (
+                          <div className="h-48 relative overflow-hidden flex-shrink-0 border-b border-[var(--border-color)] bg-[var(--bg-input)]">
+                            <img src={course.thumbnail?.startsWith('/uploads') ? `${API_URL.replace('/api', '')}${course.thumbnail}` : course.thumbnail} alt={course.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 filter group-hover:brightness-110" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-90 transition-opacity duration-500 group-hover:opacity-100"></div>
                             
-                            <div className="absolute top-3 right-3 flex space-x-2">
+                            <div className="absolute bottom-4 left-4 flex space-x-2">
                               {course.totalVideos > 0 && (
-                                <span className="bg-white/90 backdrop-blur text-gray-900 px-2 py-1 rounded text-[10px] font-bold tracking-wide flex items-center space-x-1 shadow-sm">
-                                  <Video className="h-3 w-3" />
-                                  <span>{course.totalVideos}</span>
+                                <span className="bg-black/40 backdrop-blur-md text-white border border-white/20 px-3 py-1.5 rounded-md text-xs font-medium tracking-wide flex items-center space-x-2">
+                                  <Video className="h-3.5 w-3.5" />
+                                  <span>{course.totalVideos} Modules</span>
                                 </span>
                               )}
                             </div>
                           </div>
-                        )}
-                        {!course.thumbnail && course.totalVideos > 0 && (
-                          <div className="absolute top-4 right-4 flex space-x-2 z-10">
-                            <span className="bg-[var(--bg-input)] border text-[var(--text-secondary)] px-2 py-1 rounded text-[10px] font-bold tracking-wide flex items-center space-x-1 shadow-sm" style={{ borderColor: 'var(--border-color)' }}>
-                              <Video className="h-3 w-3" />
-                              <span>{course.totalVideos}</span>
-                            </span>
+                        ) : (
+                          <div className="h-48 relative overflow-hidden flex-shrink-0 bg-[var(--bg-input)] border-b border-[var(--border-color)] flex items-center justify-center transition-colors duration-500 group-hover:bg-[var(--accent-glow)]">
+                             <BookOpen className="w-10 h-10 text-[var(--text-muted)] group-hover:text-[var(--accent)] transition-colors duration-500" />
+                             {course.totalVideos > 0 && (
+                              <div className="absolute bottom-4 left-4 flex space-x-2 z-10">
+                                <span className="bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border-color)] px-3 py-1.5 rounded-md text-xs font-medium tracking-wide flex items-center space-x-2 shadow-sm">
+                                  <Video className="h-3.5 w-3.5" />
+                                  <span>{course.totalVideos} Modules</span>
+                                </span>
+                              </div>
+                            )}
                           </div>
                         )}
                         
-                        <div className="p-5 flex-1 flex flex-col justify-between">
-                          <div className="mb-4">
-                            <div className="flex items-center space-x-2 mb-2">
-                              <span className="bg-[var(--bg-input)] text-[var(--text-secondary)] px-2 py-0.5 rounded text-[10px] font-semibold tracking-wider uppercase border" style={{ borderColor: 'var(--border-color)' }}>
+                        <div className="p-6 flex-1 flex flex-col justify-between relative bg-[var(--bg-card)]">
+                          <div className="mb-6">
+                            <div className="flex items-center space-x-2 mb-3">
+                              <span className="bg-[var(--accent-glow)] text-[var(--accent)] px-2.5 py-1 rounded-sm text-[10px] font-bold tracking-widest uppercase border border-[var(--accent)]/10">
                                 {course.category || 'General'}
                               </span>
                             </div>
-                            <h3 className="font-bold text-lg line-clamp-1 leading-tight" style={{ color: 'var(--text-primary)' }}>{course.title}</h3>
+                            <h3 className="font-semibold text-lg line-clamp-2 leading-snug text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors duration-300">{course.title}</h3>
                           </div>
 
                           {/* Formal Stats Row */}
-                          <div className="flex items-center justify-between mb-6 p-3 rounded-lg bg-[var(--bg-input)] border" style={{ borderColor: 'var(--border-color)' }}>
-                            <div className="flex flex-col">
-                              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5 flex items-center">
-                                <span className="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span>
+                          <div className="grid grid-cols-2 gap-4 mb-8">
+                            <div className="flex flex-col p-4 rounded-lg bg-[var(--bg-input)] border border-[var(--border-color)] transition-colors duration-300 hover:border-blue-300">
+                              <span className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-widest mb-1.5 flex items-center">
+                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></div>
                                 Active
                               </span>
-                              <span className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{course.activeCount}</span>
+                              <span className="text-2xl font-light text-[var(--text-primary)]">{course.activeCount}</span>
                             </div>
-                            <div className="w-px h-8 bg-[var(--border-color)]"></div>
-                            <div className="flex flex-col items-end">
-                              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5 flex items-center">
+                            <div className="flex flex-col p-4 rounded-lg bg-[var(--bg-input)] border border-[var(--border-color)] transition-colors duration-300 hover:border-rose-300">
+                              <span className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-widest mb-1.5 flex items-center">
+                                <div className="w-1.5 h-1.5 rounded-full bg-rose-500 mr-2"></div>
                                 Inactive
-                                <span className="w-1.5 h-1.5 rounded-full bg-red-500 ml-1.5 opacity-60"></span>
                               </span>
-                              <span className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{course.inactiveCount}</span>
+                              <span className="text-2xl font-light text-[var(--text-primary)]">{course.inactiveCount}</span>
                             </div>
                           </div>
                           
                           <button
                             onClick={() => navigate('/admin/course/' + course._id + '/analytics', { state: { course } })}
-                            className="w-full flex items-center justify-center space-x-2 py-2.5 rounded-lg text-sm font-semibold transition-all"
-                            style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)' }}
+                            className="w-full flex items-center justify-between px-6 py-3.5 rounded-lg text-sm font-medium transition-all duration-300 bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-primary)] hover:bg-[var(--bg-input)] hover:text-[var(--accent)] hover:border-[var(--accent)] focus:ring-4 focus:ring-[var(--accent)]/20 group/btn"
                           >
-                            <span>View Analytics</span>
-                            <ArrowLeft className="h-4 w-4 rotate-180 opacity-70 group-hover:translate-x-1 transition-transform" />
+                            <span>View Detailed Report</span>
+                            <ArrowLeft className="h-4 w-4 rotate-180 transform group-hover/btn:translate-x-1 transition-transform duration-300" />
                           </button>
                         </div>
                       </div>
                     ))}
                     {overviewData.filter(c => c.title.toLowerCase().includes(overviewSearchQuery.toLowerCase())).length === 0 && (
-                      <div className="col-span-full text-center py-12">
-                        <p style={{ color: 'var(--text-muted)' }}>No courses match your search.</p>
+                      <div className="col-span-full text-center py-16 bg-[var(--bg-card)] rounded-[1.5rem] border border-[var(--border-color)]">
+                        <p className="text-base font-medium text-[var(--text-muted)]">No courses match your search criteria.</p>
                       </div>
                     )}
                   </div>
@@ -1365,53 +1373,98 @@ const AdminDashboard = () => {
 
         {/* â”€â”€â”€ Certificate Settings Tab â”€â”€â”€ */}
         {activeTab === 'settings' && (
-          <div className="rounded-xl p-6 md:p-8 animate-slide-up" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-            <h2 className="text-xl font-bold mb-4 flex items-center space-x-2" style={{ color: 'var(--text-primary)' }}>
-              <Image className="h-5 w-5" style={{ color: 'var(--accent)' }} />
-              <span>Certificate Graphic Template</span>
-            </h2>
-            <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
-              Upload a high-quality image (JPG, PNG) to be used as the background template for certificates. 
-              The system will automatically overlay the student's name, course title, score, and date on top of this image.
-            </p>
-            
-            <div className="space-y-4">
-              {certificateTemplate && !templateFile && (
-                <div className="mb-4">
-                  <p className="text-sm font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>Current Template:</p>
-                  <img src={`http://localhost:5000${certificateTemplate}`} alt="Current Template" className="max-w-md w-full h-auto rounded-lg shadow-sm border" style={{ borderColor: 'var(--border-color)' }} onError={(e) => { e.target.style.display = 'none'; }} />
+          <div className="space-y-8 animate-fade-in max-w-5xl mx-auto py-4">
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Certificate Configuration</h2>
+              <p className="text-sm mt-2 font-medium" style={{ color: 'var(--text-secondary)' }}>Design your formal certificate templates using AI or upload custom graphics.</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Graphic Template Card */}
+              <div className="rounded-[1.5rem] border shadow-sm overflow-hidden flex flex-col transition-all duration-300 hover:shadow-lg" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+                <div className="p-6 md:p-8 border-b" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+                  <h3 className="text-xl font-bold flex items-center space-x-3" style={{ color: 'var(--text-primary)' }}>
+                    <div className="p-2 rounded-lg" style={{ backgroundColor: 'var(--bg-primary)' }}>
+                      <Image className="h-5 w-5 text-blue-500" />
+                    </div>
+                    <span>Graphic Template</span>
+                  </h3>
+                  <p className="text-sm mt-2 font-medium" style={{ color: 'var(--text-secondary)' }}>Upload a high-quality JPG/PNG. The system overlays student data automatically.</p>
                 </div>
-              )}
-              
-              <div className="border-2 border-dashed rounded-xl p-8 text-center transition-all" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-input)' }}>
-                <input
-                  type="file"
-                  accept="image/png, image/jpeg, image/webp"
-                  onChange={(e) => setTemplateFile(e.target.files[0])}
-                  className="hidden"
-                  id="template-upload"
-                />
-                <label htmlFor="template-upload" className="cursor-pointer flex flex-col items-center justify-center">
-                  <Image className="h-10 w-10 mb-3 opacity-50" style={{ color: 'var(--text-muted)' }} />
-                  <span className="font-semibold text-sm mb-1" style={{ color: 'var(--text-primary)' }}>Click to upload a graphic template</span>
-                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>PNG, JPG, WEBP up to 5MB (Recommend: 1000x707px)</span>
-                  {templateFile && (
-                    <span className="mt-4 px-3 py-1 rounded bg-[var(--accent-glow)] text-[var(--accent)] text-xs font-bold border" style={{ borderColor: 'rgba(99,102,241,0.2)' }}>
-                      Selected: {templateFile.name}
-                    </span>
+                
+                <div className="p-6 md:p-8 flex-1 flex flex-col space-y-6">
+                  {certificateTemplate && !templateFile && certificateTemplate.startsWith('/') && (
+                    <div className="rounded-xl overflow-hidden border shadow-sm" style={{ borderColor: 'var(--border-color)' }}>
+                      <img src={`https://e-learning-backend-tubf.onrender.com${certificateTemplate}`} alt="Current" className="w-full h-40 object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+                    </div>
                   )}
-                </label>
+                  
+                  <div className="relative group flex-1">
+                    <div className="absolute -inset-0.5 rounded-2xl blur opacity-0 group-hover:opacity-30 transition duration-1000 group-hover:duration-200" style={{ backgroundImage: 'linear-gradient(to right, #3b82f6, #8b5cf6)' }}></div>
+                    <div className="relative h-full border-2 border-dashed rounded-xl p-8 text-center flex flex-col items-center justify-center transition-colors duration-300 group-hover:bg-opacity-50" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-input)' }}>
+                      <input
+                        type="file"
+                        accept="image/png, image/jpeg, image/webp"
+                        onChange={(e) => setTemplateFile(e.target.files[0])}
+                        className="hidden"
+                        id="template-upload"
+                      />
+                      <label htmlFor="template-upload" className="cursor-pointer flex flex-col items-center w-full">
+                        <div className="h-14 w-14 rounded-full flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110 shadow-inner" style={{ backgroundColor: 'var(--bg-card)' }}>
+                          <Image className="h-6 w-6 text-blue-500" />
+                        </div>
+                        <span className="font-bold text-sm mb-1" style={{ color: 'var(--text-primary)' }}>Click to upload template</span>
+                        <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>PNG, JPG up to 5MB</span>
+                        {templateFile && (
+                          <span className="mt-6 px-4 py-1.5 rounded-full text-xs font-bold border shadow-sm animate-fade-in-up" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', borderColor: 'rgba(59, 130, 246, 0.2)' }}>
+                            {templateFile.name}
+                          </span>
+                        )}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* AI Prompt Card */}
+              <div className="rounded-[1.5rem] border shadow-sm overflow-hidden flex flex-col transition-all duration-300 hover:shadow-lg" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+                <div className="p-6 md:p-8 border-b" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+                  <h3 className="text-xl font-bold flex items-center space-x-3" style={{ color: 'var(--text-primary)' }}>
+                    <div className="p-2 rounded-lg" style={{ backgroundColor: 'var(--bg-primary)' }}>
+                      <Settings className="h-5 w-5 text-purple-500" />
+                    </div>
+                    <span>AI Prompt Generator</span>
+                  </h3>
+                  <p className="text-sm mt-2 font-medium" style={{ color: 'var(--text-secondary)' }}>Write instructions for the AI to generate an HTML certificate.</p>
+                </div>
+                
+                <div className="p-6 md:p-8 flex-1 flex flex-col">
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <span className="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-widest border" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}>{`{{name}}`} for Student</span>
+                    <span className="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-widest border" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}>{`{{category}}`} for Course</span>
+                  </div>
+                  
+                  <textarea
+                    value={certificateTemplate}
+                    onChange={(e) => setCertificateTemplate(e.target.value)}
+                    className="w-full flex-1 px-5 py-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all custom-scrollbar shadow-inner text-sm font-medium leading-relaxed"
+                    style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', minHeight: '180px' }}
+                    placeholder="E.g., Create an elegant HTML certificate with a gold border..."
+                  ></textarea>
+                </div>
               </div>
             </div>
 
-            <div className="mt-6 flex justify-end">
+            {/* Save Action */}
+            <div className="flex justify-end pt-4">
               <button
                 onClick={handleSaveSettings}
                 disabled={savingSettings}
-                className="flex items-center space-x-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-5 py-2.5 rounded-xl font-medium text-sm transition-all shadow-lg cursor-pointer disabled:opacity-50 btn-press"
+                className="relative inline-flex items-center justify-center space-x-3 px-8 py-3.5 rounded-xl font-bold text-sm transition-all duration-300 shadow-lg focus:outline-none group overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 text-white disabled:opacity-50 hover:shadow-xl hover:-translate-y-0.5"
               >
-                {savingSettings ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                <span>Save Template</span>
+                <div className="absolute inset-0 w-0 bg-white/20 transition-all duration-500 ease-out group-hover:w-full z-0"></div>
+                {savingSettings ? <Loader2 className="h-5 w-5 animate-spin relative z-10" /> : <Save className="h-5 w-5 relative z-10 group-hover:scale-110 transition-transform duration-300" />}
+                <span className="relative z-10">Deploy Configuration</span>
               </button>
             </div>
           </div>
@@ -1516,9 +1569,9 @@ const AdminDashboard = () => {
                       {doubt.questionMedia && (
                         <div className="mt-3">
                           {doubt.questionMedia.match(/\.(mp4|webm|ogg)$/i) ? (
-                            <video src={`http://localhost:5000${doubt.questionMedia}`} controls className="max-w-xs w-full rounded-lg border" style={{ borderColor: 'var(--border-color)' }} />
+                            <video src={`https://e-learning-backend-tubf.onrender.com${doubt.questionMedia}`} controls className="max-w-xs w-full rounded-lg border" style={{ borderColor: 'var(--border-color)' }} />
                           ) : (
-                            <img src={`http://localhost:5000${doubt.questionMedia}`} alt="Doubt media" className="max-w-xs w-full rounded-lg object-contain border" style={{ borderColor: 'var(--border-color)' }} />
+                            <img src={`https://e-learning-backend-tubf.onrender.com${doubt.questionMedia}`} alt="Doubt media" className="max-w-xs w-full rounded-lg object-contain border" style={{ borderColor: 'var(--border-color)' }} />
                           )}
                         </div>
                       )}
@@ -1751,34 +1804,7 @@ const AdminDashboard = () => {
         )}
 
         {/* â”€â”€â”€ Certificate Settings Tab â”€â”€â”€ */}
-        {activeTab === 'settings' && (
-          <div className="rounded-xl p-6 md:p-8 animate-slide-up" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-            <h2 className="text-xl font-bold mb-4 flex items-center space-x-2" style={{ color: 'var(--text-primary)' }}>
-              <Settings className="h-5 w-5" style={{ color: 'var(--accent)' }} />
-              <span>Certificate Template (AI Prompt)</span>
-            </h2>
-            <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
-              Write the prompt for the AI to generate a completion certificate. You can use <code>{`{{name}}`}</code> for the student's name and <code>{`{{category}}`}</code> for the course title. Output should be HTML.
-            </p>
-            <textarea
-              value={certificateTemplate}
-              onChange={(e) => setCertificateTemplate(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all resize-y"
-              style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', minHeight: '200px' }}
-              placeholder="Create an elegant HTML certificate..."
-            ></textarea>
-            <div className="mt-4 flex justify-end">
-              <button
-                onClick={handleSaveSettings}
-                disabled={savingSettings}
-                className="flex items-center space-x-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-5 py-2.5 rounded-xl font-medium text-sm transition-all shadow-lg cursor-pointer disabled:opacity-50 btn-press"
-              >
-                {savingSettings ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                <span>Save Template</span>
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Second Settings Block Consolidated */}
       </div>
 
 
@@ -2280,3 +2306,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+

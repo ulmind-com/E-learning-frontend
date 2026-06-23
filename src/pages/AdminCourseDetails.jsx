@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
@@ -6,7 +6,7 @@ import {
   ArrowLeft, Plus, Video, FileText, Brain, Save, Trash2, Edit3, ChevronDown, ChevronUp, Loader2, AlertCircle, CheckCircle, Upload, Clock, X
 } from 'lucide-react';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://e-learning-backend-tubf.onrender.com/api';
 
 const AdminCourseDetails = () => {
   const { id } = useParams();
@@ -349,7 +349,7 @@ const AdminCourseDetails = () => {
                           <div className="p-2 bg-purple-50 text-purple-600 rounded-lg"><Brain className="h-5 w-5" /></div>
                           <div>
                             <h4 className="font-semibold text-gray-800 line-clamp-2">{mt.title}</h4>
-                            <span className="text-xs text-gray-500 mt-1 block">{mt.questions.length} Qs â€¢ {mt.timeLimit}m</span>
+                            <span className="text-xs text-gray-500 mt-1 block">{mt.questions.length} Qs • {mt.timeLimit}m</span>
                           </div>
                         </div>
                         <button onClick={() => handleDeleteItem(cIdx, 'mockTests', mtIdx)} className="mt-3 text-xs font-medium text-red-500 opacity-0 group-hover:opacity-100 transition-opacity flex items-center space-x-1">
@@ -560,3 +560,4 @@ const AdminCourseDetails = () => {
 };
 
 export default AdminCourseDetails;
+

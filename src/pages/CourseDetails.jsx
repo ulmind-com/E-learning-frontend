@@ -28,7 +28,7 @@ import {
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://e-learning-backend-tubf.onrender.com/api';
 
 const LEVEL_COLORS = {
   beginner: '#22c55e',
@@ -476,7 +476,7 @@ const CourseDetails = () => {
 
   const getFullVideoUrl = (url) => {
     if (url && url.startsWith('/uploads')) {
-      return `http://localhost:5000${url}`;
+      return `https://e-learning-backend-tubf.onrender.com${url}`;
     }
     return url;
   };
@@ -649,9 +649,9 @@ const CourseDetails = () => {
                         {doubt.questionMedia && (
                           <div className="mb-3">
                             {doubt.questionMedia.match(/\.(mp4|webm|ogg)$/i) ? (
-                              <video src={`http://localhost:5000${doubt.questionMedia}`} controls className="max-w-sm w-full rounded-lg" style={{ border: '1px solid var(--border-color)' }} />
+                              <video src={`https://e-learning-backend-tubf.onrender.com${doubt.questionMedia}`} controls className="max-w-sm w-full rounded-lg" style={{ border: '1px solid var(--border-color)' }} />
                             ) : (
-                              <img src={`http://localhost:5000${doubt.questionMedia}`} alt="Doubt media" className="max-w-sm w-full rounded-lg object-contain" style={{ border: '1px solid var(--border-color)' }} />
+                              <img src={`https://e-learning-backend-tubf.onrender.com${doubt.questionMedia}`} alt="Doubt media" className="max-w-sm w-full rounded-lg object-contain" style={{ border: '1px solid var(--border-color)' }} />
                             )}
                           </div>
                         )}
@@ -666,9 +666,9 @@ const CourseDetails = () => {
                             {doubt.adminReplyMedia && (
                               <div>
                                 {doubt.adminReplyMedia.match(/\.(mp4|webm|ogg)$/i) ? (
-                                  <video src={`http://localhost:5000${doubt.adminReplyMedia}`} controls className="max-w-sm w-full rounded-lg border border-indigo-500/20" />
+                                  <video src={`https://e-learning-backend-tubf.onrender.com${doubt.adminReplyMedia}`} controls className="max-w-sm w-full rounded-lg border border-indigo-500/20" />
                                 ) : (
-                                  <img src={`http://localhost:5000${doubt.adminReplyMedia}`} alt="Admin reply media" className="max-w-sm w-full rounded-lg object-contain border border-indigo-500/20" />
+                                  <img src={`https://e-learning-backend-tubf.onrender.com${doubt.adminReplyMedia}`} alt="Admin reply media" className="max-w-sm w-full rounded-lg object-contain border border-indigo-500/20" />
                                 )}
                               </div>
                             )}
@@ -1527,3 +1527,4 @@ const CourseDetails = () => {
 };
 
 export default CourseDetails;
+

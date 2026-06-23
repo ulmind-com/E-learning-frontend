@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ClipboardList, PlusCircle, ExternalLink, Link as LinkIcon, FileText, CheckCircle2, Loader2, ListTodo } from 'lucide-react';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://e-learning-backend-tubf.onrender.com/api';
 
 const AdminTasks = () => {
   const [tasks, setTasks] = useState([]);
@@ -224,3 +224,4 @@ const AdminTasks = () => {
 };
 
 export default AdminTasks;
+

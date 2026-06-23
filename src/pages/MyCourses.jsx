@@ -17,7 +17,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://e-learning-backend-tubf.onrender.com/api';
 
 const LEVEL_COLORS = {
   beginner: '#22c55e',
@@ -363,7 +363,7 @@ const MyCourses = () => {
                 const firstVideo = activeCourse.videos[0];
                 let url = firstVideo.videoUrl;
                 if (url && url.startsWith('/uploads')) {
-                  url = `http://localhost:5000${url}`;
+                  url = `https://e-learning-backend-tubf.onrender.com${url}`;
                 } else {
                   url = getEmbedUrl(url);
                 }
@@ -397,3 +397,4 @@ const MyCourses = () => {
 };
 
 export default MyCourses;
+

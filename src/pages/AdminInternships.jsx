@@ -6,7 +6,7 @@ import {
   Code, X, Award, FileText, CheckSquare, Loader2
 } from 'lucide-react';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://e-learning-backend-tubf.onrender.com/api';
 
 const AdminInternships = () => {
   const [applications, setApplications] = useState([]);
@@ -357,3 +357,4 @@ const AdminInternships = () => {
 };
 
 export default AdminInternships;
+

@@ -18,7 +18,7 @@ import {
   Filter
 } from 'lucide-react';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://e-learning-backend-tubf.onrender.com/api';
 
 const LEVEL_COLORS = {
   beginner: '#22c55e',
@@ -302,3 +302,4 @@ const Home = () => {
 };
 
 export default Home;
+

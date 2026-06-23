@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const { data } = await axios.post('http://localhost:5000/api/auth/login', {
+      const { data } = await axios.post('https://e-learning-backend-tubf.onrender.com/api/auth/login', {
         email,
         password,
       });
@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (name, email, password, role) => {
     try {
-      const { data } = await axios.post('http://localhost:5000/api/auth/register', {
+      const { data } = await axios.post('https://e-learning-backend-tubf.onrender.com/api/auth/register', {
         name,
         email,
         password,
@@ -93,3 +93,4 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => useContext(AuthContext);
 export default AuthContext;
+

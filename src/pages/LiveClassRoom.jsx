@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import Peer from 'simple-peer';
@@ -7,7 +7,7 @@ import axios from 'axios';
 import { Video, Mic, MicOff, VideoOff, PhoneOff, MessageSquare, Send, Users, UserPlus, Smile, Maximize } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://e-learning-backend-tubf.onrender.com/api';
 
 const LiveClassRoom = () => {
   const { courseId, chapterId, liveClassId } = useParams();
@@ -51,7 +51,7 @@ const LiveClassRoom = () => {
         
         setLiveClass(lClass);
 
-        socket = io('http://localhost:5000');
+        socket = io('https://e-learning-backend-tubf.onrender.com');
         socketRef.current = socket;
         
         if (isAdmin) {
@@ -404,7 +404,7 @@ const LiveClassRoom = () => {
           <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
             {chatMessages.map((msg, idx) => (
               <div key={idx} className={`flex flex-col ${msg.sender === user.name ? 'items-end' : 'items-start'}`}>
-                <span className="text-xs text-gray-500 mb-1">{msg.sender} â€¢ {msg.time}</span>
+                <span className="text-xs text-gray-500 mb-1">{msg.sender} • {msg.time}</span>
                 <div className={`px-4 py-2 rounded-2xl max-w-[80%] text-sm ${msg.sender === user.name ? 'bg-blue-600 text-white rounded-br-none' : 'bg-gray-800 text-gray-200 rounded-bl-none'}`}>
                   {msg.text}
                 </div>
@@ -568,7 +568,7 @@ const VideoPlayer = ({ peer, user, isLocalUser, isGranted, chatProps }) => {
           <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
             {chatProps.chatMessages.map((msg, idx) => (
               <div key={idx} className={`flex flex-col ${msg.sender === chatProps.currentUser.name ? 'items-end' : 'items-start'}`}>
-                <span className="text-xs text-gray-400 mb-1">{msg.sender} â€¢ {msg.time}</span>
+                <span className="text-xs text-gray-400 mb-1">{msg.sender} • {msg.time}</span>
                 <div className={`px-3 py-2 rounded-2xl max-w-[85%] text-sm ${msg.sender === chatProps.currentUser.name ? 'bg-blue-600 text-white rounded-br-none' : 'bg-gray-800 text-gray-200 rounded-bl-none'}`}>
                   {msg.text}
                 </div>
@@ -607,3 +607,4 @@ const VideoPlayer = ({ peer, user, isLocalUser, isGranted, chatProps }) => {
 };
 
 export default LiveClassRoom;
+
