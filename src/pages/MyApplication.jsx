@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import Certificate from '../components/Certificate';
 import { CheckCircle, Clock, FileText, Send, Award, ArrowRight, ExternalLink, XCircle, Loader2, Code2 } from 'lucide-react';
 
-const API_URL = 'https://e-learning-backend-tubf.onrender.com/api';
+const API_URL = 'https://e-learning-backend-1-r539.onrender.com/api';
 
 const MyApplication = () => {
   const [application, setApplication] = useState(null);

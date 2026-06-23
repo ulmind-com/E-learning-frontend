@@ -34,7 +34,7 @@ import {
   ClipboardList
 } from 'lucide-react';
 
-const API_URL = 'https://e-learning-backend-tubf.onrender.com/api';
+const API_URL = 'https://e-learning-backend-1-r539.onrender.com/api';
 
 const CATEGORIES = [
   'General',
@@ -1399,7 +1399,7 @@ const AdminDashboard = () => {
                 <div className="p-6 md:p-8 flex-1 flex flex-col space-y-6">
                   {certificateTemplate && !templateFile && certificateTemplate.startsWith('/') && (
                     <div className="rounded-xl overflow-hidden border shadow-sm" style={{ borderColor: 'var(--border-color)' }}>
-                      <img src={`https://e-learning-backend-tubf.onrender.com${certificateTemplate}`} alt="Current" className="w-full h-40 object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+                      <img src={`https://e-learning-backend-1-r539.onrender.com${certificateTemplate}`} alt="Current" className="w-full h-40 object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
                     </div>
                   )}
                   
@@ -1573,9 +1573,9 @@ const AdminDashboard = () => {
                       {doubt.questionMedia && (
                         <div className="mt-3">
                           {doubt.questionMedia.match(/\.(mp4|webm|ogg)$/i) ? (
-                            <video src={`https://e-learning-backend-tubf.onrender.com${doubt.questionMedia}`} controls className="max-w-xs w-full rounded-lg border" style={{ borderColor: 'var(--border-color)' }} />
+                            <video src={`https://e-learning-backend-1-r539.onrender.com${doubt.questionMedia}`} controls className="max-w-xs w-full rounded-lg border" style={{ borderColor: 'var(--border-color)' }} />
                           ) : (
-                            <img src={`https://e-learning-backend-tubf.onrender.com${doubt.questionMedia}`} alt="Doubt media" className="max-w-xs w-full rounded-lg object-contain border" style={{ borderColor: 'var(--border-color)' }} />
+                            <img src={`https://e-learning-backend-1-r539.onrender.com${doubt.questionMedia}`} alt="Doubt media" className="max-w-xs w-full rounded-lg object-contain border" style={{ borderColor: 'var(--border-color)' }} />
                           )}
                         </div>
                       )}

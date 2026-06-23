@@ -6,7 +6,7 @@ import {
   ArrowLeft, Plus, Video, FileText, Brain, Save, Trash2, Edit3, ChevronDown, ChevronUp, Loader2, AlertCircle, CheckCircle, Upload, Clock, X, BookOpen
 } from 'lucide-react';
 
-const API_URL = 'https://e-learning-backend-tubf.onrender.com/api';
+const API_URL = 'https://e-learning-backend-1-r539.onrender.com/api';
 
 const AdminCourseDetails = () => {
   const { id } = useParams();

@@ -7,7 +7,7 @@ import axios from 'axios';
 import { Video, Mic, MicOff, VideoOff, PhoneOff, MessageSquare, Send, Users, UserPlus, Smile, Maximize } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
 
-const API_URL = 'https://e-learning-backend-tubf.onrender.com/api';
+const API_URL = 'https://e-learning-backend-1-r539.onrender.com/api';
 
 const LiveClassRoom = () => {
   const { courseId, chapterId, liveClassId } = useParams();
@@ -51,7 +51,7 @@ const LiveClassRoom = () => {
         
         setLiveClass(lClass);
 
-        socket = io('https://e-learning-backend-tubf.onrender.com');
+        socket = io('https://e-learning-backend-1-r539.onrender.com');
         socketRef.current = socket;
         
         if (isAdmin) {

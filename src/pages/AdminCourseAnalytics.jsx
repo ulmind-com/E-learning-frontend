@@ -18,7 +18,7 @@ import {
   User
 } from 'lucide-react';
 
-const API_URL = 'https://e-learning-backend-tubf.onrender.com/api';
+const API_URL = 'https://e-learning-backend-1-r539.onrender.com/api';
 
 const AdminCourseAnalytics = () => {
   const { id: courseId } = useParams();
