@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { Download, Loader2 } from 'lucide-react';
 
 const Certificate = ({ userName, issueDate }) => {
   const certificateRef = useRef(null);
@@ -27,13 +28,23 @@ const Certificate = ({ userName, issueDate }) => {
   };
 
   return (
-    <div className="flex flex-col items-center">
-      {/* Certificate Preview (Hidden from layout but used for capture) */}
-      <div className="overflow-x-auto w-full flex justify-center mb-6">
+    <div className="flex flex-col items-center w-full max-w-md mx-auto">
+      {/* Scaled Certificate Preview Container */}
+      <div className="relative w-[400px] h-[300px] rounded-2xl overflow-hidden shadow-2xl border border-[var(--border-color)] group premium-card-hover bg-white mb-6">
+        
+        {/* Actual Certificate (800x600 scaled down to 400x300) */}
         <div 
           ref={certificateRef}
-          className="relative bg-white text-gray-800"
-          style={{ width: '800px', height: '600px', padding: '40px', border: '10px solid #4f46e5', boxSizing: 'border-box', position: 'relative' }}
+          className="absolute top-0 left-0 bg-white text-gray-800"
+          style={{ 
+            width: '800px', 
+            height: '600px', 
+            padding: '40px', 
+            border: '10px solid #4f46e5', 
+            boxSizing: 'border-box', 
+            transform: 'scale(0.5)',
+            transformOrigin: 'top left'
+          }}
         >
           {/* Inner Border */}
           <div className="absolute inset-4 border-4 border-indigo-200" style={{ pointerEvents: 'none' }}></div>
@@ -63,20 +74,26 @@ const Certificate = ({ userName, issueDate }) => {
             </div>
           </div>
         </div>
-      </div>
 
-      <button 
-        onClick={downloadCertificate}
-        disabled={downloading}
-        className="px-8 py-4 bg-white text-indigo-600 font-bold rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center space-x-2"
-      >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-        </svg>
-        <span>{downloading ? 'Generating PDF...' : 'Download Certificate PDF'}</span>
-      </button>
+        {/* Download Overlay */}
+        <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center z-10">
+          <button 
+            onClick={downloadCertificate}
+            disabled={downloading}
+            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transform hover:-translate-y-1 active:scale-95 transition-all duration-300 flex items-center gap-2 border border-indigo-400/30"
+          >
+            {downloading ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <Download className="w-5 h-5 animate-bounce-subtle" />
+            )}
+            <span>{downloading ? 'Generating PDF...' : 'Download Certificate'}</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
 
 export default Certificate;
+
