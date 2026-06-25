@@ -56,99 +56,65 @@ const Home = () => {
   });
 
   return (
-    <div className="min-h-[calc(100vh-4rem)]" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      {/* ─── Minimalist Hero Section ─── */}
-      <section className="relative pt-6 pb-6 px-4 border-b transition-colors duration-300" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 animate-slide-down">
-          <h1 className="hidden" style={{ color: 'var(--text-primary)' }}>
-            Explore Courses
+    <div className="min-h-[calc(100vh-4rem)] bg-black" style={{ backgroundColor: '#000000' }}>
+      {/* ─── Hero Section ─── */}
+      <section className="relative pt-20 pb-16 px-4 border-b border-transparent overflow-hidden hero-radial-gradient bg-black">
+        {/* Background Subtle Dots */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.015]" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
+        
+        <div className="max-w-4xl mx-auto flex flex-col items-center justify-center text-center gap-6 animate-slide-down relative z-10">
+          
+          {/* Courses Tag */}
+          <div className="px-5 py-1.5 border border-[#E87C41]/30 rounded text-[#E87C41] text-xs font-medium tracking-[0.1em] uppercase bg-[#E87C41]/5 backdrop-blur-sm">
+            COURSES
+          </div>
+
+          <h1 className="text-4xl md:text-[44px] lg:text-[52px] font-bold leading-[1.1] tracking-tight text-white mb-2">
+            Level Up Your Coding Skills With <br className="hidden md:block"/> Expert-Led Courses
           </h1>
           
-          <p className="hidden" style={{ color: 'var(--text-secondary)' }}>
-            Discover high-quality courses to unlock your potential and elevate your career.
-          </p>
-
-          {/* Minimalist Stats - Hidden */}
-          <div className="hidden">
-            <div className="flex flex-col items-center hover:-translate-y-1 transition-transform duration-300">
-              <span className="text-3xl md:text-4xl font-black" style={{ color: 'var(--text-primary)' }}>{courses.length}+</span>
-              <span className="text-xs font-bold uppercase tracking-[0.2em] mt-1" style={{ color: 'var(--text-muted)' }}>Courses</span>
+          <div className="w-full flex flex-col md:flex-row items-center justify-center gap-4 mt-8 relative z-20">
+            {/* Premium Filter Pills */}
+            <div className="flex flex-wrap items-center justify-center gap-2 p-1.5 rounded-full bg-[#111] border border-white/10 shadow-xl">
+              {[
+                { key: 'all', label: 'All', icon: Filter },
+                { key: 'free', label: 'Free', icon: Unlock },
+                { key: 'paid', label: 'Premium', icon: Gem },
+              ].map((tab) => {
+                const Icon = tab.icon;
+                const isActive = filterType === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={() => setFilterType(tab.key)}
+                    className={`group relative flex items-center space-x-2 px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${isActive ? 'bg-[#E87C41] text-white shadow-lg' : 'hover:bg-white/5 text-gray-400 hover:text-white'}`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
             </div>
-            <div className="w-px h-10 opacity-50" style={{ backgroundColor: 'var(--border-color)' }}></div>
-            <div className="flex flex-col items-center hover:-translate-y-1 transition-transform duration-300">
-              <span className="text-3xl md:text-4xl font-black" style={{ color: 'var(--text-primary)' }}>500+</span>
-              <span className="text-xs font-bold uppercase tracking-[0.2em] mt-1" style={{ color: 'var(--text-muted)' }}>Students</span>
-            </div>
-            <div className="w-px h-10 opacity-50" style={{ backgroundColor: 'var(--border-color)' }}></div>
-            <div className="flex flex-col items-center hover:-translate-y-1 transition-transform duration-300">
-              <span className="text-3xl md:text-4xl font-black" style={{ color: 'var(--text-primary)' }}>4.8</span>
-              <span className="text-xs font-bold uppercase tracking-[0.2em] mt-1" style={{ color: 'var(--text-muted)' }}>Rating</span>
-            </div>
-          </div>
 
-          {/* Premium Filter Pills (Left side) - Removed scrollbar, added flex-wrap */}
-          <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 w-full md:w-auto md:order-1 p-1 rounded-[2rem] transition-all duration-300" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
-            {[
-              { key: 'all', label: 'All', icon: Filter },
-              { key: 'free', label: 'Free', icon: Unlock },
-              { key: 'paid', label: 'Premium', icon: Gem },
-            ].map((tab) => {
-              const Icon = tab.icon;
-              const isActive = filterType === tab.key;
-              return (
-                <button
-                  key={tab.key}
-                  onClick={() => setFilterType(tab.key)}
-                  className={`group relative flex items-center space-x-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-500 ease-out active:scale-95 ${isActive ? 'shadow-[0_4px_15px_var(--accent-glow-strong)] scale-105' : 'hover:scale-105'}`}
-                  style={{
-                    backgroundColor: isActive ? 'var(--accent)' : 'transparent',
-                    color: isActive ? '#fff' : 'var(--text-secondary)',
-                  }}
-                >
-                  <Icon className={`h-4 w-4 transition-transform duration-500 ${isActive ? 'animate-bounce-subtle' : 'opacity-70 group-hover:rotate-12 group-hover:scale-110'}`} />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Ultra Premium Search Bar (Right side) */}
-          <div className="w-full md:w-[400px] group relative transition-all duration-500 hover:scale-[1.02] md:order-2">
-            {/* Dynamic Animated Glow Backdrop */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-[var(--accent)] via-[#10b981] to-[var(--accent)] rounded-full blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-700 animate-gradient"></div>
-            
-            <div className="relative flex items-center px-6 rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-500 focus-within:shadow-[0_10px_40px_var(--accent-glow-strong)] focus-within:translate-y-[-2px] glass" 
-                 style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-              
-              <Search className="h-5 w-5 transition-all duration-500 group-focus-within:rotate-90 group-focus-within:scale-125" style={{ color: 'var(--accent)' }} />
-              
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search premium courses..."
-                className="w-full bg-transparent text-base py-4 pl-4 focus:outline-none font-bold placeholder:font-medium placeholder:opacity-60 transition-all duration-300"
-                style={{ color: 'var(--text-primary)' }}
-              />
+            {/* Ultra Premium Search Bar */}
+            <div className="w-full md:w-[350px] relative">
+              <div className="relative flex items-center px-5 rounded-full bg-[#111] border border-white/10 shadow-xl focus-within:border-[#E87C41]/50 transition-colors">
+                <Search className="h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search courses..."
+                  className="w-full bg-transparent text-sm py-3 pl-3 focus:outline-none text-white placeholder-gray-500"
+                />
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* ─── Courses Section ─── */}
-      <section className="max-w-6xl mx-auto px-4 pb-20">
-        <div className="flex items-center space-x-3 mb-8 animate-slide-left">
-          <GraduationCap className="h-6 w-6 transition-transform duration-500 hover:rotate-12" style={{ color: 'var(--accent)' }} />
-          <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
-            Available Courses
-          </h2>
-          <span
-            className="text-sm px-2 py-0.5 rounded-full transition-all duration-300 hover:scale-110 hover:shadow-md"
-            style={{ backgroundColor: 'var(--accent-glow)', color: 'var(--accent)' }}
-          >
-            {filteredCourses.length}
-          </span>
-        </div>
+      <section className="max-w-[1300px] mx-auto px-6 md:px-8 pb-24 relative z-10 pt-10">
 
         {loading ? (
           <div className="flex items-center justify-center py-20">
@@ -169,126 +135,109 @@ const Home = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-children">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 stagger-children">
             {filteredCourses.map((course) => (
               <Link
                 to={`/course/${course._id}`}
                 key={course._id}
-                className="relative flex flex-col p-4 rounded-[24px] transition-all duration-500 hover:-translate-y-3 premium-card-hover group no-underline"
+                className="relative flex flex-col p-5 rounded-[16px] transition-all duration-500 hover:-translate-y-2 group no-underline"
                 style={{
-                  backgroundColor: 'var(--bg-card)',
-                  boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
+                  background: 'linear-gradient(180deg, rgba(30, 20, 15, 0.6) 0%, #050505 100%)',
+                  border: '1px solid rgba(232, 124, 65, 0.15)',
                 }}
               >
+                {/* MacOS Dots */}
+                <div className="flex gap-1.5 mb-4 px-1">
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F56]"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#27C93F]"></div>
+                </div>
+
                 {/* Thumbnail Image Container */}
-                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden mb-4">
+                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden mb-5 border border-white/5">
                   {course.thumbnail ? (
                     <img
                       src={course.thumbnail?.startsWith('/uploads') ? `${API_URL.replace('/api', '')}${course.thumbnail}` : course.thumbnail}
                       alt={course.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                      className="w-full h-full object-cover"
                     />
                   ) : (
                     <div
-                      className="w-full h-full relative overflow-hidden group-hover:scale-110 transition-transform duration-700 ease-out"
+                      className="w-full h-full relative overflow-hidden"
                       style={{
                         background: course.courseType === 'free'
                             ? 'linear-gradient(135deg, #10b981 0%, #047857 100%)'
                             : 'linear-gradient(135deg, #0a192f 0%, #1e293b 100%)',
                       }}
                     >
-                       <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPgo8cmVjdCB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMSI+PC9yZWN0Pgo8cGF0aCBkPSJNMCAwTDggOFpNOCAwTDAgOFoiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIj48L3BhdGg+Cjwvc3ZnPg==')" }}></div>
                     </div>
                   )}
                   
-                  {/* Overlay Gradient for readability of badges */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20 pointer-events-none transition-opacity duration-300 group-hover:opacity-70"></div>
-
-                  {/* Rating Pill */}
-                  <div className="absolute top-3 left-3 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded flex items-center gap-1 shadow-lg backdrop-blur-sm z-10 transition-transform duration-300 hover:scale-110">
-                    {course.rating && course.rating > 0 ? (
-                      <>{course.rating.toFixed(1)} <Star className="h-3 w-3 fill-white text-white" /></>
-                    ) : (
-                      "No rating"
-                    )}
-                  </div>
-                  
-                  {/* Course Type Badge */}
-                  <div className="absolute top-3 right-3 text-xs font-bold px-2 py-1 rounded shadow-lg backdrop-blur-sm z-10 transition-transform duration-300 hover:scale-110"
-                       style={{
-                         backgroundColor: course.courseType === 'free' ? 'rgba(34,197,94,0.9)' : 'rgba(99,102,241,0.9)',
-                         color: '#fff'
-                       }}>
-                    {course.courseType === 'free' ? 'FREE' : 'PREMIUM'}
+                  {/* LIVE Badge */}
+                  <div className="absolute top-3 right-3 bg-white text-black text-[10px] font-bold px-2 py-1 rounded-[4px] flex items-center gap-1.5 z-10 shadow-sm tracking-wide">
+                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div>
+                    LIVE
                   </div>
                 </div>
 
                 {/* Card Content Body */}
-                <div className="flex flex-col flex-grow">
+                <div className="flex flex-col flex-grow px-1">
                   
-                  {/* Badges Row */}
-                  <div className="flex items-center gap-2 mb-2">
+                  {/* Tags Row */}
+                  <div className="flex flex-wrap items-center gap-2 mb-5">
                     {course.level && (
-                      <span
-                        className="text-xs px-2 py-0.5 rounded-full font-medium transition-colors duration-300 group-hover:bg-opacity-30"
-                        style={{
-                          backgroundColor: `${LEVEL_COLORS[course.level]}15`,
-                          color: LEVEL_COLORS[course.level],
-                          border: `1px solid ${LEVEL_COLORS[course.level]}30`,
-                        }}
-                      >
+                      <span className="text-[10px] px-3 py-1 rounded-full text-gray-300 border border-white/10 bg-transparent tracking-wide">
                         {course.level.charAt(0).toUpperCase() + course.level.slice(1)}
                       </span>
                     )}
                     {course.category && course.category !== 'General' && (
-                      <span className="text-xs px-2 py-0.5 rounded-full transition-colors duration-300 group-hover:bg-opacity-100" style={{ backgroundColor: 'var(--accent-glow)', color: 'var(--text-secondary)' }}>
+                      <span className="text-[10px] px-3 py-1 rounded-full text-gray-300 border border-white/10 bg-transparent tracking-wide">
                         {course.category}
+                      </span>
+                    )}
+                    {!course.level && !course.category && (
+                      <span className="text-[10px] px-3 py-1 rounded-full text-gray-300 border border-white/10 bg-transparent tracking-wide">
+                        Product Building
                       </span>
                     )}
                   </div>
 
                   {/* Title */}
                   <h3
-                    className="text-xl font-bold mb-2 line-clamp-1 group-hover:text-[var(--accent)] transition-colors duration-300"
-                    style={{ color: 'var(--text-primary)' }}
+                    className="text-[20px] font-semibold mb-6 line-clamp-2 leading-[1.3] text-white tracking-wide"
                   >
                     {course.title}
                   </h3>
                   
-                  {/* Subtitle / Description */}
-                  <p
-                    className="text-sm line-clamp-2 mb-4 transition-colors duration-300 group-hover:text-[var(--text-primary)]"
-                    style={{ color: 'var(--text-secondary)' }}
-                  >
-                    {course.description || course.category || 'Course Syllabus & Details'}
-                  </p>
-
                   <div className="mt-auto">
-                    {/* Meta Info */}
-                    <div className="flex items-center gap-3 text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
-                      {course.instructor && (
-                        <span className="flex items-center gap-1 transition-transform duration-300 hover:scale-105">
-                          <Users className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
-                          <span style={{ color: 'var(--text-secondary)' }}>{course.instructor.name}</span>
-                        </span>
-                      )}
-                      {course.duration && (
-                        <span className="flex items-center gap-1 transition-transform duration-300 hover:scale-105">
-                          <Clock className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
-                          <span>{course.duration}</span>
-                        </span>
+                    {/* Price & Action */}
+                    <div className="flex items-end justify-between mb-5">
+                      <div className="flex flex-col">
+                        <div className="flex items-baseline gap-1">
+                           <span className="text-white text-[16px] font-medium">Price</span>
+                           <span className="text-[20px] font-medium tracking-tight" style={{ color: '#E87C41' }}>
+                             {course.courseType === 'free' ? 'Free' : `Rs.${course.price || 6999}`}
+                           </span>
+                           {course.courseType !== 'free' && course.price > 0 && (
+                             <span className="text-[10px] text-gray-500 line-through ml-1">
+                               Rs.{Math.floor((course.price || 6999) * 2.13)}
+                             </span>
+                           )}
+                        </div>
+                      </div>
+                      {course.courseType !== 'free' && course.price > 0 && (
+                        <div className="bg-white text-black text-[9px] font-bold px-1.5 py-0.5 rounded-[3px] tracking-widest mb-1">
+                           53% OFF
+                        </div>
                       )}
                     </div>
 
-                    {/* Price & Action */}
-                    <div className="flex items-center justify-between pt-4 mt-2 transition-all duration-300" style={{ borderTop: '1px solid var(--border-color)' }}>
-                      <span className="text-2xl font-black transition-transform duration-300 group-hover:scale-110 group-hover:translate-x-1" style={{ color: course.courseType === 'free' ? '#22c55e' : 'var(--text-primary)' }}>
-                        {course.courseType === 'free' ? 'Free' : `₹${course.price || 0}`}
-                      </span>
-                      <span className="flex items-center justify-center space-x-1 py-2 px-4 rounded-xl text-sm font-bold text-white transition-all duration-500 shadow-[0_4px_14px_0_rgba(99,102,241,0.39)] group-hover:shadow-[0_6px_25px_rgba(99,102,241,0.4)] group-hover:-translate-y-1" style={{ background: 'var(--accent)' }}>
-                        <span>View Details</span>
-                        <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
-                      </span>
+                    <div className="pt-1 pb-1">
+                      <button className="btn-sweep w-max flex items-center justify-center gap-2 px-5 py-2 rounded-full text-[12px] font-bold transition-all duration-300">
+                         <span className="relative z-10 flex items-center gap-2">
+                           Check Course <ArrowRight className="w-3.5 h-3.5" />
+                         </span>
+                      </button>
                     </div>
                   </div>
                 </div>

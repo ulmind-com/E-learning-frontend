@@ -4,7 +4,7 @@ import { io } from 'socket.io-client';
 import Peer from 'simple-peer';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
-import { Video, Mic, MicOff, VideoOff, PhoneOff, MessageSquare, Send, Users, UserPlus, Smile, Maximize } from 'lucide-react';
+import { Video, Mic, MicOff, VideoOff, PhoneOff, MessageSquare, Send, Users, UserPlus, Smile, Maximize, Monitor } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
 
 const API_URL = 'https://e-learning-backend-1-r539.onrender.com/api';
@@ -28,11 +28,14 @@ const LiveClassRoom = () => {
   const [grantedSet, setGrantedSet] = useState(new Set());
   const [showFullscreenChat, setShowFullscreenChat] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isScreenSharing, setIsScreenSharing] = useState(false);
 
   const socketRef = useRef();
   const userVideo = useRef();
   const peersRef = useRef([]);
   const streamRef = useRef(null);
+  const screenTrackRef = useRef(null);
+  const cameraTrackRef = useRef(null);
 
   const isAdmin = user?.role === 'admin';
 
@@ -285,6 +288,80 @@ const LiveClassRoom = () => {
 
 
 
+  const toggleScreenShare = async () => {
+    if (isScreenSharing) {
+      stopScreenShare();
+    } else {
+      try {
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "monitor" }, audio: false });
+        const screenTrack = screenStream.getVideoTracks()[0];
+        
+        const currentVideoTrack = streamRef.current?.getVideoTracks()[0];
+        cameraTrackRef.current = currentVideoTrack;
+        
+        peersRef.current.forEach(p => {
+          if (!p.peer.destroyed) {
+            if (currentVideoTrack) {
+              try { p.peer.replaceTrack(currentVideoTrack, screenTrack, streamRef.current); } catch(err) { console.error(err); }
+            } else {
+              try { p.peer.addTrack(screenTrack, streamRef.current); } catch(err) { console.error(err); }
+            }
+          }
+        });
+
+        if (streamRef.current) {
+            if (currentVideoTrack) {
+               streamRef.current.removeTrack(currentVideoTrack);
+            }
+            streamRef.current.addTrack(screenTrack);
+            if (userVideo.current) userVideo.current.srcObject = streamRef.current;
+        }
+
+        screenTrackRef.current = screenTrack;
+        setIsScreenSharing(true);
+
+        screenTrack.onended = () => {
+          stopScreenShare();
+        };
+      } catch (err) {
+        console.error("Error sharing screen", err);
+      }
+    }
+  };
+
+  const stopScreenShare = () => {
+    if (!isScreenSharing) return;
+
+    const screenTrack = screenTrackRef.current;
+    if (screenTrack) {
+      screenTrack.stop();
+    }
+
+    const cameraTrack = cameraTrackRef.current;
+    
+    peersRef.current.forEach(p => {
+      if (!p.peer.destroyed) {
+        if (cameraTrack) {
+          try { p.peer.replaceTrack(screenTrack, cameraTrack, streamRef.current); } catch(err) { console.error(err); }
+        } else {
+          try { p.peer.removeTrack(screenTrack, streamRef.current); } catch(err) { console.error(err); }
+        }
+      }
+    });
+
+    if (streamRef.current) {
+        streamRef.current.removeTrack(screenTrack);
+        if (cameraTrack) {
+          streamRef.current.addTrack(cameraTrack);
+        }
+        if (userVideo.current) userVideo.current.srcObject = streamRef.current;
+    }
+
+    setIsScreenSharing(false);
+    screenTrackRef.current = null;
+    cameraTrackRef.current = null;
+  };
+
   const sendMessage = (e) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
@@ -356,6 +433,9 @@ const LiveClassRoom = () => {
               </button>
               <button onClick={toggleVideo} className={`h-12 w-12 rounded-full flex items-center justify-center transition ${videoEnabled ? 'bg-gray-800 hover:bg-gray-700' : 'bg-red-600 hover:bg-red-700'}`}>
                 {videoEnabled ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
+              </button>
+              <button onClick={toggleScreenShare} className={`h-12 w-12 rounded-full flex items-center justify-center transition ${isScreenSharing ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-800 hover:bg-gray-700'}`} title="Share Screen">
+                <Monitor className="h-5 w-5" />
               </button>
             </>
           )}

@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import {
   ArrowLeft,
+  ArrowRight,
   Lock,
   Play,
   ShoppingCart,
@@ -211,19 +212,32 @@ const CourseDetails = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]" style={{ backgroundColor: 'var(--bg-primary)' }}>
-        <Loader2 className="h-10 w-10 animate-spin" style={{ color: 'var(--accent)' }} />
+      <div className="min-h-[calc(100vh-4rem)] py-10 px-4 bg-[#0a0a0a]">
+        <div className="max-w-6xl mx-auto animate-pulse">
+          {/* Hero Skeleton */}
+          <div className="rounded-2xl mb-12 bg-white/5 h-[400px] w-full border border-white/10"></div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-8">
+              <div className="rounded-xl bg-white/5 h-[450px] w-full border border-white/10"></div>
+              <div className="rounded-xl bg-white/5 h-[200px] w-full border border-white/10"></div>
+            </div>
+            <div className="lg:col-span-1 space-y-6">
+              <div className="rounded-xl bg-white/5 h-[300px] w-full border border-white/10"></div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (error && !course) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 animate-fade-in" style={{ backgroundColor: 'var(--bg-primary)' }}>
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 animate-fade-in" style={{ backgroundColor: '#000' }}>
         <AlertCircle className="h-16 w-16 mb-4" style={{ color: 'var(--danger)' }} />
-        <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Course Not Found</h2>
-        <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>{error}</p>
-        <Link to="/" className="flex items-center space-x-1 transition-colors" style={{ color: 'var(--accent)' }}>
+        <h2 className="text-2xl font-bold mb-2" style={{ color: 'white' }}>Course Not Found</h2>
+        <p className="mb-6" style={{ color: '#d1d5db' }}>{error}</p>
+        <Link to="/" className="flex items-center space-x-1 transition-colors" style={{ color: '#E87C41' }}>
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Courses</span>
         </Link>
@@ -482,13 +496,14 @@ const CourseDetails = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] py-10 px-4" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-[calc(100vh-4rem)] py-10 px-4 bg-grid-hero bg-[#0a0a0a] relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top,rgba(232,124,65,0.15),transparent_70%)] pointer-events-none"></div>
+      <div className="max-w-6xl mx-auto relative z-10">
         {/* Back link */}
         <Link
           to="/"
           className="inline-flex items-center space-x-1 text-sm mb-6 transition-colors animate-slide-left"
-          style={{ color: 'var(--text-muted)' }}
+          style={{ color: '#9ca3af' }}
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Courses</span>
@@ -505,11 +520,118 @@ const CourseDetails = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Premium Hero Section */}
+        <div className="relative rounded-2xl overflow-hidden mb-12 border border-white/5 bg-grid-hero bg-radial-glow bg-[#0a0a0a]">
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-10 p-8 md:p-12 items-center">
+            
+            {/* Left Column: Text & CTA */}
+            <div className="space-y-6">
+              <div className="text-[#E87C41] text-xs font-bold tracking-[0.2em] uppercase">
+                CODE. CREATE. CONQUER.
+              </div>
+              
+              <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight">
+                {course.title}
+              </h1>
+              
+              <p className="text-gray-400 text-lg max-w-lg leading-relaxed">
+                {course.description && course.description.length > 150 ? course.description.substring(0, 150) + '...' : course.description || 'Gain hands-on experience and master the skills needed to excel in your career.'}
+              </p>
+              
+              <div className="flex items-center space-x-4 pt-2">
+                <span className="text-white text-3xl font-bold flex items-center space-x-3">
+                  <span>Price</span>
+                  <span className="text-[#E87C41]">Rs.{course.price === 0 ? 'Free' : course.price}</span>
+                </span>
+                {course.price > 0 && (
+                  <span className="text-gray-500 line-through text-lg">Rs.{Math.round(course.price * 1.5)}</span>
+                )}
+                <span className="text-white text-sm font-medium">(+GST)</span>
+              </div>
+              
+              <div className="flex flex-wrap items-center gap-4 pt-4">
+                {isPurchased || isFree ? (
+                  <button
+                    onClick={() => {
+                      document.getElementById('course-video-section')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="btn-sweep px-8 py-3 rounded-full text-sm font-bold flex items-center justify-center space-x-2"
+                  >
+                    <span>Start Learning</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleBuyNow}
+                    disabled={paymentLoading}
+                    className="btn-sweep px-8 py-3 rounded-full text-sm font-bold flex items-center justify-center space-x-2 disabled:opacity-70"
+                  >
+                    {paymentLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                      <>
+                        <span>Buy Now</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
+            
+            {/* Right Column: Video/Image Window */}
+            <div className="relative group mt-8 lg:mt-0">
+              <div className="absolute inset-0 bg-gradient-to-tr from-[#E87C41]/20 to-transparent blur-3xl rounded-2xl"></div>
+              <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-[#0a0a0a] shadow-2xl">
+                {/* Mac OS Top Bar */}
+                <div className="flex items-center space-x-2 px-4 py-3 border-b border-white/5 bg-black/50">
+                  <div className="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
+                  <div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
+                  <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
+                </div>
+                
+                {/* Thumbnail Image */}
+                <div className="relative aspect-[16/10]">
+                  <img 
+                    src={course.thumbnail ? `https://e-learning-backend-1-r539.onrender.com${course.thumbnail}` : "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=2070&auto=format&fit=crop"} 
+                    alt={course.title} 
+                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div 
+                      onClick={() => document.getElementById('course-video-section')?.scrollIntoView({ behavior: 'smooth' })}
+                      className="w-16 h-16 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover:bg-[#E87C41]/90 transition-all duration-300 cursor-pointer group-hover:scale-110 shadow-lg"
+                    >
+                      <Play className="w-6 h-6 text-white ml-1" fill="currentColor" />
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Tags */}
+                <div className="flex flex-wrap items-center justify-center gap-3 p-5 bg-black/90 border-t border-white/5">
+                  {(course.category ? course.category.split(', ') : ['Machine Learning', 'Deep Learning', 'Gen-AI', 'Python']).map((tag, idx) => (
+                    <span key={idx} className="px-4 py-1.5 rounded-full border border-white/10 text-gray-300 text-xs font-medium bg-white/5 hover:bg-white/10 transition-colors">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div id="course-video-section" className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content: Video + Info */}
           <div className="lg:col-span-2 space-y-8">
             {/* Video / Locked Section */}
-            <div className="rounded-xl overflow-hidden animate-scale-in" style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)' }}>
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-tr from-[#E87C41]/30 via-transparent to-transparent blur-3xl rounded-2xl"></div>
+              <div className="relative rounded-2xl overflow-hidden animate-scale-in border border-white/10 bg-[#0a0a0a] shadow-2xl">
+                {/* Mac OS Top Bar */}
+                <div className="flex items-center space-x-2 px-4 py-3 border-b border-white/5 bg-black/50">
+                  <div className="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
+                  <div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
+                  <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
+                </div>
               {(isPurchased || isFree) && currentVideo ? (
                 isYouTube ? (
                   <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
@@ -535,18 +657,18 @@ const CourseDetails = () => {
                   </video>
                 )
               ) : (
-                <div className="relative flex flex-col items-center justify-center aspect-video" style={{ background: 'var(--gradient-hero)' }}>
+                <div className="relative flex flex-col items-center justify-center aspect-video" style={{ background: 'linear-gradient(135deg, rgba(232,124,65,0.2) 0%, transparent 100%)' }}>
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="w-64 h-64 rounded-full blur-3xl" style={{ backgroundColor: 'var(--accent-glow-strong)' }}></div>
+                    <div className="w-64 h-64 rounded-full blur-3xl" style={{ backgroundColor: 'rgba(232,124,65,0.3)' }}></div>
                   </div>
                   <div className="relative z-10 flex flex-col items-center animate-float">
-                    <div className="p-4 rounded-full mb-4" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
-                      <Lock className="h-10 w-10" style={{ color: 'var(--text-muted)' }} />
+                    <div className="p-4 rounded-full mb-4" style={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)' }}>
+                      <Lock className="h-10 w-10" style={{ color: '#9ca3af' }} />
                     </div>
-                    <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+                    <h3 className="text-xl font-semibold mb-2" style={{ color: 'white' }}>
                       Video Locked
                     </h3>
-                    <p className="text-sm text-center max-w-sm" style={{ color: 'var(--text-secondary)' }}>
+                    <p className="text-sm text-center max-w-sm" style={{ color: '#d1d5db' }}>
                       Purchase this course to unlock the full video content.
                     </p>
                   </div>
@@ -554,20 +676,20 @@ const CourseDetails = () => {
               )}
               {/* Current Video Info */}
               {(isPurchased || isFree) && currentVideo && (
-                <div className="p-4" style={{ borderTop: '1px solid var(--border-color)' }}>
+                <div className="p-4" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{currentVideo.title}</h3>
+                      <h3 className="text-lg font-semibold" style={{ color: 'white' }}>{currentVideo.title}</h3>
                       {currentVideo.duration && (
-                        <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>Duration: {currentVideo.duration}</p>
+                        <p className="text-sm mt-1" style={{ color: '#9ca3af' }}>Duration: {currentVideo.duration}</p>
                       )}
                     </div>
                     {/* Mark as Completed Button (Useful for YouTube videos that don't auto-trigger) */}
                     {!completedVideos.includes(currentVideo._id) ? (
                       <button 
                         onClick={handleVideoEnded}
-                        className="flex items-center space-x-1 text-xs px-3 py-1.5 rounded-full border transition-colors hover:bg-[var(--accent-glow)] btn-press"
-                        style={{ borderColor: 'var(--accent)', color: 'var(--accent)' }}
+                        className="flex items-center space-x-1 text-xs px-3 py-1.5 rounded-full border transition-colors hover:bg-[rgba(232,124,65,0.15)] btn-press"
+                        style={{ borderColor: '#E87C41', color: '#E87C41' }}
                       >
                         <CheckCircle className="h-3 w-3" />
                         <span>Mark Completed</span>
@@ -577,8 +699,8 @@ const CourseDetails = () => {
                         <span className="text-[10px] text-gray-400">Watched again?</span>
                         <button 
                           onClick={handleVideoEnded}
-                          className="flex items-center space-x-1 text-xs px-3 py-1.5 rounded-full transition-colors hover:bg-green-100 dark:hover:bg-green-900/40 btn-press" 
-                          style={{ backgroundColor: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.3)' }}
+                          className="flex items-center space-x-1 text-xs px-3 py-1.5 rounded-full transition-colors hover:bg-orange-500/20 btn-press" 
+                          style={{ backgroundColor: 'rgba(232,124,65,0.1)', color: '#E87C41', border: '1px solid rgba(232,124,65,0.3)' }}
                         >
                           <CheckCircle className="h-4 w-4" />
                           <span className="font-semibold">Save Analytics</span>
@@ -588,14 +710,15 @@ const CourseDetails = () => {
                   </div>
                 </div>
               )}
+              </div>
             </div>
 
             {/* Solve Your Doubt Section */}
-            {(isPurchased || isFree) && currentVideo && token && (
-              <div className="rounded-xl p-6 md:p-8 animate-slide-up mt-8" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+            {(isPurchased || isFree) && currentVideo && token && user?.role !== 'admin' && (
+              <div className="rounded-xl p-6 md:p-8 animate-slide-up mt-8" style={{ backgroundColor: '#111', border: '1px solid rgba(255,255,255,0.1)' }}>
                 <div className="flex items-center space-x-2 mb-6">
-                  <MessageSquare className="h-6 w-6" style={{ color: 'var(--accent)' }} />
-                  <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Solve Your Doubt</h3>
+                  <MessageSquare className="h-6 w-6" style={{ color: '#E87C41' }} />
+                  <h3 className="text-xl font-bold" style={{ color: 'white' }}>Solve Your Doubt</h3>
                 </div>
                 
                 <form onSubmit={handleDoubtSubmit} className="mb-8">
@@ -604,7 +727,7 @@ const CourseDetails = () => {
                     onChange={(e) => setDoubtText(e.target.value)}
                     placeholder="Ask your doubt here..."
                     className="w-full p-4 rounded-xl mb-4 text-sm resize-none focus:outline-none"
-                    style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+                    style={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}
                     rows={4}
                     required
                   ></textarea>
@@ -618,8 +741,7 @@ const CourseDetails = () => {
                     <button
                       type="submit"
                       disabled={submittingDoubt || !doubtText.trim()}
-                      className="px-6 py-2 rounded-xl text-sm font-semibold text-white transition-all shadow-lg flex items-center space-x-2 btn-press disabled:opacity-50"
-                      style={{ backgroundImage: 'linear-gradient(to right, var(--accent), var(--accent-hover))' }}
+                      className="btn-sweep px-6 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2 disabled:opacity-50"
                     >
                       {submittingDoubt ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                       <span>Submit Doubt</span>
@@ -628,41 +750,41 @@ const CourseDetails = () => {
                 </form>
 
                 {fetchingDoubts ? (
-                  <div className="flex justify-center py-4"><Loader2 className="h-6 w-6 animate-spin" style={{ color: 'var(--text-muted)' }} /></div>
+                  <div className="flex justify-center py-4"><Loader2 className="h-6 w-6 animate-spin" style={{ color: '#9ca3af' }} /></div>
                 ) : doubts.length > 0 ? (
                   <div className="space-y-4">
-                    <h4 className="font-semibold mb-4" style={{ color: 'var(--text-secondary)' }}>Previous Doubts</h4>
+                    <h4 className="font-semibold mb-4" style={{ color: '#d1d5db' }}>Previous Doubts</h4>
                     {doubts.map(doubt => (
-                      <div key={doubt._id} className="p-4 rounded-xl" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
+                      <div key={doubt._id} className="p-4 rounded-xl" style={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)' }}>
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-xs font-bold text-white shadow-sm" style={{ backgroundColor: 'var(--accent)' }}>
+                            <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-xs font-bold text-white shadow-sm" style={{ backgroundColor: '#E87C41' }}>
                               {doubt.student?.profileImage ? <img src={doubt.student.profileImage} className="w-full h-full object-cover" /> : doubt.student?.name?.charAt(0)}
                             </div>
-                            <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{doubt.student?.name}</span>
+                            <span className="font-medium text-sm" style={{ color: 'white' }}>{doubt.student?.name}</span>
                           </div>
-                          <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider ${doubt.status === 'solved' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20'}`}>
+                          <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider ${doubt.status === 'solved' ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20' : 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20'}`}>
                             {doubt.status === 'solved' ? 'Solved' : 'Pending'}
                           </span>
                         </div>
-                        <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>{doubt.questionText}</p>
+                        <p className="text-sm mb-3" style={{ color: '#d1d5db' }}>{doubt.questionText}</p>
                         {doubt.questionMedia && (
                           <div className="mb-3">
                             {doubt.questionMedia.match(/\.(mp4|webm|ogg)$/i) ? (
-                              <video src={`https://e-learning-backend-1-r539.onrender.com${doubt.questionMedia}`} controls className="max-w-sm w-full rounded-lg" style={{ border: '1px solid var(--border-color)' }} />
+                              <video src={`https://e-learning-backend-1-r539.onrender.com${doubt.questionMedia}`} controls className="max-w-sm w-full rounded-lg" style={{ border: '1px solid rgba(255,255,255,0.1)' }} />
                             ) : (
-                              <img src={`https://e-learning-backend-1-r539.onrender.com${doubt.questionMedia}`} alt="Doubt media" className="max-w-sm w-full rounded-lg object-contain" style={{ border: '1px solid var(--border-color)' }} />
+                              <img src={`https://e-learning-backend-1-r539.onrender.com${doubt.questionMedia}`} alt="Doubt media" className="max-w-sm w-full rounded-lg object-contain" style={{ border: '1px solid rgba(255,255,255,0.1)' }} />
                             )}
                           </div>
                         )}
                         
                         {doubt.status === 'solved' && (
-                          <div className="mt-4 p-4 rounded-xl border" style={{ backgroundColor: 'rgba(99,102,241,0.05)', borderColor: 'rgba(99,102,241,0.2)' }}>
+                          <div className="mt-4 p-4 rounded-xl border" style={{ backgroundColor: 'rgba(232,124,65,0.05)', borderColor: 'rgba(232,124,65,0.2)' }}>
                             <div className="flex items-center space-x-2 mb-2">
-                              <CheckCircle className="h-4 w-4 text-green-500" />
-                              <h5 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--accent)' }}>Admin Reply</h5>
+                              <CheckCircle className="h-4 w-4 text-orange-500" />
+                              <h5 className="text-xs font-bold uppercase tracking-wider" style={{ color: '#E87C41' }}>Admin Reply</h5>
                             </div>
-                            <p className="text-sm mb-3" style={{ color: 'var(--text-primary)' }}>{doubt.adminReplyText}</p>
+                            <p className="text-sm mb-3" style={{ color: 'white' }}>{doubt.adminReplyText}</p>
                             {doubt.adminReplyMedia && (
                               <div>
                                 {doubt.adminReplyMedia.match(/\.(mp4|webm|ogg)$/i) ? (
@@ -678,13 +800,13 @@ const CourseDetails = () => {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-center py-6" style={{ color: 'var(--text-muted)' }}>No doubts asked yet. Be the first to ask!</p>
+                  <p className="text-sm text-center py-6" style={{ color: '#9ca3af' }}>No doubts asked yet. Be the first to ask!</p>
                 )}
               </div>
             )}
 
         {/* Course Info */}
-        <div className="rounded-xl p-6 md:p-8 animate-slide-up" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+        <div className="rounded-xl p-6 md:p-8 animate-slide-up" style={{ backgroundColor: '#111', border: '1px solid rgba(255,255,255,0.1)' }}>
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
             <div className="flex-1">
               {/* Badges */}
@@ -692,9 +814,9 @@ const CourseDetails = () => {
                 <span
                   className="text-xs px-2.5 py-1 rounded-full font-semibold"
                   style={{
-                    backgroundColor: isFree ? 'rgba(34,197,94,0.12)' : 'var(--accent-glow)',
-                    color: isFree ? '#22c55e' : 'var(--accent)',
-                    border: `1px solid ${isFree ? 'rgba(34,197,94,0.3)' : 'rgba(99,102,241,0.3)'}`,
+                    backgroundColor: isFree ? 'rgba(232,124,65,0.12)' : 'rgba(232,124,65,0.15)',
+                    color: isFree ? '#E87C41' : '#E87C41',
+                    border: `1px solid ${isFree ? 'rgba(232,124,65,0.3)' : 'rgba(99,102,241,0.3)'}`,
                   }}
                 >
                   {isFree ? 'FREE' : 'PAID'}
@@ -714,67 +836,65 @@ const CourseDetails = () => {
                 {course.category && course.category !== 'General' && (
                   <span
                     className="text-xs px-2.5 py-1 rounded-full"
-                    style={{ backgroundColor: 'var(--accent-glow)', color: 'var(--text-secondary)' }}
+                    style={{ backgroundColor: 'rgba(232,124,65,0.15)', color: '#d1d5db' }}
                   >
                     {course.category}
                   </span>
                 )}
               </div>
 
-              <h1 className="text-2xl md:text-3xl font-bold mb-3" style={{ color: 'var(--text-primary)' }}>
+              <h1 className="text-2xl md:text-3xl font-bold mb-3" style={{ color: 'white' }}>
                 {course.title}
               </h1>
 
               {/* Progress Bar & Certificate */}
               {(isPurchased || isFree) && token && user?.role !== 'admin' && (
-                <div className="mb-6 p-4 rounded-xl" style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
+                <div className="mb-6 p-4 rounded-xl" style={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)' }}>
                   <div className="flex justify-between text-sm mb-2">
-                    <span style={{ color: 'var(--text-secondary)' }}>Course Progress</span>
-                    <span className="font-bold" style={{ color: 'var(--accent)' }}>{progressPercentage}%</span>
+                    <span style={{ color: '#d1d5db' }}>Course Progress</span>
+                    <span className="font-bold" style={{ color: '#E87C41' }}>{progressPercentage}%</span>
                   </div>
-                  <div className="w-full rounded-full h-2.5 overflow-hidden mb-4" style={{ backgroundColor: 'var(--border-color)' }}>
+                  <div className="w-full rounded-full h-2.5 overflow-hidden mb-4" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>
                     <div 
                       className="h-2.5 rounded-full transition-all duration-1000 ease-out" 
                       style={{ 
                         width: `${progressPercentage}%`, 
-                        backgroundColor: 'var(--accent)',
-                        boxShadow: '0 0 10px var(--accent-glow-strong)' 
+                        backgroundColor: '#E87C41',
+                        boxShadow: '0 0 10px rgba(232,124,65,0.3)' 
                       }}
                     ></div>
                   </div>
                   
                   {progressPercentage === 100 && (
-                    <div className="mt-4 pt-4 border-t flex items-center justify-between" style={{ borderColor: 'var(--border-color)' }}>
-                      <div className="flex items-center space-x-2">
-                        <Award className="h-6 w-6 text-yellow-500" />
-                        <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Congratulations! You've completed the course.</span>
+                    <div className="mt-4 pt-4 border-t flex flex-col items-center space-y-4" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+                      <div className="flex items-center space-x-2 w-full justify-center text-center">
+                        <Award className="h-6 w-6 text-yellow-500 shrink-0" />
+                        <span className="text-sm font-semibold" style={{ color: 'white' }}>Congratulations! You've completed the course.</span>
                       </div>
                       {certificateHtml ? (
                         <button
                           onClick={() => setShowCertificateModal(true)}
-                          className="px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all shadow-lg flex items-center space-x-2 btn-press"
-                          style={{ backgroundColor: '#22c55e' }}
+                          className="btn-sweep w-full py-3.5 rounded-xl text-md font-bold flex items-center justify-center space-x-2 shadow-lg"
                         >
-                          <Award className="h-4 w-4" />
-                          <span>View Certificate</span>
+                          <Award className="h-5 w-5" />
+                          <span>View Your Certificate</span>
                         </button>
                       ) : certificateRequestStatus === 'pending' ? (
                         <button
                           disabled
-                          className="px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all shadow-lg flex items-center space-x-2 opacity-70 cursor-not-allowed"
+                          className="w-full py-3.5 rounded-xl text-md font-bold text-white transition-all shadow-lg flex items-center justify-center space-x-2 opacity-70 cursor-not-allowed"
                           style={{ backgroundColor: '#eab308' }}
                         >
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          <span>Pending Admin Approval</span>
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          <span>Certificate Requested</span>
                         </button>
                       ) : (
                         <button
                           onClick={handleRequestCertificate}
                           disabled={generatingCertificate}
-                          className="px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all shadow-lg flex items-center space-x-2 btn-press disabled:opacity-70"
-                          style={{ backgroundImage: 'linear-gradient(to right, var(--accent), var(--accent-hover))' }}
+                          className="btn-sweep w-full py-3.5 rounded-xl text-md font-bold flex items-center justify-center space-x-2 shadow-lg"
                         >
-                          {generatingCertificate ? <Loader2 className="h-4 w-4 animate-spin" /> : <Award className="h-4 w-4" />}
+                          {generatingCertificate ? <Loader2 className="h-5 w-5 animate-spin" /> : <Award className="h-5 w-5" />}
                           <span>Request Certificate</span>
                         </button>
                       )}
@@ -784,11 +904,11 @@ const CourseDetails = () => {
               )}
 
               {/* Meta row */}
-              <div className="flex items-center flex-wrap gap-4 text-sm mb-6" style={{ color: 'var(--text-muted)' }}>
+              <div className="flex items-center flex-wrap gap-4 text-sm mb-6" style={{ color: '#9ca3af' }}>
                 {course.instructor && (
                   <div className="flex items-center space-x-1.5">
-                    <UserIcon className="h-4 w-4" style={{ color: 'var(--accent)' }} />
-                    <span>By <span style={{ color: 'var(--text-secondary)' }}>{course.instructor.name}</span></span>
+                    <UserIcon className="h-4 w-4" style={{ color: '#E87C41' }} />
+                    <span>By <span style={{ color: '#d1d5db' }}>{course.instructor.name}</span></span>
                   </div>
                 )}
                 {course.duration && (
@@ -803,25 +923,24 @@ const CourseDetails = () => {
                 </div>
               </div>
 
-              <p className="leading-relaxed whitespace-pre-line" style={{ color: 'var(--text-secondary)' }}>
+              <p className="leading-relaxed whitespace-pre-line" style={{ color: '#d1d5db' }}>
                 {course.description}
               </p>
             </div>
 
             {/* Purchase Card */}
             <div className="md:w-72 shrink-0">
-              <div className="rounded-xl p-5 sticky top-24" style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)' }}>
-                <p className="text-3xl font-bold mb-1" style={{ color: isFree ? '#22c55e' : 'var(--text-primary)' }}>
+              <div className="rounded-xl p-5 sticky top-24 bg-[#111] border border-white/10 shadow-xl backdrop-blur-md">
+                <p className="text-3xl font-bold mb-1" style={{ color: isFree ? '#E87C41' : 'white' }}>
                   {isFree ? 'Free' : `$${course.price}`}
                 </p>
-                <p className="text-sm mb-5" style={{ color: 'var(--text-muted)' }}>
+                <p className="text-sm mb-5 text-gray-400">
                   {isFree ? 'Free access' : 'One-time payment'}
                 </p>
 
                 {isPurchased || isFree ? (
                   <div
-                    className="flex items-center space-x-2 px-4 py-3 rounded-lg text-sm"
-                    style={{ backgroundColor: 'var(--success-bg)', border: '1px solid rgba(34,197,94,0.3)', color: '#22c55e' }}
+                    className="flex items-center space-x-2 px-4 py-3 rounded-lg text-sm bg-orange-500/10 border border-orange-500/30 text-[#E87C41]"
                   >
                     <CheckCircle className="h-5 w-5 shrink-0" />
                     <span>{isFree ? 'Free access' : 'You own this course'}</span>
@@ -830,7 +949,7 @@ const CourseDetails = () => {
                   <button
                     onClick={handleBuyNow}
                     disabled={paymentLoading}
-                    className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white py-3 px-4 rounded-lg font-medium text-sm transition-all focus:outline-none shadow-lg flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-55 btn-press"
+                    className="btn-sweep w-full py-3 px-4 rounded-lg font-medium text-sm flex items-center justify-center space-x-2 disabled:opacity-55"
                   >
                     {paymentLoading ? (
                       <Loader2 className="h-5 w-5 animate-spin" />
@@ -844,7 +963,7 @@ const CourseDetails = () => {
                 ) : (
                   <Link
                     to="/login"
-                    className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white py-3 px-4 rounded-lg font-medium text-sm transition-all shadow-lg flex items-center justify-center space-x-2 no-underline btn-press"
+                    className="btn-sweep w-full py-3 px-4 rounded-lg font-medium text-sm flex items-center justify-center space-x-2 no-underline"
                   >
                     <Play className="h-5 w-5" />
                     <span>Login to Purchase</span>
@@ -856,17 +975,17 @@ const CourseDetails = () => {
         </div>
 
         {/* Reviews Section */}
-        <div className="rounded-xl p-6 md:p-8 animate-slide-up" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+        <div className="rounded-xl p-6 md:p-8 animate-slide-up" style={{ backgroundColor: '#111', border: '1px solid rgba(255,255,255,0.1)' }}>
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold flex items-center space-x-2" style={{ color: 'var(--text-primary)' }}>
-              <MessageSquare className="h-6 w-6" style={{ color: 'var(--accent)' }} />
+            <h2 className="text-2xl font-bold flex items-center space-x-2" style={{ color: 'white' }}>
+              <MessageSquare className="h-6 w-6" style={{ color: '#E87C41' }} />
               <span>Student Reviews</span>
             </h2>
             {(isPurchased || isFree) && user && user?.role !== 'admin' && (
               <button
                 onClick={openReviewModal}
-                className="px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-[var(--accent-glow)] flex items-center space-x-2 btn-press"
-                style={{ color: 'var(--accent)', border: '1px solid var(--accent)' }}
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-orange-500/10 flex items-center space-x-2 btn-press"
+                style={{ color: '#E87C41', border: '1px solid #E87C41' }}
               >
                 <Star className="h-4 w-4" />
                 <span>{myReview ? 'Edit Review' : 'Write Review'}</span>
@@ -875,31 +994,31 @@ const CourseDetails = () => {
           </div>
 
           {(!course.reviews || course.reviews.length === 0) ? (
-            <p className="text-center py-8" style={{ color: 'var(--text-muted)' }}>No reviews yet. Be the first to review this course!</p>
+            <p className="text-center py-8" style={{ color: '#9ca3af' }}>No reviews yet. Be the first to review this course!</p>
           ) : (
             <div className="space-y-6">
               {course.reviews.slice(0, visibleReviews).map((review) => (
-                <div key={review._id} className="p-4 rounded-xl relative" style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
+                <div key={review._id} className="p-4 rounded-xl relative hover:scale-[1.02] transition-transform duration-300" style={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)' }}>
                   {review.user === user?._id && (
-                    <div className="absolute -top-3 -right-3 text-xs px-2 py-1 rounded-full shadow-md bg-[var(--accent)] text-white">Your Review</div>
+                    <div className="absolute -top-3 -right-3 text-xs px-2 py-1 rounded-full shadow-md bg-[#E87C41] text-white">Your Review</div>
                   )}
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-3">
-                      <div className="h-10 w-10 rounded-full flex items-center justify-center font-bold text-white shadow-lg" style={{ background: 'var(--gradient-hero)' }}>
+                      <div className="h-10 w-10 rounded-full flex items-center justify-center font-bold text-white shadow-lg" style={{ background: 'linear-gradient(to right, #E87C41, #ff9e66)' }}>
                         {review.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <h4 className="font-semibold" style={{ color: 'var(--text-primary)' }}>{review.name}</h4>
-                        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{new Date(review.createdAt).toLocaleDateString()}</p>
+                        <h4 className="font-semibold" style={{ color: 'white' }}>{review.name}</h4>
+                        <p className="text-xs" style={{ color: '#9ca3af' }}>{new Date(review.createdAt).toLocaleDateString()}</p>
                       </div>
                     </div>
                     <div className="flex space-x-1">
                       {[1, 2, 3, 4, 5].map((star) => (
-                        <Star key={star} className="h-4 w-4" style={{ color: star <= review.rating ? '#eab308' : 'var(--border-color)', fill: star <= review.rating ? '#eab308' : 'none' }} />
+                        <Star key={star} className="h-4 w-4" style={{ color: star <= review.rating ? '#eab308' : 'rgba(255,255,255,0.1)', fill: star <= review.rating ? '#eab308' : 'none' }} />
                       ))}
                     </div>
                   </div>
-                  <p className="text-sm mt-3 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{review.comment}</p>
+                  <p className="text-sm mt-3 leading-relaxed" style={{ color: '#d1d5db' }}>{review.comment}</p>
                 </div>
               ))}
 
@@ -907,8 +1026,8 @@ const CourseDetails = () => {
                 <div className="text-center mt-6">
                   <button
                     onClick={() => setVisibleReviews((prev) => prev + 3)}
-                    className="px-6 py-2.5 rounded-full text-sm font-semibold transition-all hover:bg-[var(--bg-input)] btn-press"
-                    style={{ border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+                    className="px-6 py-2.5 rounded-full text-sm font-semibold transition-all hover:bg-[#1a1a1a] btn-press"
+                    style={{ border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}
                   >
                     Load More Comments
                   </button>
@@ -926,28 +1045,28 @@ const CourseDetails = () => {
             {course.chapters && course.chapters.length > 0 ? (
               <div className="sticky top-24 space-y-4 animate-slide-left">
                 {course.chapters.map((chapter, cIdx) => (
-                  <div key={cIdx} className="rounded-2xl overflow-hidden transition-all duration-300 shadow-md hover:shadow-lg" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: openChapters[cIdx] ? '0 10px 30px rgba(99,102,241,0.1)' : '' }}>
+                  <div key={cIdx} className="rounded-2xl overflow-hidden transition-all duration-300 shadow-md hover:shadow-lg" style={{ backgroundColor: '#111', border: '1px solid rgba(255,255,255,0.05)', boxShadow: openChapters[cIdx] ? '0 10px 30px rgba(232,124,65,0.15)' : '' }}>
                     <div 
                       className="p-5 cursor-pointer transition-colors relative group" 
                       style={{ 
-                        backgroundColor: openChapters[cIdx] ? 'var(--accent-glow)' : 'var(--bg-secondary)',
-                        borderBottom: openChapters[cIdx] ? '1px solid var(--border-color)' : 'none'
+                        backgroundColor: openChapters[cIdx] ? '#2a1a11' : '#1a1a1a',
+                        borderBottom: openChapters[cIdx] ? '1px solid #111' : 'none'
                       }} 
                       onClick={() => toggleChapter(cIdx)}
                     >
-                      <div className="absolute inset-0 bg-gradient-to-r from-[var(--accent)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#E87C41]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       <div className="relative flex justify-between items-center">
                         <div>
-                          <h3 className="font-bold text-lg transition-colors" style={{ color: openChapters[cIdx] ? 'var(--accent)' : 'var(--text-primary)' }}>{chapter.title}</h3>
-                          <p className="text-xs mt-1.5 font-medium flex items-center gap-2" style={{ color: 'var(--text-muted)' }}>
+                          <h3 className="font-bold text-lg transition-colors" style={{ color: openChapters[cIdx] ? '#E87C41' : 'white' }}>{chapter.title}</h3>
+                          <p className="text-xs mt-1.5 font-medium flex items-center gap-2" style={{ color: '#9ca3af' }}>
                             <span className="flex items-center gap-1"><Play className="h-3.5 w-3.5" /> {chapter.videos.length} Videos</span>
-                            <span className="w-1 h-1 rounded-full bg-gray-400"></span>
+                            <span className="w-1 h-1 rounded-full bg-gray-500"></span>
                             <span className="flex items-center gap-1"><FileText className="h-3.5 w-3.5" /> {chapter.notes.length} Notes</span>
-                            <span className="w-1 h-1 rounded-full bg-gray-400"></span>
+                            <span className="w-1 h-1 rounded-full bg-gray-500"></span>
                             <span className="flex items-center gap-1"><Brain className="h-3.5 w-3.5" /> {chapter.mockTests.length} Tests</span>
                           </p>
                         </div>
-                        <div className="flex-shrink-0 ml-4 p-2 rounded-full transition-all duration-300" style={{ backgroundColor: openChapters[cIdx] ? 'var(--accent)' : 'var(--bg-card)', color: openChapters[cIdx] ? '#fff' : 'var(--text-muted)' }}>
+                        <div className="flex-shrink-0 ml-4 p-2 rounded-full transition-all duration-300" style={{ backgroundColor: openChapters[cIdx] ? '#E87C41' : '#222', color: openChapters[cIdx] ? '#fff' : '#9ca3af' }}>
                           <ChevronDown className={`h-5 w-5 transition-transform duration-500 ease-in-out ${openChapters[cIdx] ? 'rotate-180' : 'rotate-0'}`} />
                         </div>
                       </div>
@@ -956,91 +1075,94 @@ const CourseDetails = () => {
                     <div 
                       className={`transition-all duration-500 ease-in-out overflow-hidden ${openChapters[cIdx] ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}
                     >
-                      <div className="max-h-[50vh] overflow-y-auto custom-scrollbar bg-[var(--bg-card)]">
+                      <div className="max-h-[50vh] overflow-y-auto custom-scrollbar bg-[#111]">
                       {/* Videos */}
                       {chapter.videos.length > 0 && (
-                        <div className="px-4 py-2 border-b border-[var(--border-color)]" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-                           <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Videos</span>
+                        <div className="px-5 py-3" style={{ backgroundColor: '#000' }}>
+                           <span className="text-[11px] font-bold uppercase tracking-widest text-blue-400/80">Videos</span>
                         </div>
                       )}
                       {chapter.videos.map((vid, vIdx) => {
                         let globalIdx = 0;
                         for(let i=0; i<cIdx; i++) globalIdx += course.chapters[i].videos.length;
                         globalIdx += vIdx;
+                        const isActive = currentVideoIndex === globalIdx;
                         return (
                           <button
                             key={`v-${vIdx}`}
                             onClick={() => setCurrentVideoIndex(globalIdx)}
                             disabled={!isPurchased && !isFree}
-                            className="w-full flex items-start space-x-4 p-4 text-left transition-all border-b last:border-b-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group hover:bg-[var(--accent-glow)]"
+                            className="w-full flex items-center justify-between p-5 transition-all border-b last:border-b-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group hover:bg-[#2a1a11]"
                             style={{
-                              backgroundColor: currentVideoIndex === globalIdx ? 'var(--accent-glow)' : 'transparent',
-                              borderColor: 'var(--border-color)',
-                              borderLeft: currentVideoIndex === globalIdx ? '4px solid var(--accent)' : '4px solid transparent'
+                              backgroundColor: isActive ? '#2a1a11' : '#111',
+                              borderColor: 'rgba(255,255,255,0.03)',
+                              borderLeft: isActive ? '4px solid #E87C41' : '4px solid transparent'
                             }}
                           >
-                            <div className="mt-1 flex-shrink-0 relative">
-                              {(!isPurchased && !isFree) ? (
-                                <Lock className="h-4 w-4 text-gray-400" />
-                              ) : (
-                                <>
-                                  <Play className="h-4 w-4 transition-colors" style={{ color: currentVideoIndex === globalIdx ? 'var(--accent)' : 'var(--text-muted)' }} />
-                                  {completedVideos.includes(vid._id) && (
-                                    <div className="absolute -top-1.5 -right-2 bg-white dark:bg-gray-800 rounded-full p-[2px] shadow-sm">
-                                      <CheckCircle className="h-3 w-3 text-green-500" style={{ fill: 'currentColor' }} />
-                                    </div>
-                                  )}
-                                </>
-                              )}
+                            <div className="flex items-start space-x-4">
+                              <div className="mt-0.5 flex-shrink-0 relative">
+                                {(!isPurchased && !isFree) ? (
+                                  <Lock className="h-4 w-4 text-gray-500" />
+                                ) : (
+                                  <Play className="h-5 w-5 transition-colors" style={{ color: isActive ? '#E87C41' : '#9ca3af' }} />
+                                )}
+                              </div>
+                              <div className="text-left">
+                                <h4 className="text-[15px] font-medium group-hover:text-[#E87C41] transition-colors line-clamp-2" style={{ color: isActive ? '#E87C41' : 'white' }}>
+                                  {vid.title}
+                                </h4>
+                                {vid.duration && (
+                                  <div className="flex items-center space-x-1.5 mt-2 text-[13px]" style={{ color: '#9ca3af' }}>
+                                    <Clock className="h-3.5 w-3.5" />
+                                    <span>{vid.duration}</span>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                            <div>
-                              <h4 className="text-sm font-semibold group-hover:text-[var(--accent)] transition-colors line-clamp-2" style={{ color: currentVideoIndex === globalIdx ? 'var(--accent)' : 'var(--text-primary)' }}>
-                                {vid.title}
-                              </h4>
-                              {vid.duration && (
-                                <div className="flex items-center space-x-1 mt-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
-                                  <Clock className="h-3 w-3" />
-                                  <span>{vid.duration}</span>
-                                </div>
-                              )}
-                            </div>
+                            
+                            {/* Orange Tick on the right side if completed */}
+                            {(isPurchased || isFree) && completedVideos.includes(vid._id) && (
+                              <div className="flex-shrink-0 ml-3 flex items-center justify-center h-6 w-6 rounded-full bg-orange-500/10">
+                                <CheckCircle className="h-4 w-4 text-orange-500" />
+                              </div>
+                            )}
                           </button>
                         )
                       })}
 
                       {/* Notes */}
                       {chapter.notes.length > 0 && (
-                        <div className="px-4 py-2 border-b border-[var(--border-color)]" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-                           <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Notes</span>
+                        <div className="px-4 py-2 border-b border-[rgba(255,255,255,0.1)]" style={{ backgroundColor: '#0a0a0a' }}>
+                           <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#9ca3af' }}>Notes</span>
                         </div>
                       )}
                       {chapter.notes.map((note, nIdx) => (
-                         <a href={note.fileUrl} target="_blank" rel="noreferrer" key={`n-${nIdx}`} className="w-full flex items-start space-x-4 p-4 text-left transition-all border-b last:border-b-0 cursor-pointer group hover:bg-[var(--accent-glow)]" style={{ borderColor: 'var(--border-color)' }}>
+                         <a href={note.fileUrl} target="_blank" rel="noreferrer" key={`n-${nIdx}`} className="w-full flex items-start space-x-4 p-4 text-left transition-all border-b last:border-b-0 cursor-pointer group hover:bg-[rgba(232,124,65,0.15)]" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
                            <div className="mt-1 flex-shrink-0">
-                             <FileText className="h-4 w-4 transition-colors" style={{ color: 'var(--accent)' }} />
+                             <FileText className="h-4 w-4 transition-colors" style={{ color: '#E87C41' }} />
                            </div>
                            <div>
-                             <h4 className="text-sm font-semibold group-hover:text-[var(--accent)] transition-colors line-clamp-2" style={{ color: 'var(--text-primary)' }}>{note.title}</h4>
-                             <span className="text-xs mt-1 block font-medium" style={{ color: 'var(--text-muted)' }}>View Document</span>
+                             <h4 className="text-sm font-semibold group-hover:text-[#E87C41] transition-colors line-clamp-2" style={{ color: 'white' }}>{note.title}</h4>
+                             <span className="text-xs mt-1 block font-medium" style={{ color: '#9ca3af' }}>View Document</span>
                            </div>
                          </a>
                       ))}
 
                       {/* Mock Tests */}
                       {chapter.mockTests.length > 0 && (
-                        <div className="px-4 py-2 border-b border-[var(--border-color)]" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-                           <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Mock Tests</span>
+                        <div className="px-4 py-2 border-b border-[rgba(255,255,255,0.1)]" style={{ backgroundColor: '#0a0a0a' }}>
+                           <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#9ca3af' }}>Mock Tests</span>
                         </div>
                       )}
                       {chapter.mockTests.map((test, mtIdx) => {
                         const result = mockTestResults.find(r => r.mockTestId === test._id);
                         return (
-                          <div key={`mt-${mtIdx}`} className="p-4 border-b last:border-b-0 transition-all hover:bg-[var(--accent-glow)] group" style={{ borderColor: 'var(--border-color)' }}>
+                          <div key={`mt-${mtIdx}`} className="p-4 border-b last:border-b-0 transition-all hover:bg-[rgba(232,124,65,0.15)] group" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
                             <div className="flex items-start space-x-4">
-                              <div className="mt-1 flex-shrink-0"><Brain className="h-4 w-4 transition-colors" style={{ color: 'var(--accent)' }} /></div>
+                              <div className="mt-1 flex-shrink-0"><Brain className="h-4 w-4 transition-colors" style={{ color: '#E87C41' }} /></div>
                               <div className="flex-1">
-                                <h4 className="text-sm font-semibold group-hover:text-[var(--accent)] transition-colors line-clamp-2" style={{ color: 'var(--text-primary)' }}>{test.title}</h4>
-                                <div className="flex space-x-3 mt-1.5 text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
+                                <h4 className="text-sm font-semibold group-hover:text-[#E87C41] transition-colors line-clamp-2" style={{ color: 'white' }}>{test.title}</h4>
+                                <div className="flex space-x-3 mt-1.5 text-xs font-medium" style={{ color: '#9ca3af' }}>
                                   <span>{test.questions.length} Qs</span>
                                   <span>{test.timeLimit}m</span>
                                 </div>
@@ -1054,7 +1176,7 @@ const CourseDetails = () => {
                                     onClick={() => handleStartMockTest(test)}
                                     disabled={!isPurchased && !isFree}
                                     className="mt-3 w-full py-2 rounded-lg text-xs font-bold transition-all disabled:opacity-50 text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 btn-press"
-                                    style={{ backgroundColor: 'var(--accent)' }}
+                                    style={{ backgroundColor: '#E87C41' }}
                                   >
                                     {!isPurchased && !isFree ? 'Enroll to take test' : 'Start Test'}
                                   </button>
@@ -1067,33 +1189,33 @@ const CourseDetails = () => {
 
                       {/* Live Classes */}
                       {chapter.liveClasses && chapter.liveClasses.length > 0 && (
-                        <div className="px-4 py-2 border-b border-[var(--border-color)]" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-                           <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Live Classes</span>
+                        <div className="px-4 py-2 border-b border-[rgba(255,255,255,0.1)]" style={{ backgroundColor: '#0a0a0a' }}>
+                           <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#9ca3af' }}>Live Classes</span>
                         </div>
                       )}
                       {chapter.liveClasses && chapter.liveClasses.map((lc, lcIdx) => {
                         const isUpcoming = lc.status === 'scheduled';
                         const isLive = lc.status === 'live';
                         return (
-                          <div key={`lc-${lcIdx}`} className="p-4 border-b last:border-b-0 transition-all hover:bg-[var(--accent-glow)] group" style={{ borderColor: 'var(--border-color)' }}>
+                          <div key={`lc-${lcIdx}`} className="p-4 border-b last:border-b-0 transition-all hover:bg-[rgba(232,124,65,0.15)] group" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
                             <div className="flex items-start space-x-4">
                               <div className="mt-1 flex-shrink-0">
                                 {isLive ? (
                                   <div className="h-4 w-4 rounded-full animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.6)]" style={{ backgroundColor: '#ef4444' }} title="Live Now!"></div>
                                 ) : (
-                                  <Clock className="h-4 w-4 transition-colors" style={{ color: 'var(--accent)' }} />
+                                  <Clock className="h-4 w-4 transition-colors" style={{ color: '#E87C41' }} />
                                 )}
                               </div>
                               <div className="flex-1">
-                                <h4 className="text-sm font-semibold group-hover:text-[var(--accent)] transition-colors line-clamp-2" style={{ color: 'var(--text-primary)' }}>{lc.title}</h4>
-                                <div className="flex space-x-3 mt-1.5 text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
+                                <h4 className="text-sm font-semibold group-hover:text-[#E87C41] transition-colors line-clamp-2" style={{ color: 'white' }}>{lc.title}</h4>
+                                <div className="flex space-x-3 mt-1.5 text-xs font-medium" style={{ color: '#9ca3af' }}>
                                   <span>{new Date(lc.date).toLocaleString()}</span>
                                 </div>
                                 <button
                                   onClick={() => navigate(`/live/${course._id}/${chapter._id}/${lc._id}`)}
                                   disabled={(!isPurchased && !isFree) || lc.status === 'ended'}
                                   className={`mt-3 w-full py-2 rounded-lg text-xs font-bold transition-all disabled:opacity-50 text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 btn-press`}
-                                  style={{ backgroundColor: isLive ? '#ef4444' : 'var(--accent)' }}
+                                  style={{ backgroundColor: isLive ? '#ef4444' : '#E87C41' }}
                                 >
                                   {(!isPurchased && !isFree) ? 'Enroll to join' : lc.status === 'ended' ? 'Ended' : isLive ? 'Join Live Class' : 'Enter Waiting Room'}
                                 </button>
@@ -1111,10 +1233,10 @@ const CourseDetails = () => {
               <>
               {/* Legacy Flat Sidebar */}
               {(course.videos && course.videos.length > 0) && (
-                <div className="rounded-xl overflow-hidden sticky top-24 animate-slide-left" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-                  <div className="p-4" style={{ backgroundColor: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
-                    <h3 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>Course Content</h3>
-                    <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>{course.videos.length} videos</p>
+                <div className="rounded-xl overflow-hidden sticky top-24 animate-slide-left" style={{ backgroundColor: '#111', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <div className="p-4" style={{ backgroundColor: '#0a0a0a', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                    <h3 className="font-bold text-lg" style={{ color: 'white' }}>Course Content</h3>
+                    <p className="text-sm mt-1" style={{ color: '#9ca3af' }}>{course.videos.length} videos</p>
                   </div>
                   <div className="max-h-[50vh] overflow-y-auto">
                     {course.videos.map((vid, idx) => (
@@ -1122,11 +1244,11 @@ const CourseDetails = () => {
                         key={idx}
                         onClick={() => setCurrentVideoIndex(idx)}
                         disabled={!isPurchased && !isFree}
-                        className="w-full flex items-start space-x-4 p-4 text-left transition-all border-b last:border-b-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group hover:bg-[var(--accent-glow)]"
+                        className="w-full flex items-start space-x-4 p-4 text-left transition-all border-b last:border-b-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group hover:bg-[rgba(232,124,65,0.15)]"
                         style={{
-                          backgroundColor: currentVideoIndex === idx ? 'var(--accent-glow)' : 'transparent',
-                          borderColor: 'var(--border-color)',
-                          borderLeft: currentVideoIndex === idx ? '4px solid var(--accent)' : '4px solid transparent'
+                          backgroundColor: currentVideoIndex === idx ? 'rgba(232,124,65,0.15)' : 'transparent',
+                          borderColor: 'rgba(255,255,255,0.1)',
+                          borderLeft: currentVideoIndex === idx ? '4px solid #E87C41' : '4px solid transparent'
                         }}
                       >
                         <div className="mt-1 flex-shrink-0 relative">
@@ -1134,21 +1256,21 @@ const CourseDetails = () => {
                             <Lock className="h-4 w-4 text-gray-400" />
                           ) : (
                             <>
-                              <Play className="h-4 w-4 transition-colors" style={{ color: currentVideoIndex === idx ? 'var(--accent)' : 'var(--text-muted)' }} />
+                              <Play className="h-4 w-4 transition-colors" style={{ color: currentVideoIndex === idx ? '#E87C41' : '#9ca3af' }} />
                               {completedVideos.includes(vid._id) && (
                                 <div className="absolute -top-1.5 -right-2 bg-white dark:bg-gray-800 rounded-full p-[2px] shadow-sm">
-                                  <CheckCircle className="h-3 w-3 text-green-500" style={{ fill: 'currentColor' }} />
+                                  <CheckCircle className="h-3 w-3 text-orange-500" style={{ fill: 'currentColor' }} />
                                 </div>
                               )}
                             </>
                           )}
                         </div>
                         <div>
-                          <h4 className="text-sm font-semibold group-hover:text-[var(--accent)] transition-colors line-clamp-2" style={{ color: currentVideoIndex === idx ? 'var(--accent)' : 'var(--text-primary)' }}>
+                          <h4 className="text-sm font-semibold group-hover:text-[#E87C41] transition-colors line-clamp-2" style={{ color: currentVideoIndex === idx ? '#E87C41' : 'white' }}>
                             {vid.title}
                           </h4>
                           {vid.duration && (
-                            <div className="flex items-center space-x-1 mt-1.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+                            <div className="flex items-center space-x-1 mt-1.5 text-xs" style={{ color: '#9ca3af' }}>
                               <Clock className="h-3 w-3" />
                               <span>{vid.duration}</span>
                             </div>
@@ -1162,35 +1284,35 @@ const CourseDetails = () => {
 
               {/* Legacy Flat Mock Tests Sidebar */}
               {(course.mockTests && course.mockTests.length > 0) && (
-                <div className="rounded-xl overflow-hidden animate-slide-left" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-                  <div className="p-4" style={{ backgroundColor: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
-                    <h3 className="font-bold text-lg flex items-center space-x-2" style={{ color: 'var(--text-primary)' }}>
+                <div className="rounded-xl overflow-hidden animate-slide-left" style={{ backgroundColor: '#111', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <div className="p-4" style={{ backgroundColor: '#0a0a0a', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                    <h3 className="font-bold text-lg flex items-center space-x-2" style={{ color: 'white' }}>
                       <ClipboardList className="h-5 w-5 text-purple-500" />
                       <span>Mock Tests</span>
                     </h3>
-                    <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>{course.mockTests.length} tests available</p>
+                    <p className="text-sm mt-1" style={{ color: '#9ca3af' }}>{course.mockTests.length} tests available</p>
                   </div>
                   <div className="max-h-[40vh] overflow-y-auto p-4 space-y-3">
                     {course.mockTests.map((test, idx) => {
                       const result = mockTestResults.find(r => r.mockTestId === test._id);
                       return (
-                        <div key={idx} className="p-4 rounded-xl border" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}>
-                          <h4 className="font-semibold text-sm mb-2" style={{ color: 'var(--text-primary)' }}>{test.title}</h4>
-                          <div className="flex justify-between items-center text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
+                        <div key={idx} className="p-4 rounded-xl border" style={{ backgroundColor: '#000', borderColor: 'rgba(255,255,255,0.1)' }}>
+                          <h4 className="font-semibold text-sm mb-2" style={{ color: 'white' }}>{test.title}</h4>
+                          <div className="flex justify-between items-center text-xs mb-3" style={{ color: '#9ca3af' }}>
                             <span className="flex items-center space-x-1"><ClipboardList className="h-3.5 w-3.5" /> <span>{test.questions.length} Qs</span></span>
                             <span className="flex items-center space-x-1"><Clock className="h-3.5 w-3.5" /> <span>{test.timeLimit}m</span></span>
                           </div>
                           {result ? (
-                            <div className="w-full flex justify-between items-center py-2 px-3 rounded-lg bg-green-500/10 border border-green-500/30">
-                              <span className="text-xs font-semibold text-green-600 dark:text-green-400">Score: {Math.round((result.score/result.totalQuestions)*100)}%</span>
-                              <button onClick={() => handleStartMockTest(test)} className="text-xs font-bold text-green-600 dark:text-green-400 hover:underline">Retake</button>
+                            <div className="w-full flex justify-between items-center py-2 px-3 rounded-lg bg-orange-500/10 border border-orange-500/30">
+                              <span className="text-xs font-semibold text-orange-500 dark:text-orange-400">Score: {Math.round((result.score/result.totalQuestions)*100)}%</span>
+                              <button onClick={() => handleStartMockTest(test)} className="text-xs font-bold text-orange-500 dark:text-orange-400 hover:underline">Retake</button>
                             </div>
                           ) : (
                             <button
                               onClick={() => handleStartMockTest(test)}
                               disabled={!isPurchased && !isFree}
                               className="w-full py-2 rounded-lg text-xs font-bold transition-all btn-press disabled:opacity-50"
-                              style={{ backgroundColor: 'var(--accent)', color: '#fff' }}
+                              style={{ backgroundColor: '#E87C41', color: '#fff' }}
                             >
                               {!isPurchased && !isFree ? 'Enroll to take test' : 'Start Test'}
                             </button>
@@ -1210,26 +1332,26 @@ const CourseDetails = () => {
       {/* â”€â”€â”€ Direct Enrollment Modal â”€â”€â”€ */}
       {showEnrollModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in" style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
-          <div className="rounded-2xl w-full max-w-sm p-6 border shadow-2xl relative animate-scale-in" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', boxShadow: '0 20px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)' }}>
+          <div className="rounded-2xl w-full max-w-sm p-6 border shadow-2xl relative animate-scale-in" style={{ backgroundColor: '#111', borderColor: 'rgba(255,255,255,0.1)', boxShadow: '0 20px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)' }}>
             <div className="flex items-center space-x-3 mb-3">
-              <div className="p-2 rounded-full" style={{ backgroundColor: 'var(--accent-glow)' }}>
-                <CheckCircle className="h-6 w-6" style={{ color: 'var(--accent)' }} />
+              <div className="p-2 rounded-full" style={{ backgroundColor: 'rgba(232,124,65,0.15)' }}>
+                <CheckCircle className="h-6 w-6" style={{ color: '#E87C41' }} />
               </div>
-              <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Confirm Enrollment</h3>
+              <h3 className="text-xl font-bold" style={{ color: 'white' }}>Confirm Enrollment</h3>
             </div>
-            <p className="text-sm mb-6 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+            <p className="text-sm mb-6 leading-relaxed" style={{ color: '#d1d5db' }}>
               Are you sure you want to enroll in <strong>{course.title}</strong>? You will get instant access to all course materials and videos.
             </p>
             
-            <div className="p-4 rounded-xl mb-6 space-y-2 relative overflow-hidden group" style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
+            <div className="p-4 rounded-xl mb-6 space-y-2 relative overflow-hidden group" style={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)' }}>
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'linear-gradient(45deg, transparent, rgba(255,255,255,0.03), transparent)' }} />
               <div className="flex justify-between text-sm relative z-10">
-                <span style={{ color: 'var(--text-secondary)' }}>Access Type</span>
+                <span style={{ color: '#d1d5db' }}>Access Type</span>
                 <span className="font-semibold" style={{ color: 'var(--success)' }}>Lifetime Access</span>
               </div>
-              <div className="flex justify-between text-sm pt-2 relative z-10" style={{ borderTop: '1px dashed var(--border-color)' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Price</span>
-                <span className="font-bold" style={{ color: 'var(--text-primary)' }}>
+              <div className="flex justify-between text-sm pt-2 relative z-10" style={{ borderTop: '1px dashed rgba(255,255,255,0.1)' }}>
+                <span style={{ color: '#d1d5db' }}>Price</span>
+                <span className="font-bold" style={{ color: 'white' }}>
                   {course.price > 0 ? `$${course.price}` : 'Free'}
                 </span>
               </div>
@@ -1237,8 +1359,8 @@ const CourseDetails = () => {
 
             <div className="flex space-x-3">
               <button 
-                className="flex-1 px-4 py-3 rounded-xl text-sm font-semibold transition-all hover:bg-[var(--bg-input)]"
-                style={{ border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
+                className="flex-1 px-4 py-3 rounded-xl text-sm font-semibold transition-all hover:bg-[#1a1a1a]"
+                style={{ border: '1px solid rgba(255,255,255,0.1)', color: '#d1d5db' }}
                 onClick={() => setShowEnrollModal(false)}
                 disabled={paymentLoading}
               >
@@ -1247,9 +1369,9 @@ const CourseDetails = () => {
               <button 
                 className="flex-1 px-4 py-3 rounded-xl text-sm font-semibold text-white transition-all shadow-lg flex items-center justify-center btn-press hover:-translate-y-0.5"
                 style={{ 
-                  backgroundColor: 'var(--accent)', 
-                  boxShadow: '0 8px 20px -4px var(--accent-glow-strong)',
-                  backgroundImage: 'linear-gradient(to right, var(--accent), var(--accent-hover))'
+                  backgroundColor: '#E87C41', 
+                  boxShadow: '0 8px 20px -4px rgba(232,124,65,0.3)',
+                  backgroundImage: 'linear-gradient(to right, #E87C41, #d26733)'
                 }}
                 onClick={executeEnrollment}
                 disabled={paymentLoading}
@@ -1264,13 +1386,13 @@ const CourseDetails = () => {
       {/* â”€â”€â”€ Review Modal â”€â”€â”€ */}
       {showReviewModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in" style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
-          <div className="rounded-2xl w-full max-w-md p-6 border shadow-2xl relative animate-scale-in" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
-            <h3 className="text-xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+          <div className="rounded-2xl w-full max-w-md p-6 border shadow-2xl relative animate-scale-in" style={{ backgroundColor: '#111', borderColor: 'rgba(255,255,255,0.1)' }}>
+            <h3 className="text-xl font-bold mb-4" style={{ color: 'white' }}>
               {myReview ? 'Edit Your Review' : 'Write a Review'}
             </h3>
             
             <div className="mb-6">
-              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Rating</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#d1d5db' }}>Rating</label>
               <div className="flex space-x-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -1279,19 +1401,19 @@ const CourseDetails = () => {
                     onClick={() => setRating(star)}
                     className="focus:outline-none transition-transform hover:scale-110"
                   >
-                    <Star className="h-8 w-8" style={{ color: star <= rating ? '#eab308' : 'var(--border-color)', fill: star <= rating ? '#eab308' : 'transparent' }} />
+                    <Star className="h-8 w-8" style={{ color: star <= rating ? '#eab308' : 'rgba(255,255,255,0.1)', fill: star <= rating ? '#eab308' : 'transparent' }} />
                   </button>
                 ))}
               </div>
             </div>
 
             <div className="mb-6">
-              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Comment</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#d1d5db' }}>Comment</label>
               <textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all resize-none"
-                style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+                className="w-full px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#E87C41] transition-all resize-none"
+                style={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}
                 rows="4"
                 placeholder="What did you think about this course?"
               ></textarea>
@@ -1299,8 +1421,8 @@ const CourseDetails = () => {
 
             <div className="flex space-x-3">
               <button 
-                className="flex-1 px-4 py-3 rounded-xl text-sm font-semibold transition-all hover:bg-[var(--bg-input)]"
-                style={{ border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}
+                className="flex-1 px-4 py-3 rounded-xl text-sm font-semibold transition-all hover:bg-[#1a1a1a]"
+                style={{ border: '1px solid rgba(255,255,255,0.1)', color: '#d1d5db' }}
                 onClick={() => setShowReviewModal(false)}
                 disabled={reviewLoading}
               >
@@ -1309,8 +1431,8 @@ const CourseDetails = () => {
               <button 
                 className="flex-1 px-4 py-3 rounded-xl text-sm font-semibold text-white transition-all shadow-lg flex items-center justify-center btn-press hover:-translate-y-0.5"
                 style={{ 
-                  backgroundColor: 'var(--accent)', 
-                  backgroundImage: 'linear-gradient(to right, var(--accent), var(--accent-hover))'
+                  backgroundColor: '#E87C41', 
+                  backgroundImage: 'linear-gradient(to right, #E87C41, #d26733)'
                 }}
                 onClick={handleReviewSubmit}
                 disabled={reviewLoading}
@@ -1326,10 +1448,10 @@ const CourseDetails = () => {
       {showCertificateModal && certificateHtml && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in" style={{ backgroundColor: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)' }}>
           <div className="rounded-2xl w-full max-w-5xl p-1 relative animate-scale-in" style={{ background: 'linear-gradient(45deg, #fbbf24, #f59e0b, #d97706)' }}>
-            <div className="w-full h-full p-6 md:p-8 rounded-xl relative flex flex-col" style={{ backgroundColor: 'var(--bg-card)' }}>
+            <div className="w-full h-full p-6 md:p-8 rounded-xl relative flex flex-col" style={{ backgroundColor: '#111' }}>
               
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold flex items-center space-x-2" style={{ color: 'var(--text-primary)' }}>
+                <h3 className="text-xl font-bold flex items-center space-x-2" style={{ color: 'white' }}>
                   <Award className="h-6 w-6 text-yellow-500" />
                   <span>Your Certificate of Completion</span>
                 </h3>
@@ -1337,16 +1459,16 @@ const CourseDetails = () => {
                   <button
                     onClick={handleDownloadCertificate}
                     disabled={downloadingCertificate}
-                    className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white font-medium text-sm transition-all disabled:opacity-70 btn-press"
+                    className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-[#E87C41] hover:bg-[#d26733] text-white font-medium text-sm transition-all disabled:opacity-70 btn-press"
                   >
                     {downloadingCertificate ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
                     <span>Download PDF</span>
                   </button>
                   <button
                     onClick={() => setShowCertificateModal(false)}
-                    className="p-2 rounded-full transition-colors bg-[var(--bg-input)] hover:bg-black/10"
+                    className="p-2 rounded-full transition-colors bg-[#1a1a1a] hover:bg-black/10"
                   >
-                    <X className="h-5 w-5" style={{ color: 'var(--text-primary)' }} />
+                    <X className="h-5 w-5" style={{ color: 'white' }} />
                   </button>
                 </div>
               </div>
@@ -1369,23 +1491,23 @@ const CourseDetails = () => {
       {/* â”€â”€â”€ Mock Test Taking Modal â”€â”€â”€ */}
       {activeMockTest && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'var(--bg-overlay)', backdropFilter: 'blur(8px)' }}>
-          <div className="w-full max-w-3xl rounded-2xl shadow-2xl p-6 md:p-8 flex flex-col h-[90vh] md:h-auto md:max-h-[90vh]" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
-            <div className="flex items-center justify-between mb-6 pb-4 border-b" style={{ borderColor: 'var(--border-color)' }}>
+          <div className="w-full max-w-3xl rounded-2xl shadow-2xl p-6 md:p-8 flex flex-col h-[90vh] md:h-auto md:max-h-[90vh]" style={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <div className="flex items-center justify-between mb-6 pb-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
               <div>
-                <h2 className="text-xl font-bold flex items-center space-x-2" style={{ color: 'var(--text-primary)' }}>
+                <h2 className="text-xl font-bold flex items-center space-x-2" style={{ color: 'white' }}>
                   <Brain className="h-6 w-6 text-purple-500" />
                   <span>{activeMockTest.title}</span>
                 </h2>
               </div>
               <div className="flex items-center space-x-4">
                 {!mockTestScore && timerActive && (
-                  <div className="flex items-center space-x-2 px-4 py-2 rounded-full font-mono font-bold text-sm shadow-inner" style={{ backgroundColor: timeLeft < 60 ? 'rgba(239,68,68,0.1)' : 'var(--bg-input)', color: timeLeft < 60 ? '#ef4444' : 'var(--text-primary)' }}>
+                  <div className="flex items-center space-x-2 px-4 py-2 rounded-full font-mono font-bold text-sm shadow-inner" style={{ backgroundColor: timeLeft < 60 ? 'rgba(239,68,68,0.1)' : '#1a1a1a', color: timeLeft < 60 ? '#ef4444' : 'white' }}>
                     <Clock className="h-4 w-4" />
                     <span>{formatTime(timeLeft)}</span>
                   </div>
                 )}
                 {mockTestScore !== null && (
-                  <button onClick={() => setActiveMockTest(null)} className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors" style={{ color: 'var(--text-muted)' }}>
+                  <button onClick={() => setActiveMockTest(null)} className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors" style={{ color: '#9ca3af' }}>
                     <X className="h-6 w-6" />
                   </button>
                 )}
@@ -1395,12 +1517,12 @@ const CourseDetails = () => {
             <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
               {mockTestScore === null ? (
                 <div className="animate-fade-in h-full flex flex-col">
-                  <div className="mb-4 flex justify-between items-center text-sm font-semibold" style={{ color: 'var(--text-muted)' }}>
+                  <div className="mb-4 flex justify-between items-center text-sm font-semibold" style={{ color: '#9ca3af' }}>
                     <span>Question {currentQuestionIndex + 1} of {activeMockTest.questions.length}</span>
                   </div>
                   
                   <div className="mb-8">
-                    <h3 className="text-lg md:text-xl font-semibold leading-relaxed" style={{ color: 'var(--text-primary)' }}>
+                    <h3 className="text-lg md:text-xl font-semibold leading-relaxed" style={{ color: 'white' }}>
                       {activeMockTest.questions[currentQuestionIndex].questionText}
                     </h3>
                   </div>
@@ -1412,9 +1534,9 @@ const CourseDetails = () => {
                         onClick={() => handleOptionSelect(idx)}
                         className={`w-full text-left p-4 rounded-xl border transition-all hover:scale-[1.01] active:scale-[0.99] ${userAnswers[currentQuestionIndex] === idx ? 'ring-2 ring-purple-500' : ''}`}
                         style={{
-                          backgroundColor: userAnswers[currentQuestionIndex] === idx ? 'var(--accent-glow)' : 'var(--bg-input)',
-                          borderColor: userAnswers[currentQuestionIndex] === idx ? 'var(--accent)' : 'var(--border-color)',
-                          color: 'var(--text-primary)'
+                          backgroundColor: userAnswers[currentQuestionIndex] === idx ? 'rgba(232,124,65,0.15)' : '#1a1a1a',
+                          borderColor: userAnswers[currentQuestionIndex] === idx ? '#E87C41' : 'rgba(255,255,255,0.1)',
+                          color: 'white'
                         }}
                       >
                         <div className="flex items-center space-x-3">
@@ -1427,12 +1549,12 @@ const CourseDetails = () => {
                     ))}
                   </div>
 
-                  <div className="flex justify-between items-center pt-6 mt-auto border-t" style={{ borderColor: 'var(--border-color)' }}>
+                  <div className="flex justify-between items-center pt-6 mt-auto border-t" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
                     <button
                       onClick={handlePrevQuestion}
                       disabled={currentQuestionIndex === 0}
                       className="px-5 py-2.5 rounded-xl font-medium transition-colors disabled:opacity-50"
-                      style={{ backgroundColor: 'var(--bg-input)', color: 'var(--text-secondary)' }}
+                      style={{ backgroundColor: '#1a1a1a', color: '#d1d5db' }}
                     >
                       Previous
                     </button>
@@ -1441,7 +1563,7 @@ const CourseDetails = () => {
                         onClick={handleMockTestSubmit}
                         disabled={Object.keys(userAnswers).length < activeMockTest.questions.length || submittingMockTest}
                         className="px-6 py-2.5 rounded-xl font-bold flex items-center space-x-2 transition-all shadow-md disabled:opacity-50"
-                        style={{ backgroundColor: 'var(--accent)', color: '#fff' }}
+                        style={{ backgroundColor: '#E87C41', color: '#fff' }}
                       >
                         {submittingMockTest ? <Loader2 className="h-5 w-5 animate-spin" /> : <span>Submit Test</span>}
                       </button>
@@ -1449,7 +1571,7 @@ const CourseDetails = () => {
                       <button
                         onClick={handleNextQuestion}
                         className="px-6 py-2.5 rounded-xl font-bold transition-all shadow-sm"
-                        style={{ backgroundColor: 'var(--accent)', color: '#fff' }}
+                        style={{ backgroundColor: '#E87C41', color: '#fff' }}
                       >
                         Next
                       </button>
@@ -1460,36 +1582,36 @@ const CourseDetails = () => {
                 <div className="animate-fade-in flex flex-col items-center justify-center py-10 h-full">
                   <div className="relative mb-6">
                     <svg className="w-40 h-40 transform -rotate-90">
-                      <circle cx="80" cy="80" r="70" stroke="var(--border-color)" strokeWidth="10" fill="none" />
+                      <circle cx="80" cy="80" r="70" stroke="rgba(255,255,255,0.1)" strokeWidth="10" fill="none" />
                       <circle cx="80" cy="80" r="70" stroke={mockTestScore / activeMockTest.questions.length >= 0.7 ? '#22c55e' : '#eab308'} strokeWidth="10" fill="none" strokeDasharray="440" strokeDashoffset={440 - (440 * (mockTestScore / activeMockTest.questions.length))} className="transition-all duration-1000 ease-out" />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-4xl font-bold" style={{ color: 'var(--text-primary)' }}>{Math.round((mockTestScore / activeMockTest.questions.length) * 100)}%</span>
+                      <span className="text-4xl font-bold" style={{ color: 'white' }}>{Math.round((mockTestScore / activeMockTest.questions.length) * 100)}%</span>
                     </div>
                   </div>
-                  <h3 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+                  <h3 className="text-2xl font-bold mb-2" style={{ color: 'white' }}>
                     {mockTestScore / activeMockTest.questions.length >= 0.7 ? 'Great Job!' : 'Good Effort!'}
                   </h3>
-                  <p className="text-lg mb-8" style={{ color: 'var(--text-muted)' }}>
+                  <p className="text-lg mb-8" style={{ color: '#9ca3af' }}>
                     You scored {mockTestScore} out of {activeMockTest.questions.length}
                   </p>
 
                   <div className="w-full space-y-4">
-                    <h4 className="font-bold text-lg mb-4" style={{ color: 'var(--text-primary)' }}>Review Answers</h4>
+                    <h4 className="font-bold text-lg mb-4" style={{ color: 'white' }}>Review Answers</h4>
                     {activeMockTest.questions.map((q, idx) => {
                       const isCorrect = userAnswers[idx] === q.correctAnswerIndex;
                       return (
-                        <div key={idx} className="p-4 rounded-xl border" style={{ backgroundColor: 'var(--bg-input)', borderColor: isCorrect ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)' }}>
-                          <p className="font-medium text-sm mb-3" style={{ color: 'var(--text-primary)' }}>{idx + 1}. {q.questionText}</p>
+                        <div key={idx} className="p-4 rounded-xl border" style={{ backgroundColor: '#1a1a1a', borderColor: isCorrect ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)' }}>
+                          <p className="font-medium text-sm mb-3" style={{ color: 'white' }}>{idx + 1}. {q.questionText}</p>
                           <div className="space-y-2 mb-3">
                             {q.options.map((opt, oIdx) => {
                               let styleClass = "px-3 py-2 rounded-lg text-sm ";
                               if (oIdx === q.correctAnswerIndex) {
-                                styleClass += "bg-green-500/10 text-green-600 font-bold border border-green-500/30";
+                                styleClass += "bg-orange-500/10 text-orange-500 font-bold border border-orange-500/30";
                               } else if (userAnswers[idx] === oIdx && !isCorrect) {
                                 styleClass += "bg-red-500/10 text-red-600 font-bold border border-red-500/30";
                               } else {
-                                styleClass += "bg-transparent text-[var(--text-secondary)] border border-[var(--border-color)]";
+                                styleClass += "bg-transparent text-[#d1d5db] border border-[rgba(255,255,255,0.1)]";
                               }
                               return (
                                 <div key={oIdx} className={styleClass}>
@@ -1511,7 +1633,7 @@ const CourseDetails = () => {
                   <button
                     onClick={() => setActiveMockTest(null)}
                     className="mt-8 px-8 py-3 rounded-xl font-bold transition-all hover:scale-105 shadow-lg"
-                    style={{ backgroundColor: 'var(--accent)', color: '#fff' }}
+                    style={{ backgroundColor: '#E87C41', color: '#fff' }}
                   >
                     Close Result
                   </button>

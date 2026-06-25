@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
-import { LogOut, Sun, Moon, Menu, X, BookOpen, Shield, LayoutList, CheckCircle, Briefcase, FileText, User } from 'lucide-react';
+import { LogOut, Menu, X, BookOpen, Shield, LayoutList, CheckCircle, Briefcase, FileText, User, BrainCircuit } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -36,22 +34,22 @@ const Navbar = () => {
   const NavLink = ({ to, label, isActive }) => (
     <Link
       to={to}
-      className={`relative px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-500 group ${
-        scrolled ? '' : 'text-base'
+      className={`relative px-5 py-2 rounded-full text-[13px] font-medium transition-all duration-300 group ${
+        scrolled ? '' : ''
       }`}
-      style={{ color: isActive ? 'var(--accent)' : 'var(--text-secondary)' }}
+      style={{ color: isActive ? '#ffffff' : '#a1a1aa' }}
     >
-      <span className="relative z-10 group-hover:text-[var(--text-primary)] transition-colors duration-300">{label}</span>
+      <span className="relative z-10 transition-colors duration-300 group-hover:text-white">{label}</span>
       {isActive && (
         <span 
-          className="absolute inset-0 rounded-full -z-10 transition-all duration-500"
-          style={{ backgroundColor: 'var(--accent-glow)', border: '1px solid var(--accent)', opacity: 0.5 }}
+          className="absolute inset-0 rounded-full -z-10 transition-all duration-300"
+          style={{ backgroundColor: 'rgba(232, 124, 65, 0.15)' }}
         ></span>
       )}
       {!isActive && (
         <span 
-          className="absolute inset-0 rounded-full -z-10 opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 ease-out"
-          style={{ backgroundColor: 'var(--bg-input)' }}
+          className="absolute inset-0 rounded-full -z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out"
+          style={{ backgroundColor: 'rgba(232, 124, 65, 0.08)' }}
         ></span>
       )}
     </Link>
@@ -60,14 +58,18 @@ const Navbar = () => {
   return (
     <div className="sticky top-0 z-[100] w-full flex justify-center h-[72px] pointer-events-none transition-all duration-700">
       <nav
-        className={`absolute left-1/2 -translate-x-1/2 pointer-events-auto flex items-center justify-between transition-all duration-700 ease-in-out overflow-hidden ${
+        className={`absolute left-1/2 -translate-x-1/2 pointer-events-auto flex items-center justify-between transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden ${
           scrolled 
-            ? 'top-4 p-2 rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.3)] w-max max-w-[1000px] border gap-8 translate-y-2' 
-            : 'top-0 px-6 py-4 rounded-none shadow-sm w-full max-w-full border-b gap-4 translate-y-0'
+            ? 'top-4 p-2 rounded-full w-max max-w-[1000px] gap-8 translate-y-0' 
+            : 'top-0 px-6 py-4 w-full max-w-full gap-4 translate-y-0 border-b'
         }`}
         style={{
-          backgroundColor: 'var(--navbar-bg)',
-          borderColor: 'var(--border-color)',
+          background: 'linear-gradient(135deg, rgba(30, 15, 5, 0.95) 0%, rgba(5, 5, 5, 0.95) 100%)',
+          borderBottom: !scrolled ? '1px solid rgba(232, 124, 65, 0.2)' : '1px solid rgba(232, 124, 65, 0.2)',
+          borderTop: scrolled ? '1px solid rgba(232, 124, 65, 0.2)' : 'none',
+          borderLeft: scrolled ? '1px solid rgba(232, 124, 65, 0.2)' : 'none',
+          borderRight: scrolled ? '1px solid rgba(232, 124, 65, 0.2)' : 'none',
+          boxShadow: scrolled ? '0 10px 40px rgba(232, 124, 65, 0.15)' : 'none',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
         }}
@@ -75,18 +77,19 @@ const Navbar = () => {
         {/* Logo */}
         <Link
           to="/"
-          className={`flex items-center space-x-3 px-3 py-1.5 rounded-full group transition-all duration-1000 ${scrolled ? '' : 'scale-110 ml-4'}`}
+          className={`flex items-center space-x-3 px-3 py-1.5 rounded-full group transition-all duration-500 ${scrolled ? '' : 'scale-105 ml-4'}`}
         >
-          <div className="flex items-center justify-center p-2 rounded-full text-white bg-gradient-to-br from-[var(--accent)] to-[#047857] shadow-lg shadow-[var(--accent-glow)] group-hover:rotate-[360deg] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]">
-            <BookOpen className="h-5 w-5" />
-          </div>
-          <span className={`font-extrabold tracking-tight hidden sm:block transition-all duration-1000 ${scrolled ? 'text-lg' : 'text-xl'}`} style={{ color: 'var(--text-primary)' }}>
+          <BrainCircuit className={`h-7 w-7 transition-transform duration-700 group-hover:scale-110 text-white`} />
+          <span className={`font-extrabold tracking-tight hidden sm:block transition-all duration-500 text-white ${scrolled ? 'text-lg' : 'text-xl'}`}>
             SkillStream
           </span>
         </Link>
 
         {/* Desktop Links */}
-        <div className={`hidden lg:flex items-center p-1 rounded-full backdrop-blur-md transition-all duration-1000`} style={{ backgroundColor: scrolled ? 'var(--bg-input)' : 'transparent' }}>
+        <div 
+          className={`hidden lg:flex items-center p-1 transition-all duration-500 rounded-full`} 
+          style={{ backgroundColor: 'transparent' }}
+        >
           <NavLink to="/" label="Courses" isActive={checkActive('/')} />
 
           {user ? (
@@ -107,52 +110,30 @@ const Navbar = () => {
         </div>
 
         {/* Desktop Actions */}
-        <div className={`hidden lg:flex items-center space-x-3 pr-2 transition-all duration-1000 ${scrolled ? '' : 'mr-4'}`}>
-          <button
-            onClick={toggleTheme}
-            className={`rounded-full transition-all duration-300 group relative ${scrolled ? 'p-2.5' : 'p-3 scale-110'}`}
-            style={{ color: 'var(--text-secondary)' }}
-            title="Toggle Theme"
-          >
-            <span 
-              className="absolute inset-0 rounded-full opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 ease-out -z-10"
-              style={{ backgroundColor: 'var(--bg-input)' }}
-            ></span>
-            <div className="group-hover:rotate-[360deg] transition-transform duration-700 ease-in-out">
-              {theme === 'dark' ? <Sun className="h-5 w-5 text-yellow-400" /> : <Moon className="h-5 w-5 text-blue-500" />}
-            </div>
-          </button>
-
-          <div className="w-px h-6 mx-2" style={{ backgroundColor: 'var(--border-color)' }}></div>
-
+        <div className={`hidden lg:flex items-center space-x-3 pr-2 transition-all duration-500 ${scrolled ? '' : 'mr-4'}`}>
           {user ? (
             <button
               onClick={handleLogout}
-              className={`group flex items-center space-x-2 rounded-full font-bold text-white transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 ${scrolled ? 'px-5 py-2 text-sm' : 'px-6 py-2.5 text-base shadow-lg'}`}
-              style={{ backgroundColor: 'var(--danger)', boxShadow: '0 8px 20px var(--danger-bg)' }}
+              className={`btn-sweep flex items-center rounded-full font-bold transition-all duration-300 hover:-translate-y-0.5 ${scrolled ? 'px-5 py-2 text-sm' : 'px-6 py-2.5 text-[13px]'}`}
             >
-              <LogOut className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
-              <span>Logout</span>
+              <div className="relative z-10 flex items-center space-x-2">
+                <span>Logout</span>
+                <LogOut className="h-4 w-4" />
+              </div>
             </button>
           ) : (
             <>
               <Link
                 to="/login"
-                className={`rounded-full font-bold transition-all duration-300 group relative ${scrolled ? 'px-5 py-2.5 text-sm' : 'px-6 py-3 text-base'}`}
-                style={{ color: 'var(--text-primary)' }}
+                className={`rounded-full font-bold transition-all duration-300 group relative ${scrolled ? 'px-5 py-2 text-sm text-white hover:bg-white/5' : 'px-6 py-2.5 text-[13px] text-white hover:text-gray-300'}`}
               >
-                <span 
-                  className="absolute inset-0 rounded-full opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 ease-out -z-10"
-                  style={{ backgroundColor: 'var(--bg-input)' }}
-                ></span>
                 <span className="relative z-10">Login</span>
               </Link>
               <Link
                 to="/register"
-                className={`rounded-full font-bold text-white transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 shadow-lg ${scrolled ? 'px-6 py-2.5 text-sm' : 'px-8 py-3 text-base scale-105'}`}
-                style={{ backgroundColor: 'var(--accent)', boxShadow: '0 8px 20px var(--accent-glow-strong)' }}
+                className={`btn-sweep rounded-full font-bold transition-all duration-300 hover:-translate-y-0.5 ${scrolled ? 'px-6 py-2 text-sm shadow-md' : 'px-6 py-2.5 text-[13px] shadow-md'}`}
               >
-                Sign Up
+                <span className="relative z-10">Sign In</span>
               </Link>
             </>
           )}
@@ -160,13 +141,6 @@ const Navbar = () => {
 
         {/* Mobile Toggle */}
         <div className="lg:hidden flex items-center pr-2 space-x-2">
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-full transition-colors"
-            style={{ color: 'var(--text-secondary)' }}
-          >
-            {theme === 'dark' ? <Sun className="h-4 w-4 text-yellow-400" /> : <Moon className="h-4 w-4 text-blue-500" />}
-          </button>
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="p-2 rounded-full transition-colors shadow-sm"

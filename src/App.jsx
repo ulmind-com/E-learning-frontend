@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Import Pages
@@ -23,6 +24,12 @@ const ConditionalNavbar = () => {
   const location = useLocation();
   if (location.pathname.startsWith('/live/')) return null;
   return <Navbar />;
+};
+
+const ConditionalFooter = () => {
+  const location = useLocation();
+  if (location.pathname.startsWith('/live/')) return null;
+  return <Footer />;
 };
 
 function App() {
@@ -121,6 +128,7 @@ function App() {
               />
             </Routes>
           </main>
+          <ConditionalFooter />
         </div>
       </Router>
     </AuthProvider>
