@@ -19,6 +19,8 @@ import ApplyInternship from './pages/ApplyInternship';
 import MyApplication from './pages/MyApplication';
 import AdminInternships from './pages/AdminInternships';
 import AdminTasks from './pages/AdminTasks';
+import AdminCourseStudents from './pages/AdminCourseStudents';
+import AdminTaskDetails from './pages/AdminTaskDetails';
 
 const ConditionalNavbar = () => {
   const location = useLocation();
@@ -93,6 +95,14 @@ function App() {
                 }
               />
               <Route
+                path="/admin/course/:id/students"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminCourseStudents />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/admin/course/:id/analytics"
                 element={
                   <ProtectedRoute allowedRoles={['admin']}>
@@ -113,6 +123,14 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={['admin']}>
                     <AdminTasks />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/task/:id"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminTaskDetails />
                   </ProtectedRoute>
                 }
               />

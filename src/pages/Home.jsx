@@ -117,8 +117,25 @@ const Home = () => {
       <section className="max-w-[1300px] mx-auto px-6 md:px-8 pb-24 relative z-10 pt-10">
 
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-10 w-10 animate-spin" style={{ color: 'var(--accent)' }} />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="rounded-[24px] overflow-hidden bg-white/5 border border-white/5 flex flex-col h-[420px]" style={{ animation: `pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite ${i * 0.1}s` }}>
+                <div className="h-[200px] w-full bg-white/5"></div>
+                <div className="p-6 flex flex-col flex-grow gap-4">
+                  <div className="flex justify-between items-center">
+                    <div className="h-6 w-24 bg-white/5 rounded-full"></div>
+                    <div className="h-4 w-12 bg-white/5 rounded-full"></div>
+                  </div>
+                  <div className="h-7 w-[90%] bg-white/10 rounded-md mt-2"></div>
+                  <div className="h-4 w-[70%] bg-white/5 rounded-md mb-auto"></div>
+                  <div className="h-[1px] w-full bg-white/5 my-1"></div>
+                  <div className="flex justify-between items-center">
+                    <div className="h-6 w-16 bg-white/10 rounded-md"></div>
+                    <div className="h-10 w-28 bg-white/10 rounded-full"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : filteredCourses.length === 0 ? (
           <div className="text-center py-20 animate-fade-in">

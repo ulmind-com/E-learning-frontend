@@ -1,13 +1,15 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Mail, Lock, Loader2, LogIn, AlertCircle } from 'lucide-react';
+import { Mail, Lock, Loader2, LogIn, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import PremiumBg from '../components/PremiumBg';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -30,19 +32,18 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12" style={{ backgroundColor: 'var(--bg-primary)' }}>
-      {/* Background glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full blur-3xl pointer-events-none opacity-30" style={{ background: 'var(--gradient-hero)' }}></div>
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12 relative overflow-hidden">
+      <PremiumBg />
 
-      <div className="w-full max-w-md relative animate-scale-in">
-        <div className="rounded-2xl p-8 shadow-2xl" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-card)' }}>
+      <div className="w-full max-w-md relative animate-scale-in z-10">
+        <div className="rounded-[28px] p-8 shadow-[0_20px_40px_rgba(232,124,65,0.15)] glass-panel border border-white/10" style={{ backgroundColor: 'rgba(11,11,12,0.6)', backdropFilter: 'blur(20px)' }}>
           {/* Header */}
           <div className="text-center mb-8 animate-slide-down">
-            <div className="inline-flex p-3 rounded-full mb-4" style={{ backgroundColor: 'var(--accent-glow)' }}>
-              <LogIn className="h-8 w-8" style={{ color: 'var(--accent)' }} />
+            <div className="inline-flex p-3.5 rounded-2xl mb-5 bg-[#E87C41]/10 border border-[#E87C41]/20 shadow-inner">
+              <LogIn className="h-8 w-8 text-[#E87C41]" />
             </div>
-            <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Welcome Back</h1>
-            <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>Sign in to access your courses</p>
+            <h1 className="text-3xl font-bold text-white tracking-wide">Welcome Back</h1>
+            <p className="text-sm mt-2 text-white/60 font-medium">Sign in to access your premium courses</p>
           </div>
 
           {error && (
@@ -54,9 +55,9 @@ const Login = () => {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="animate-slide-up" style={{ animationDelay: '0.05s' }}>
-              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Email</label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none" style={{ color: 'var(--text-muted)' }}>
+              <label className="block text-[13px] font-semibold tracking-wide mb-2 text-white/80 uppercase">Email Address</label>
+              <div className="relative group/input">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-white/40 group-focus-within/input:text-[#E87C41] transition-colors">
                   <Mail className="h-5 w-5" />
                 </span>
                 <input
@@ -64,50 +65,55 @@ const Login = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all"
-                  style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+                  className="w-full pl-12 pr-4 py-3.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#E87C41]/50 transition-all bg-white/5 border border-white/10 text-white placeholder-white/30"
                   placeholder="you@example.com"
                 />
               </div>
             </div>
 
             <div className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
-              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Password</label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none" style={{ color: 'var(--text-muted)' }}>
+              <label className="block text-[13px] font-semibold tracking-wide mb-2 text-white/80 uppercase">Password</label>
+              <div className="relative group/input">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-white/40 group-focus-within/input:text-[#E87C41] transition-colors">
                   <Lock className="h-5 w-5" />
                 </span>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all"
-                  style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                  placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                  className="w-full pl-12 pr-12 py-3.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#E87C41]/50 transition-all bg-white/5 border border-white/10 text-white placeholder-white/30"
+                  placeholder="••••••••"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-4 text-white/40 hover:text-white transition-colors focus:outline-none"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white py-2.5 px-4 rounded-xl font-medium text-sm transition-all focus:outline-none shadow-lg flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-55 btn-press animate-slide-up"
+              className="w-full bg-[#E87C41] hover:shadow-[0_6px_20px_rgba(232,124,65,0.4)] text-white py-3.5 px-4 rounded-xl font-bold text-[15px] transition-all focus:outline-none flex items-center justify-center gap-2 cursor-pointer disabled:opacity-55 btn-sweep overflow-hidden animate-slide-up group/btn"
               style={{ animationDelay: '0.15s' }}
             >
-              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
+              {loading ? <Loader2 className="h-5 w-5 animate-spin relative z-10" /> : (
                 <>
-                  <LogIn className="h-5 w-5" />
-                  <span>Sign In</span>
+                  <span className="relative z-10 tracking-wide">Sign In to Dashboard</span>
+                  <LogIn className="h-5 w-5 relative z-10 transition-transform group-hover/btn:translate-x-1" />
                 </>
               )}
             </button>
           </form>
 
-          <p className="text-center text-sm mt-6 animate-fade-in" style={{ color: 'var(--text-muted)', animationDelay: '0.2s' }}>
+          <p className="text-center text-sm mt-8 animate-fade-in text-white/60 font-medium" style={{ animationDelay: '0.2s' }}>
             Don't have an account?{' '}
-            <Link to="/register" className="font-medium hover:underline" style={{ color: 'var(--accent)' }}>
-              Register
+            <Link to="/register" className="font-bold text-[#E87C41] hover:text-[#ff9c6a] transition-colors hover:underline">
+              Register now
             </Link>
           </p>
         </div>

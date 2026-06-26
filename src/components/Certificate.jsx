@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { Download, Loader2 } from 'lucide-react';
+import { Download, Loader2, Award } from 'lucide-react';
 
 const Certificate = ({ userName, issueDate }) => {
   const certificateRef = useRef(null);
@@ -11,7 +11,7 @@ const Certificate = ({ userName, issueDate }) => {
     if (!certificateRef.current) return;
     setDownloading(true);
     try {
-      const canvas = await html2canvas(certificateRef.current, { scale: 2 });
+      const canvas = await html2canvas(certificateRef.current, { scale: 3, useCORS: true });
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('landscape', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -28,72 +28,151 @@ const Certificate = ({ userName, issueDate }) => {
   };
 
   return (
-    <div className="flex flex-col items-center w-full max-w-md mx-auto">
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '500px', margin: '0 auto' }}>
+      
       {/* Scaled Certificate Preview Container */}
-      <div className="relative w-[400px] h-[300px] rounded-2xl overflow-hidden shadow-2xl border border-[var(--border-color)] group premium-card-hover bg-white mb-6">
+      <div 
+        className="cert-preview-container"
+        style={{ 
+          position: 'relative', 
+          width: '450px', 
+          height: '337.5px', // 4:3 aspect ratio
+          borderRadius: '16px', 
+          overflow: 'hidden', 
+          boxShadow: '0 20px 40px rgba(232, 124, 65, 0.15)', 
+          border: '1px solid rgba(232, 124, 65, 0.2)',
+          background: '#fff',
+          marginBottom: '24px'
+        }}
+      >
         
-        {/* Actual Certificate (800x600 scaled down to 400x300) */}
+        {/* Actual Certificate (1200x900 scaled down to 450x337.5) */}
         <div 
           ref={certificateRef}
-          className="absolute top-0 left-0 bg-white text-gray-800"
           style={{ 
-            width: '800px', 
-            height: '600px', 
-            padding: '40px', 
-            border: '10px solid #4f46e5', 
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '1200px', 
+            height: '900px', 
+            background: '#ffffff',
             boxSizing: 'border-box', 
-            transform: 'scale(0.5)',
-            transformOrigin: 'top left'
+            transform: 'scale(0.375)', // 450 / 1200
+            transformOrigin: 'top left',
+            fontFamily: '"Times New Roman", Times, serif',
+            color: '#1a1a1a',
+            overflow: 'hidden'
           }}
         >
-          {/* Inner Border */}
-          <div className="absolute inset-4 border-4 border-indigo-200" style={{ pointerEvents: 'none' }}></div>
+          {/* Certificate Background Pattern */}
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: `linear-gradient(rgba(232, 124, 65, 0.03) 2px, transparent 2px), linear-gradient(90deg, rgba(232, 124, 65, 0.03) 2px, transparent 2px)`,
+            backgroundSize: '40px 40px',
+            pointerEvents: 'none'
+          }} />
+
+          {/* Premium Borders */}
+          <div style={{ position: 'absolute', inset: '40px', border: '12px solid #E87C41' }}>
+            <div style={{ position: 'absolute', inset: '8px', border: '2px solid #F59E0B' }}></div>
+            <div style={{ position: 'absolute', inset: '16px', border: '1px solid rgba(232, 124, 65, 0.3)' }}></div>
+          </div>
           
-          <div className="text-center h-full flex flex-col justify-center items-center">
-            <h1 className="text-5xl font-serif font-bold text-indigo-700 mb-2 tracking-widest uppercase">Certificate</h1>
-            <h2 className="text-2xl font-serif text-indigo-500 mb-10 uppercase tracking-widest">of Internship Completion</h2>
+          {/* Corner Accents */}
+          <div style={{ position:'absolute', top:'40px', left:'40px', width:'60px', height:'60px', borderRight:'4px solid #fff', borderBottom:'4px solid #fff', background:'#E87C41' }}></div>
+          <div style={{ position:'absolute', top:'40px', right:'40px', width:'60px', height:'60px', borderLeft:'4px solid #fff', borderBottom:'4px solid #fff', background:'#E87C41' }}></div>
+          <div style={{ position:'absolute', bottom:'40px', left:'40px', width:'60px', height:'60px', borderRight:'4px solid #fff', borderTop:'4px solid #fff', background:'#E87C41' }}></div>
+          <div style={{ position:'absolute', bottom:'40px', right:'40px', width:'60px', height:'60px', borderLeft:'4px solid #fff', borderTop:'4px solid #fff', background:'#E87C41' }}></div>
+
+          <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '100px 80px', zIndex: 10 }}>
             
-            <p className="text-gray-500 text-lg mb-4 italic">This is proudly presented to</p>
-            <h3 className="text-4xl font-bold text-gray-800 mb-8 pb-2 border-b-2 border-indigo-400 inline-block px-10">
+            <div style={{ marginBottom: '30px', color: '#E87C41' }}>
+              <Award size={80} strokeWidth={1.5} />
+            </div>
+
+            <h1 style={{ fontSize: '72px', fontWeight: 900, color: '#111', margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: '0.15em', fontFamily: 'Inter, sans-serif' }}>
+              Certificate
+            </h1>
+            <h2 style={{ fontSize: '32px', fontWeight: 400, color: '#E87C41', margin: '0 0 60px', textTransform: 'uppercase', letterSpacing: '0.2em' }}>
+              of Internship Completion
+            </h2>
+            
+            <p style={{ fontSize: '24px', color: '#555', margin: '0 0 20px', fontStyle: 'italic' }}>
+              This is proudly presented to
+            </p>
+            
+            <h3 style={{ fontSize: '64px', fontWeight: 700, color: '#000', margin: '0 0 50px', paddingBottom: '10px', borderBottom: '3px solid #E87C41', display: 'inline-block', padding: '0 60px', fontFamily: 'Inter, sans-serif' }}>
               {userName}
             </h3>
             
-            <p className="text-gray-600 text-lg mb-12 max-w-lg leading-relaxed">
-              In recognition of their outstanding performance and successful completion of the internship program. Their dedication, hard work, and valuable contributions are highly appreciated.
+            <p style={{ fontSize: '24px', color: '#444', margin: '0 0 80px', maxWidth: '800px', textAlign: 'center', lineHeight: 1.8 }}>
+              In recognition of their outstanding performance and successful completion of the internship program. Their dedication, hard work, and valuable contributions to the team are highly appreciated and commended.
             </p>
             
-            <div className="flex justify-between w-full px-12 mt-auto">
-              <div className="text-center border-t-2 border-gray-300 pt-2 w-48">
-                <p className="font-bold text-gray-700">{issueDate}</p>
-                <p className="text-sm text-gray-500">Date of Issue</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', padding: '0 60px', marginTop: 'auto' }}>
+              <div style={{ textAlign: 'center', width: '250px' }}>
+                <p style={{ fontSize: '28px', fontWeight: 700, color: '#222', margin: '0 0 10px', borderBottom: '2px solid #ccc', paddingBottom: '10px', fontFamily: 'Inter, sans-serif' }}>{issueDate}</p>
+                <p style={{ fontSize: '18px', color: '#777', margin: 0, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Date of Issue</p>
               </div>
-              <div className="text-center border-t-2 border-gray-300 pt-2 w-48">
-                <p className="font-bold text-gray-700" style={{ fontFamily: 'cursive' }}>Admin</p>
-                <p className="text-sm text-gray-500">Program Director</p>
+              
+              {/* Badge/Seal */}
+              <div style={{ width: '120px', height: '120px', borderRadius: '50%', background: 'linear-gradient(135deg, #E87C41, #F59E0B)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', border: '6px solid #fff', boxShadow: '0 0 0 2px #E87C41', marginTop: '-40px' }}>
+                <span style={{ fontSize: '14px', fontWeight: 800, textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.1em', fontFamily: 'Inter, sans-serif' }}>Official<br/>Seal</span>
+              </div>
+
+              <div style={{ textAlign: 'center', width: '250px' }}>
+                <p style={{ fontSize: '36px', fontWeight: 700, color: '#222', margin: '0 0 10px', borderBottom: '2px solid #ccc', paddingBottom: '10px', fontFamily: '"Brush Script MT", cursive, sans-serif' }}>Admin Signature</p>
+                <p style={{ fontSize: '18px', color: '#777', margin: 0, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Program Director</p>
               </div>
             </div>
+
           </div>
         </div>
 
         {/* Download Overlay */}
-        <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center z-10">
+        <div 
+          className="cert-overlay"
+          style={{ 
+            position: 'absolute', inset: 0, background: 'rgba(5, 5, 5, 0.6)', backdropFilter: 'blur(3px)', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10,
+            opacity: 0, transition: 'opacity 0.3s ease', cursor: 'pointer'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.opacity = 1}
+          onMouseLeave={(e) => e.currentTarget.style.opacity = 0}
+        >
           <button 
             onClick={downloadCertificate}
             disabled={downloading}
-            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transform hover:-translate-y-1 active:scale-95 transition-all duration-300 flex items-center gap-2 border border-indigo-400/30"
+            style={{
+              padding: '14px 28px', background: '#E87C41', color: '#fff', border: 'none', borderRadius: '12px',
+              fontSize: '15px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer',
+              boxShadow: '0 10px 25px rgba(232, 124, 65, 0.4)', transition: 'transform 0.2s ease', fontFamily: 'Inter, sans-serif'
+            }}
+            onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
+            onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
             {downloading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 size={20} className="animate-spin" />
             ) : (
-              <Download className="w-5 h-5 animate-bounce-subtle" />
+              <Download size={20} />
             )}
-            <span>{downloading ? 'Generating PDF...' : 'Download Certificate'}</span>
+            <span>{downloading ? 'Generating High-Res PDF...' : 'Download Certificate'}</span>
           </button>
         </div>
       </div>
+      
+      <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', textAlign: 'center', margin: 0 }}>
+        Hover over the certificate to download a high-resolution PDF copy.
+      </p>
+
+      <style>{`
+        .cert-preview-container:hover .cert-overlay { opacity: 1 !important; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .animate-spin { animation: spin 1s linear infinite; }
+      `}</style>
     </div>
   );
 };
 
 export default Certificate;
-

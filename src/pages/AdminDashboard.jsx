@@ -55,10 +55,155 @@ const LEVELS = [
   { value: 'advanced', label: 'Advanced', color: '#ef4444' },
 ];
 
+/* ═══════════════ INLINE STYLES ═══════════════ */
+const styles = `
+  @keyframes ma-orb-1 {
+    0% { transform: translate(0,0) scale(1); }
+    25% { transform: translate(80px,-50px) scale(1.15); }
+    50% { transform: translate(20px,40px) scale(0.9); }
+    75% { transform: translate(-60px,-10px) scale(1.05); }
+    100% { transform: translate(0,0) scale(1); }
+  }
+  @keyframes ma-orb-2 {
+    0% { transform: translate(0,0) scale(1); }
+    25% { transform: translate(-70px,60px) scale(1.2); }
+    50% { transform: translate(50px,-30px) scale(0.85); }
+    75% { transform: translate(-20px,50px) scale(1.1); }
+    100% { transform: translate(0,0) scale(1); }
+  }
+  @keyframes ma-orb-3 {
+    0% { transform: translate(0,0) scale(1); opacity:0.06; }
+    33% { transform: translate(40px,70px) scale(1.3); opacity:0.1; }
+    66% { transform: translate(-60px,-40px) scale(0.8); opacity:0.04; }
+    100% { transform: translate(0,0) scale(1); opacity:0.06; }
+  }
+  @keyframes ma-aurora {
+    0% { background-position: 0% 50%; opacity:0.03; }
+    25% { opacity:0.06; }
+    50% { background-position: 100% 50%; opacity:0.04; }
+    75% { opacity:0.07; }
+    100% { background-position: 0% 50%; opacity:0.03; }
+  }
+  @keyframes ma-grid-pulse {
+    0%,100% { opacity:0.02; }
+    50% { opacity:0.04; }
+  }
+  @keyframes ma-streak {
+    0% { transform: translateX(-100%) skewX(-15deg); opacity:0; }
+    15% { opacity:1; }
+    85% { opacity:1; }
+    100% { transform: translateX(200vw) skewX(-15deg); opacity:0; }
+  }
+  @keyframes ma-glow-dot {
+    0%,100% { opacity:0.15; transform:scale(1); box-shadow: 0 0 8px 2px rgba(232,124,65,0.15); }
+    50% { opacity:0.5; transform:scale(1.5); box-shadow: 0 0 20px 6px rgba(232,124,65,0.25); }
+  }
+  @keyframes ma-grain {
+    0%,100% { transform: translate(0,0); }
+    10% { transform: translate(-2%,-2%); }
+    20% { transform: translate(1%,3%); }
+    30% { transform: translate(-3%,1%); }
+    40% { transform: translate(3%,-1%); }
+    50% { transform: translate(-1%,2%); }
+    60% { transform: translate(2%,-3%); }
+    70% { transform: translate(-2%,1%); }
+    80% { transform: translate(1%,-2%); }
+    90% { transform: translate(3%,2%); }
+  }
+  @keyframes admin-skeleton-pulse {
+    0%, 100% { opacity: 0.6; background-color: rgba(255,255,255,0.05); }
+    50% { opacity: 0.3; background-color: rgba(232,124,65,0.08); }
+  }
+  @keyframes ma-card-in {
+    0% { opacity:0; transform:translateY(50px) scale(0.94); filter:blur(6px); }
+    100% { opacity:1; transform:translateY(0) scale(1); filter:blur(0); }
+  }
+  
+  .admin-page { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+  .admin-page * { box-sizing: border-box; }
+
+  .glass-panel {
+    background: linear-gradient(180deg, rgba(30,20,15,0.6) 0%, #050505 100%);
+    border: 1px solid rgba(232,124,65,0.15);
+    backdrop-filter: blur(12px);
+  }
+  .admin-sidebar {
+    background: rgba(10, 5, 5, 0.85);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(232,124,65,0.15);
+  }
+`;
+
+const PremiumBg = ({ scrollY = 0 }) => (
+  <div style={{ position:'fixed', inset:0, overflow:'hidden', pointerEvents:'none', zIndex:0, backgroundColor: '#030100' }}>
+    {/* Deep Amber/Orange Core Glow */}
+    <div style={{
+      position:'absolute', top:'10%', left:'-5%',
+      width:'900px', height:'900px', borderRadius:'50%',
+      background:'radial-gradient(circle, rgba(255,100,20,0.08) 0%, rgba(232,124,65,0.03) 40%, transparent 70%)',
+      filter:'blur(90px)', pointerEvents:'none'
+    }} />
+
+    {/* Secondary Vibrant Orange Glow */}
+    <div style={{
+      position:'absolute', bottom:'-10%', right:'-10%',
+      width:'700px', height:'700px', borderRadius:'50%',
+      background:'radial-gradient(circle, rgba(255,120,40,0.06) 0%, rgba(232,124,65,0.02) 40%, transparent 70%)',
+      filter:'blur(70px)', pointerEvents:'none',
+      transform: `translateY(${-scrollY*0.03}px)`
+    }} />
+
+    {/* Geometric Wireframe Patterns */}
+    <svg width="100%" height="100%" className="absolute inset-0 opacity-[0.25]" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="dotGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+          <circle cx="2" cy="2" r="1.5" fill="#E87C41" opacity="0.8" />
+          <circle cx="20" cy="20" r="1" fill="#FF8C42" opacity="0.3" />
+        </pattern>
+        <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FF6B00" stopOpacity="0.4" />
+          <stop offset="100%" stopColor="#FF9D00" stopOpacity="0.1" />
+        </linearGradient>
+      </defs>
+      {/* Background Dots */}
+      <rect width="100%" height="100%" fill="url(#dotGrid)" />
+      
+      {/* Large rotated diamond wireframes - enhanced with orange gradients */}
+      <g stroke="url(#orangeGrad)" strokeWidth="1" fill="none" opacity="0.6" style={{ transform: `translateY(${scrollY*0.06}px)` }}>
+        <path d="M 100 500 L 400 200 L 700 500 L 400 800 Z" />
+        <path d="M 250 500 L 400 350 L 550 500 L 400 650 Z" />
+        <path d="M -50 200 L 250 -100 L 550 200 L 250 500 Z" />
+      </g>
+      
+      {/* Abstract connection lines */}
+      <g stroke="#E87C41" strokeWidth="0.5" fill="none" opacity="0.4" style={{ transform: `translateY(${scrollY*0.02}px)` }}>
+        <path d="M 0 350 L 400 350 L 700 650 L 1200 650" />
+        <path d="M 400 0 L 400 800" />
+        <path d="M 700 0 L 700 1000" />
+      </g>
+    </svg>
+
+    {/* Subtle animated overlay to make the dots feel alive */}
+    <div style={{
+      position:'absolute', inset:0,
+      background: 'linear-gradient(180deg, transparent 0%, rgba(5,5,5,0.8) 100%)',
+      pointerEvents:'none'
+    }} />
+  </div>
+);
+
 const AdminDashboard = () => {
   const { token } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -666,7 +811,14 @@ const AdminDashboard = () => {
   }, []).sort((a, b) => new Date(a.date) - new Date(b.date));
 
   return (
-    <div className="flex min-h-screen relative" style={{ backgroundColor: 'var(--bg-primary)' }}>
+    <div className="admin-page flex min-h-screen relative text-white" style={{ backgroundColor: '#050505' }}>
+      <style>{styles}</style>
+      <PremiumBg scrollY={scrollY} />
+      
+      {/* Orange edge glows for a premium immersive feel */}
+      <div className="fixed top-0 left-0 w-[150px] md:w-[300px] h-full bg-gradient-to-r from-[#E87C41]/10 to-transparent pointer-events-none z-0"></div>
+      <div className="fixed top-0 right-0 w-[150px] md:w-[300px] h-full bg-gradient-to-l from-[#E87C41]/10 to-transparent pointer-events-none z-0"></div>
+      
       {/* Mobile Overlay */}
       {mobileMenuOpen && (
         <div 
@@ -678,16 +830,15 @@ const AdminDashboard = () => {
 
       {/* Sidebar - Desktop & Mobile Drawer */}
       <aside 
-        className={`w-64 flex-shrink-0 flex flex-col shadow-2xl lg:shadow-sm z-50 fixed inset-y-0 left-0 lg:sticky lg:top-[72px] lg:h-[calc(100vh-72px)] transform transition-transform duration-300 ease-in-out ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`} 
-        style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', borderRightWidth: '1px' }}
+        className={`admin-sidebar w-64 flex-shrink-0 flex flex-col shadow-2xl lg:shadow-sm z-50 fixed inset-y-0 left-0 lg:sticky lg:top-[72px] lg:h-[calc(100vh-72px)] transform transition-transform duration-300 ease-in-out ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`} 
       >
-        <div className="p-6 border-b flex items-center justify-between" style={{ borderColor: 'var(--border-color)' }}>
-          <h2 className="text-xl font-bold tracking-wide" style={{ color: 'var(--text-primary)' }}>Admin Panel</h2>
-          <button className="lg:hidden p-1.5 rounded-lg hover:bg-[var(--bg-input)] transition-colors cursor-pointer" onClick={() => setMobileMenuOpen(false)} style={{ color: 'var(--text-muted)' }}>
+        <div className="p-6 border-b flex items-center justify-between" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+          <h2 className="text-xl font-bold tracking-wide text-white">Admin Panel</h2>
+          <button className="lg:hidden p-1.5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer text-white/60" onClick={() => setMobileMenuOpen(false)}>
             <X className="h-5 w-5" />
           </button>
         </div>
-        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-3">
           {[
             { id: 'courses', icon: BookOpen, label: 'Manage Courses' },
             { id: 'overview', icon: BarChart3, label: 'Activity Overview' },
@@ -701,9 +852,9 @@ const AdminDashboard = () => {
               <button
                 key={tab.id}
                 onClick={() => { setActiveTab(tab.id); setMobileMenuOpen(false); }}
-                className={`w-full relative flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 group overflow-hidden cursor-pointer ${isActive ? 'bg-[var(--accent)] text-white shadow-md' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-input)] hover:text-[var(--text-primary)] hover:translate-x-1'}`}
+                className={`w-full relative flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 group overflow-hidden cursor-pointer ${isActive ? 'bg-[#E87C41] text-white shadow-[0_4px_14px_rgba(232,124,65,0.4)]' : 'text-white/60 hover:text-white btn-sweep-white'}`}
               >
-                {isActive && <div className="absolute left-0 top-0 bottom-0 w-1 bg-white rounded-r-md animate-slide-up"></div>}
+                {isActive && <div className="absolute left-0 top-0 bottom-0 w-1 bg-white rounded-r-md z-20"></div>}
                 <Icon className={`h-5 w-5 transition-transform duration-300 ${!isActive && 'group-hover:scale-110'}`} />
                 <span className="relative z-10">{tab.label}</span>
               </button>
@@ -713,27 +864,26 @@ const AdminDashboard = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-4 md:p-8 w-full max-w-full overflow-hidden">
+      <main className="flex-1 p-4 md:p-8 w-full max-w-full overflow-hidden relative z-10">
         <div className="max-w-6xl mx-auto">
           {/* Header Area */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4 border-b pb-6" style={{ borderColor: 'var(--border-color)' }}>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4 border-b pb-6" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
             <div className="flex items-center gap-4">
               <button 
-                className="lg:hidden p-2 rounded-lg transition-colors hover:bg-[var(--bg-input)] cursor-pointer"
+                className="lg:hidden p-2 rounded-lg transition-colors hover:bg-white/10 cursor-pointer text-white"
                 onClick={() => setMobileMenuOpen(true)}
-                style={{ color: 'var(--text-primary)' }}
               >
                 <div className="space-y-1.5">
-                  <span className="block w-6 h-0.5 rounded-full" style={{ backgroundColor: 'currentColor' }}></span>
-                  <span className="block w-6 h-0.5 rounded-full" style={{ backgroundColor: 'currentColor' }}></span>
-                  <span className="block w-4 h-0.5 rounded-full" style={{ backgroundColor: 'currentColor' }}></span>
+                  <span className="block w-6 h-0.5 rounded-full bg-white"></span>
+                  <span className="block w-6 h-0.5 rounded-full bg-white"></span>
+                  <span className="block w-4 h-0.5 rounded-full bg-white"></span>
                 </div>
               </button>
               <div>
-                <h1 className="text-3xl font-extrabold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+                <h1 className="text-3xl font-extrabold tracking-tight text-white">
                   {activeTab === 'courses' ? 'Manage Courses' : activeTab === 'overview' ? 'Activity Overview' : activeTab === 'settings' ? 'Certificate Settings' : activeTab === 'requests' ? 'Certificate Requests' : 'Doubt Requests'}
                 </h1>
-                <p className="mt-1 text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+                <p className="mt-1 text-sm font-medium text-white/50">
                   View and manage your platform's content and student requests.
                 </p>
               </div>
@@ -745,8 +895,7 @@ const AdminDashboard = () => {
                 setError('');
                 setSuccess('');
               }}
-              className="flex items-center space-x-2 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-colors shadow-sm cursor-pointer"
-              style={{ backgroundColor: 'var(--accent)' }}
+              className="flex items-center space-x-2 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-[0_4px_14px_rgba(232,124,65,0.3)] hover:shadow-[0_6px_20px_rgba(232,124,65,0.5)] cursor-pointer hover:-translate-y-0.5 bg-[#E87C41]"
             >
               <Plus className="h-4 w-4" />
               <span>Add New Course</span>
@@ -782,12 +931,11 @@ const AdminDashboard = () => {
         {/* â”€â”€â”€ Course Form Modal â”€â”€â”€ */}
         {showForm && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-backdrop"
-            style={{ backgroundColor: 'var(--bg-overlay)' }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md"
+            style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
           >
             <div
-              className="w-full max-w-xl rounded-2xl shadow-xl p-6 max-h-[90vh] overflow-y-auto animate-modal border"
-              style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}
+              className="glass-panel w-full max-w-xl rounded-[24px] shadow-2xl p-8 max-h-[90vh] overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
@@ -1269,7 +1417,7 @@ const AdminDashboard = () => {
                 {/* ─── Formal Executive Analytics Hero ─── */}
                 {!overviewLoading && overviewData.length > 0 && (
                   <div className="flex justify-center mb-12 animate-slide-up w-full">
-                    <div className="relative overflow-hidden rounded-[1.5rem] bg-[var(--bg-card)] border border-[var(--border-color)] shadow-sm hover:shadow-xl transition-all duration-700 w-full max-w-5xl group transform hover:-translate-y-1">
+                    <div className="relative overflow-hidden rounded-[1.5rem] glass-panel border border-white/10 shadow-sm hover:shadow-xl transition-all duration-700 w-full max-w-5xl group transform hover:-translate-y-1">
                       <div className="relative h-full p-10 md:p-14 flex flex-col md:flex-row items-center justify-between gap-10 z-10 overflow-hidden">
                         
                         {/* Immersive Formal Ambient Gradient */}
@@ -1306,7 +1454,7 @@ const AdminDashboard = () => {
                   </div>
                 )}
 
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-8 rounded-[1.5rem] bg-[var(--bg-card)] border border-[var(--border-color)] shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow duration-500">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-8 rounded-[1.5rem] glass-panel border border-white/10 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow duration-500">
                   <div className="absolute top-0 left-0 w-1.5 h-full bg-[var(--accent)]"></div>
                   <div className="pl-4">
                     <h2 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Course Performance Matrix</h2>
@@ -1341,7 +1489,7 @@ const AdminDashboard = () => {
                     {overviewData
                       .filter(c => c.title.toLowerCase().includes(overviewSearchQuery.toLowerCase()))
                       .map((course, idx) => (
-                      <div key={course._id} className="rounded-[1rem] overflow-hidden shadow-sm hover:shadow-xl border border-[var(--border-color)] transition-all duration-500 hover:-translate-y-1.5 bg-[var(--bg-card)] flex flex-col group relative animate-slide-up" style={{ animationDelay: `${idx * 0.1}s`, animationFillMode: 'both' }}>
+                      <div key={course._id} className="rounded-[1rem] overflow-hidden shadow-sm hover:shadow-[0_15px_35px_rgba(232,124,65,0.15)] border border-white/10 transition-all duration-500 hover:-translate-y-1.5 glass-panel flex flex-col group relative animate-slide-up" style={{ animationDelay: `${idx * 0.1}s`, animationFillMode: 'both' }}>
                         
                         {course.thumbnail ? (
                           <div className="h-48 relative overflow-hidden flex-shrink-0 border-b border-[var(--border-color)] bg-[var(--bg-input)]">
@@ -1510,21 +1658,34 @@ const AdminDashboard = () => {
 
         {/* â”€â”€â”€ Certificate Requests Tab â”€â”€â”€ */}
         {activeTab === 'requests' && (
-          <div className="rounded-xl p-6 md:p-8 animate-slide-up" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+          <div className="rounded-xl p-6 md:p-8 animate-slide-up glass-panel border border-white/10">
             <h2 className="text-xl font-bold mb-6 flex items-center space-x-2" style={{ color: 'var(--text-primary)' }}>
               <Award className="h-5 w-5" style={{ color: 'var(--accent)' }} />
               <span>Pending Certificate Requests</span>
             </h2>
             
             {requestsLoading ? (
-              <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-[var(--accent)]" /></div>
+              <div className="space-y-4 py-4">
+                {[1,2,3].map(i => (
+                  <div key={i} className="glass-panel p-4 rounded-xl flex items-center justify-between" style={{ animation: `admin-skeleton-pulse 1.5s infinite ease-in-out ${i*0.1}s` }}>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-white/5"></div>
+                      <div className="space-y-2">
+                        <div className="w-32 h-5 bg-white/10 rounded"></div>
+                        <div className="w-24 h-4 bg-white/5 rounded"></div>
+                      </div>
+                    </div>
+                    <div className="w-24 h-10 rounded-lg bg-white/10"></div>
+                  </div>
+                ))}
+              </div>
             ) : certificateRequests.length === 0 ? (
               <div className="text-center py-12">
                 <CheckCircle className="h-12 w-12 mx-auto mb-3 opacity-30 text-green-500" />
                 <p style={{ color: 'var(--text-muted)' }}>No pending certificate requests. You're all caught up!</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto glass-panel rounded-xl border border-white/10 p-4">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b" style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}>
@@ -1572,14 +1733,25 @@ const AdminDashboard = () => {
         )}
 
         {activeTab === 'doubts' && (
-          <div className="rounded-xl p-6 md:p-8 animate-slide-up" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+          <div className="rounded-xl p-6 md:p-8 animate-slide-up glass-panel border border-white/10">
             <h2 className="text-xl font-bold mb-6 flex items-center space-x-2" style={{ color: 'var(--text-primary)' }}>
               <MessageSquare className="h-5 w-5" style={{ color: 'var(--accent)' }} />
               <span>Pending Doubt Requests</span>
             </h2>
             
             {doubtsLoading ? (
-              <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin" style={{ color: 'var(--accent)' }} /></div>
+              <div className="space-y-6 py-4">
+                {[1,2].map(i => (
+                  <div key={i} className="glass-panel p-5 rounded-2xl flex flex-col gap-4" style={{ animation: `admin-skeleton-pulse 1.5s infinite ease-in-out ${i*0.1}s` }}>
+                    <div className="flex items-center justify-between">
+                      <div className="w-48 h-6 bg-white/10 rounded"></div>
+                      <div className="w-20 h-5 bg-white/5 rounded"></div>
+                    </div>
+                    <div className="w-full h-20 bg-white/5 rounded-xl"></div>
+                    <div className="flex justify-end mt-2"><div className="w-32 h-10 rounded-xl bg-white/10"></div></div>
+                  </div>
+                ))}
+              </div>
             ) : pendingDoubts.length === 0 ? (
               <div className="text-center py-12">
                 <CheckCircle className="h-12 w-12 mx-auto mb-3 opacity-30 text-green-500" />
@@ -1588,7 +1760,7 @@ const AdminDashboard = () => {
             ) : (
               <div className="grid grid-cols-1 gap-6">
                 {pendingDoubts.map(doubt => (
-                  <div key={doubt._id} className="p-5 rounded-xl border transition-all duration-300 hover:shadow-lg hover:-translate-y-1 bg-[var(--bg-card)]" style={{ borderColor: 'var(--border-color)' }}>
+                  <div key={doubt._id} className="p-5 rounded-xl border border-white/10 transition-all duration-300 hover:shadow-[0_10px_30px_rgba(232,124,65,0.15)] hover:-translate-y-1 glass-panel">
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-sm font-bold text-white shadow-sm" style={{ backgroundColor: 'var(--accent)' }}>
@@ -1615,7 +1787,7 @@ const AdminDashboard = () => {
                       )}
                     </div>
                     
-                    <div className="border-t pt-4" style={{ borderColor: 'var(--border-color)' }}>
+                    <div className="rounded-xl overflow-hidden glass-panel border border-white/10 p-4">
                       <h4 className="text-xs font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>Your Reply</h4>
                       <textarea
                         className="w-full p-3 rounded-lg text-sm mb-3 focus:outline-none focus:ring-1 focus:ring-[var(--accent)] resize-none"
@@ -1651,29 +1823,40 @@ const AdminDashboard = () => {
         )}
 
         {activeTab === 'courses' && (
-          <>
-            {/* â”€â”€â”€ Today's Live Classes â”€â”€â”€ */}
+          <div className="relative">
+            {/* Edge Glow Effects */}
+            <div className="absolute -left-20 top-1/4 w-40 h-96 bg-[#E87C41]/10 blur-[100px] rounded-full pointer-events-none"></div>
+            <div className="absolute -right-20 top-1/3 w-40 h-96 bg-[#E87C41]/10 blur-[100px] rounded-full pointer-events-none"></div>
+
+            {/* --- Today's Live Classes --- */}
             {!loading && upcomingLiveClasses.length > 0 && (
-              <div className="mb-8 animate-slide-up">
-                <h2 className="text-xl font-bold mb-4 flex items-center space-x-2" style={{ color: 'var(--text-primary)' }}>
-                  <Clock className="h-5 w-5" style={{ color: '#ef4444' }} />
+              <div className="mb-10 animate-slide-up relative z-10">
+                <h2 className="text-2xl font-bold mb-6 flex items-center space-x-3 text-white tracking-wide">
+                  <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#E87C41]/10 border border-[#E87C41]/20 text-[#E87C41] shadow-inner">
+                    <Clock className="h-5 w-5" />
+                  </span>
                   <span>Upcoming Live Classes</span>
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                   {upcomingLiveClasses.map(lc => {
                     const isLive = lc.status === 'live';
                     return (
-                      <div key={lc._id} className="bg-white dark:bg-gray-800 p-5 rounded-xl border border-red-100 dark:border-red-900/30 shadow-sm relative overflow-hidden group">
-                        <div className="absolute top-0 left-0 w-1 h-full bg-red-500"></div>
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="font-bold text-gray-800 dark:text-gray-100 line-clamp-1">{lc.title}</h3>
-                          {isLive && <span className="flex h-3 w-3 shrink-0"><span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-red-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span></span>}
+                      <div key={lc._id} className="glass-panel border border-white/10 p-6 rounded-[24px] relative overflow-hidden group hover:-translate-y-1 transition-all duration-300">
+                        <div className="absolute top-0 left-0 w-1.5 h-full bg-[#E87C41]"></div>
+                        <div className="flex justify-between items-start mb-3">
+                          <h3 className="font-bold text-white text-[17px] line-clamp-1 group-hover:text-[#E87C41] transition-colors pr-4">{lc.title}</h3>
+                          {isLive && <span className="flex h-3.5 w-3.5 shrink-0"><span className="animate-ping absolute inline-flex h-3.5 w-3.5 rounded-full bg-[#E87C41] opacity-75"></span><span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-[#E87C41]"></span></span>}
                         </div>
-                        <p className="text-xs font-semibold text-red-600 dark:text-red-400 mb-1">{new Date(lc.date).toLocaleString()}</p>
-                        <p className="text-xs text-gray-500 line-clamp-1 mb-4">Course: {lc.courseTitle}</p>
+                        <div className="inline-block bg-[#E87C41]/10 border border-[#E87C41]/20 text-[#E87C41] text-[13px] font-semibold px-3 py-1.5 rounded-lg mb-4">
+                          {new Date(lc.date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+                        </div>
+                        <div className="pt-4 border-t border-white/5 mb-4">
+                          <p className="text-[13px] text-white/50 font-medium">Course</p>
+                          <p className="text-[14px] text-white/90 line-clamp-1 font-semibold">{lc.courseTitle}</p>
+                        </div>
                         <button
                           onClick={() => navigate(`/live/${lc.courseId}/${lc.chapterId}/${lc._id}`)}
-                          className={`w-full py-2 rounded-lg text-xs font-bold text-white transition-all ${isLive ? 'bg-red-500 hover:bg-red-600 shadow-[0_0_10px_rgba(239,68,68,0.5)] animate-pulse' : 'bg-gray-800 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600'}`}
+                          className={`w-full py-3 rounded-[12px] text-sm font-bold text-white transition-all ${isLive ? 'bg-[#E87C41] hover:bg-[#ff8f54] shadow-[0_0_15px_rgba(232,124,65,0.4)] animate-pulse' : 'bg-white/5 border border-white/10 hover:bg-white/10'}`}
                         >
                           {isLive ? 'Join Live Now' : 'Enter Waiting Room'}
                         </button>
@@ -1686,9 +1869,22 @@ const AdminDashboard = () => {
 
             {/* â”€â”€â”€ Course List â”€â”€â”€ */}
             {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-10 w-10 animate-spin" style={{ color: 'var(--accent)' }} />
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="glass-panel rounded-2xl overflow-hidden flex flex-col h-[380px]" style={{ animation: `admin-skeleton-pulse 1.5s infinite ease-in-out ${i * 0.1}s` }}>
+                    <div className="h-[180px] bg-white/5 w-full"></div>
+                    <div className="p-5 flex flex-col flex-1 gap-3">
+                      <div className="w-20 h-5 rounded-full bg-white/10"></div>
+                      <div className="w-3/4 h-6 rounded bg-white/10"></div>
+                      <div className="w-full h-4 rounded bg-white/5 mt-auto"></div>
+                      <div className="flex gap-2 mt-4">
+                        <div className="flex-1 h-10 rounded-lg bg-white/10"></div>
+                        <div className="flex-1 h-10 rounded-lg bg-white/10"></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
         ) : courses.length === 0 ? (
           <div className="text-center py-16 px-6 animate-fade-in glass rounded-3xl border shadow-xl max-w-xl mx-auto mt-10" style={{ borderColor: 'var(--border-color)' }}>
             <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-tr from-[var(--accent)] to-[#ec4899] mb-6 shadow-lg shadow-[var(--accent-glow)] animate-float">
@@ -1706,139 +1902,134 @@ const AdminDashboard = () => {
             {courses.map((course) => (
               <div
                 key={course._id}
-                className="relative flex flex-col p-4 rounded-[24px] transition-all duration-500 hover:-translate-y-2 group"
-                style={{
-                  backgroundColor: 'var(--bg-card)',
-                  boxShadow: '0 10px 40px rgba(0,0,0,0.08)',
-                }}
+                className="relative flex flex-col p-6 rounded-[28px] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(255,255,255,0.05)] group"
+                style={{ backgroundColor: 'transparent', border: '1px solid rgba(255,255,255,0.1)', minHeight: '440px' }}
               >
+                {/* Mac OS Window Controls */}
+                <div className="flex items-center gap-1.5 mb-4">
+                  <div className="w-3 h-3 rounded-full bg-[#FF5F56]"></div>
+                  <div className="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
+                  <div 
+                    onClick={() => {
+                      navigate('/admin/course/' + course._id);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="w-3 h-3 rounded-full bg-[#27C93F] cursor-pointer hover:scale-150 transition-transform"
+                    title="Open Course Details"
+                  ></div>
+                </div>
+
                 {/* Thumbnail Image Container */}
-                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden">
+                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden mb-4">
                   {course.thumbnail ? (
                     <img
                       src={course.thumbnail?.startsWith('/uploads') ? `${API_URL.replace('/api', '')}${course.thumbnail}` : course.thumbnail}
                       alt={course.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                     />
                   ) : (
                     <div
                       className="w-full h-full relative"
                       style={{
                         background: course.courseType === 'free'
-                            ? 'linear-gradient(135deg, #10b981 0%, #047857 100%)'
-                            : 'linear-gradient(135deg, #0a192f 0%, #1e293b 100%)',
+                            ? 'linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(4,120,87,0.4) 100%)'
+                            : 'linear-gradient(135deg, rgba(30,20,15,0.8) 0%, rgba(5,5,5,0.9) 100%)',
                       }}
                     >
                        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPgo8cmVjdCB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMSI+PC9yZWN0Pgo8cGF0aCBkPSJNMCAwTDggOFpNOCAwTDAgOFoiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIj48L3BhdGg+Cjwvc3ZnPg==')" }}></div>
                     </div>
                   )}
-                  
-                  {/* Overlay Gradient for readability of badges */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20 pointer-events-none"></div>
 
-                  {/* Flipkart Style Rating Pill (Top Left) */}
-                  <div className="absolute top-3 left-3 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded flex items-center gap-1 shadow-lg backdrop-blur-sm z-10">
-                    {course.rating && course.rating > 0 ? (
-                      <>{course.rating.toFixed(1)} <Star className="h-3 w-3 fill-white text-white" /></>
-                    ) : (
-                      "No rating"
-                    )}
-                  </div>
+                  {/* Image Overlay Gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
 
-                  {/* Top Right Admin Actions (Floating over image) */}
-                  <div className="absolute top-3 right-3 flex items-center gap-2 z-10">
+                  {/* Admin Actions (Floating over image on hover) */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 backdrop-blur-[2px] z-20">
                     <button
                       onClick={() => {
                         handleOpenEdit(course);
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                       }}
-                      className="p-2 bg-white/90 hover:bg-white text-gray-800 rounded-lg shadow-lg backdrop-blur-sm transition-all hover:scale-110 cursor-pointer"
+                      className="p-3 bg-[#E87C41] text-white rounded-full hover:scale-110 transition-transform shadow-[0_0_15px_rgba(232,124,65,0.5)]"
                       title="Edit Course"
                     >
-                      <Edit3 className="h-4 w-4" />
+                      <Edit3 className="h-5 w-5" />
                     </button>
                     <button
                       onClick={() => handleDelete(course._id)}
-                      className="p-2 bg-white/90 hover:bg-white text-red-600 rounded-lg shadow-lg backdrop-blur-sm transition-all hover:scale-110 cursor-pointer"
+                      className="p-3 bg-red-600 text-white rounded-full hover:scale-110 transition-transform shadow-[0_0_15px_rgba(239,68,68,0.5)]"
                       title="Delete Course"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-5 w-5" />
                     </button>
                   </div>
                 </div>
 
-                {/* Card Content Body */}
-                <div className="flex flex-col flex-grow pt-4">
-                  
-                  {/* Title */}
-                  <h3
-                    className="text-xl font-bold mb-2 line-clamp-1 group-hover:text-[var(--accent)] transition-colors duration-300"
-                    style={{ color: 'var(--text-primary)' }}
-                  >
-                    {course.title}
-                  </h3>
-                  
-                  {/* Subtitle / Description */}
-                  <p
-                    className="text-sm line-clamp-1 mb-5"
-                    style={{ color: 'var(--text-secondary)' }}
-                  >
-                    {course.category || course.description || 'Course Syllabus & Details'}
-                  </p>
-
-                  <div className="mt-auto">
-                    {/* Metrics Row (Students Clickable & Duration) */}
-                    <div className="flex items-center justify-between mb-4">
-                      <button
-                        onClick={() => {
-                          setSelectedCourseForStudents(course);
-                          setShowStudentsModal(true);
-                          fetchCourseStudents(course._id);
-                        }}
-                        className="flex items-center gap-1.5 text-xs font-bold hover:text-[var(--accent)] transition-colors cursor-pointer group/students"
-                        style={{ color: 'var(--text-muted)' }}
-                      >
-                        <div className="p-1.5 rounded-full bg-[var(--accent)]/10 group-hover/students:bg-[var(--accent)]/20 transition-colors">
-                          <Users className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
-                        </div>
-                        <span className="border-b border-transparent group-hover/students:border-[var(--accent)]">
-                          {course.enrolledCount || 0} Students
-                        </span>
-                      </button>
-                      {course.duration && (
-                        <div className="flex items-center gap-1.5 text-xs font-bold" style={{ color: 'var(--text-muted)' }}>
-                          <Clock className="h-4 w-4" style={{ color: 'var(--accent)' }} />
-                          <span>{course.duration}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Price Section - Dynamic, no fake discounts */}
-                    <div className="flex items-center gap-2 mb-5">
-                      {course.courseType === 'free' ? (
-                        <span className="text-2xl font-black text-green-500">Free</span>
-                      ) : (
-                        <span className="text-2xl font-black" style={{ color: 'var(--text-primary)' }}>
-                          ₹{course.price}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Action Button - Restored Green Color & Animated */}
-                    <button
-                      onClick={() => navigate('/admin/course/' + course._id)}
-                      className="w-full py-3.5 rounded-xl font-bold text-white transition-all duration-300 cursor-pointer text-center shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.23)] hover:-translate-y-1 flex items-center justify-center gap-2 group/btn"
-                      style={{ background: 'var(--accent)' }}
-                    >
-                      Manage Details
-                    </button>
+                {/* Tags and Students Metric Row */}
+                <div className="flex justify-between items-start mb-4 mt-2">
+                  <div className="flex flex-wrap gap-2">
+                    <span className="px-3.5 py-1.5 rounded-full border border-white/20 text-white/70 text-[13px] bg-transparent">
+                      Placement Focused
+                    </span>
+                    <span className="px-3.5 py-1.5 rounded-full border border-white/20 text-white/70 text-[13px] bg-transparent">
+                      {course.category || 'Aptitude'}
+                    </span>
                   </div>
+
+                  <div 
+                    onClick={() => {
+                      navigate(`/admin/course/${course._id}/students`);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="flex items-center gap-1.5 text-[13px] font-bold text-white/80 hover:text-[#E87C41] transition-all cursor-pointer group/students bg-white/5 hover:bg-[#E87C41]/10 px-3.5 py-1.5 rounded-full border border-white/10 hover:border-[#E87C41]/30 shadow-sm whitespace-nowrap shrink-0"
+                  >
+                    <Users className="h-4 w-4 group-hover/students:scale-110 transition-transform shrink-0" />
+                    <span className="whitespace-nowrap">{course.enrolledCount || 0} Students</span>
+                  </div>
+                </div>
+                
+                {/* Title */}
+                <h3 className="text-[22px] font-semibold mb-6 line-clamp-2 leading-tight text-white group-hover:text-white/80 transition-colors duration-300 tracking-wide">
+                  {course.title}
+                </h3>
+                  
+                <div className="mt-auto">
+                  {/* Price Block */}
+                  <div className="flex items-end gap-2 mb-8">
+                    <span className="text-white text-[22px] mb-0.5">Price</span>
+                    {course.courseType === 'free' ? (
+                      <span className="text-[28px] leading-none text-[#E87C41]">Free</span>
+                    ) : (
+                      <>
+                        <span className="text-[28px] leading-none text-[#E87C41]">
+                          Rs.{course.price}
+                        </span>
+                        <span className="text-[13px] text-white/40 line-through mb-1">
+                          Rs.{Math.round(course.price * 2.1)}
+                        </span>
+                        <div className="ml-auto bg-white text-black text-[11px] font-medium px-2 py-1 rounded-sm">
+                          53.4% OFF
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Action Button */}
+                  <button
+                    onClick={() => {
+                      navigate('/admin/course/' + course._id);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="w-fit px-5 py-2.5 rounded-[14px] font-bold text-[15px] text-white border border-white/20 bg-transparent cursor-pointer flex items-center gap-2 group/btn btn-sweep-transparent"
+                  >
+                    Manage Details <span>→</span>
+                  </button>
                 </div>
               </div>
             ))}
           </div>
         )}
-          </>
+          </div>
         )}
 
         {/* â”€â”€â”€ Certificate Settings Tab â”€â”€â”€ */}
@@ -1969,70 +2160,96 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* â”€â”€â”€ Students Progress Modal â”€â”€â”€ */}
+      {/* ─── Students Progress Modal ─── */}
       {showStudentsModal && selectedCourseForStudents && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in" style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
-          <div className="rounded-2xl w-full max-w-3xl p-6 border shadow-2xl relative animate-scale-in flex flex-col max-h-[85vh]" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)' }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in relative" style={{ backgroundColor: 'rgba(11,11,12,0.85)', backdropFilter: 'blur(15px)' }}>
+          {/* Background ambient glow for modal */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#E87C41] opacity-[0.08] blur-[120px] rounded-full pointer-events-none"></div>
+
+          <div className="rounded-[28px] w-full max-w-3xl p-8 shadow-[0_20px_60px_rgba(232,124,65,0.15)] relative animate-scale-in flex flex-col max-h-[85vh] glass-panel border border-white/10">
             <button
               onClick={() => {
                 setShowStudentsModal(false);
                 setSelectedCourseForStudents(null);
                 setStudentsList([]);
               }}
-              className="absolute top-4 right-4 p-1 rounded-md transition-colors hover:bg-[var(--bg-input)]"
-              style={{ color: 'var(--text-muted)' }}
+              className="absolute top-6 right-6 p-2 rounded-full transition-all hover:bg-white/10 hover:rotate-90 bg-white/5 text-white/60 hover:text-white border border-white/10"
             >
               <X className="h-5 w-5" />
             </button>
             
-            <h2 className="text-xl font-bold mb-1 flex items-center space-x-2" style={{ color: 'var(--text-primary)' }}>
-              <Users className="h-5 w-5" style={{ color: '#3b82f6' }} />
-              <span>Students Enrolled in {selectedCourseForStudents.title}</span>
-            </h2>
-            <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>
-              Total Enrolled: <span className="font-bold text-[var(--accent)]">{studentsList.length}</span>
-            </p>
+            <div className="flex items-center space-x-4 mb-2">
+              <div className="p-3 rounded-2xl bg-[#E87C41]/10 border border-[#E87C41]/20 shadow-inner">
+                <Users className="h-7 w-7 text-[#E87C41]" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-white tracking-wide">
+                  Enrolled Students
+                </h2>
+                <p className="text-sm font-medium text-white/50 mt-1">
+                  Course: <span className="text-[#E87C41]">{selectedCourseForStudents.title}</span>
+                </p>
+              </div>
+            </div>
 
-            <div className="overflow-y-auto pr-2 space-y-4 flex-1">
+            <div className="bg-white/5 border border-white/10 rounded-xl px-5 py-3 flex items-center justify-between mb-6 mt-4">
+              <span className="text-white/70 font-semibold uppercase tracking-wider text-[13px]">Total Students Enrolled</span>
+              <span className="text-2xl font-bold text-white">{studentsList.length}</span>
+            </div>
+
+            <div className="overflow-y-auto pr-2 space-y-4 flex-1 custom-scrollbar">
               {studentsLoading ? (
-                <div className="flex items-center justify-center py-10">
-                  <Loader2 className="h-8 w-8 animate-spin" style={{ color: 'var(--accent)' }} />
+                <div className="space-y-4 py-4">
+                  {[1,2,3,4].map(i => (
+                    <div key={i} className="glass-panel p-4 rounded-[20px] flex items-center justify-between border border-white/5" style={{ animation: `admin-skeleton-pulse 1.5s infinite ease-in-out ${i*0.1}s` }}>
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-white/10"></div>
+                        <div className="w-32 h-5 rounded bg-white/10"></div>
+                      </div>
+                      <div className="w-32 h-8 rounded-full bg-white/5"></div>
+                    </div>
+                  ))}
                 </div>
               ) : studentsList.length === 0 ? (
-                <div className="text-center py-10" style={{ color: 'var(--text-muted)' }}>
-                  <Users className="h-10 w-10 mx-auto mb-2 opacity-50" />
-                  <p>No students enrolled yet.</p>
+                <div className="text-center py-16 flex flex-col items-center justify-center bg-white/5 rounded-[20px] border border-white/5">
+                  <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                    <Users className="h-10 w-10 text-white/30" />
+                  </div>
+                  <p className="text-lg font-bold text-white/80">No students found</p>
+                  <p className="text-sm text-white/40 mt-2">There are currently no students enrolled in this course.</p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {studentsList.map((student, index) => (
-                    <div key={student._id} className="p-4 rounded-xl flex items-center justify-between transition-all hover:bg-[var(--bg-card)]" style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
-                      <div className="flex items-center space-x-4 flex-1">
-                        <div className="flex items-center justify-center w-6 text-xs font-bold" style={{ color: 'var(--text-muted)' }}>
+                    <div key={student._id} className="p-5 rounded-[20px] flex items-center justify-between transition-all hover:-translate-y-1 hover:bg-white/10 bg-white/5 border border-white/10 group shadow-sm">
+                      <div className="flex items-center space-x-5 flex-1">
+                        <div className="flex items-center justify-center w-6 text-sm font-bold text-white/30 group-hover:text-[#E87C41] transition-colors">
                           #{index + 1}
                         </div>
-                        <div className="h-10 w-10 rounded-full flex items-center justify-center font-bold text-white shrink-0 shadow-md" style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)' }}>
+                        <div className="h-12 w-12 rounded-full flex items-center justify-center font-bold text-white text-lg shrink-0 shadow-lg" style={{ background: 'linear-gradient(135deg, #E87C41, #ff9c6a)' }}>
                           {student.name.charAt(0).toUpperCase()}
                         </div>
                         <div className="flex-1">
-                          <h4 className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{student.name}</h4>
-                          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{student.email}</p>
+                          <h4 className="font-bold text-[16px] text-white tracking-wide">{student.name}</h4>
+                          <p className="text-[13px] text-white/50 font-medium">{student.email}</p>
                         </div>
                       </div>
-                      <div className="flex-1 max-w-[200px] ml-4">
-                        <div className="flex justify-between text-xs mb-1.5">
-                          <span style={{ color: 'var(--text-secondary)' }}>Progress</span>
-                          <span className="font-bold" style={{ color: student.progressPercentage === 100 ? '#22c55e' : 'var(--accent)' }}>{student.progressPercentage}%</span>
+                      <div className="flex-1 max-w-[220px] ml-4 bg-black/20 p-3 rounded-xl border border-white/5">
+                        <div className="flex justify-between text-[13px] mb-2 font-semibold">
+                          <span className="text-white/60 uppercase tracking-wide">Progress</span>
+                          <span className={`${student.progressPercentage === 100 ? 'text-[#22c55e]' : 'text-[#E87C41]'}`}>{student.progressPercentage}%</span>
                         </div>
-                        <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--border-color)' }}>
+                        <div className="w-full h-2.5 rounded-full overflow-hidden bg-white/10">
                           <div 
-                            className="h-full transition-all duration-1000 ease-out"
+                            className="h-full transition-all duration-1000 ease-out relative"
                             style={{ 
                               width: `${student.progressPercentage}%`, 
-                              backgroundColor: student.progressPercentage === 100 ? '#22c55e' : 'var(--accent)',
-                              boxShadow: student.progressPercentage === 100 ? '0 0 8px rgba(34,197,94,0.5)' : 'none'
+                              backgroundColor: student.progressPercentage === 100 ? '#22c55e' : '#E87C41',
+                              boxShadow: student.progressPercentage === 100 ? '0 0 10px rgba(34,197,94,0.6)' : '0 0 10px rgba(232,124,65,0.6)'
                             }}
-                          ></div>
+                          >
+                            <div className="absolute inset-0 bg-white/20 w-full"></div>
+                          </div>
                         </div>
                       </div>
                     </div>
