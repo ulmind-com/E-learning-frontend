@@ -90,20 +90,21 @@ const Navbar = () => {
           className={`hidden lg:flex items-center p-1 transition-all duration-500 rounded-full`} 
           style={{ backgroundColor: 'transparent' }}
         >
-          <NavLink to="/" label="Courses" isActive={checkActive('/')} />
+          <NavLink to="/" label="Courses" isActive={checkActive('/') && !checkActive('/internships')} />
+          <NavLink to="/internships" label="Internships" isActive={checkActive('/internships')} />
 
           {user ? (
             user.role === 'admin' ? (
               <>
                 <NavLink to="/admin" label="Admin" isActive={checkActive('/admin') && !checkActive('/admin/internships') && !checkActive('/admin/tasks')} />
-                <NavLink to="/admin/internships" label="Internships" isActive={checkActive('/admin/internships')} />
+                <NavLink to="/admin/internships-manage" label="Manage Interns" isActive={checkActive('/admin/internships-manage')} />
+                <NavLink to="/admin/internships" label="Intern Apps" isActive={checkActive('/admin/internships') && !checkActive('/admin/internships-manage')} />
                 <NavLink to="/admin/tasks" label="Tasks" isActive={checkActive('/admin/tasks')} />
               </>
             ) : (
               <>
                 <NavLink to="/my-courses" label="My Courses" isActive={checkActive('/my-courses')} />
-                <NavLink to="/apply-internship" label="Apply" isActive={checkActive('/apply-internship')} />
-                <NavLink to="/my-application" label="Application" isActive={checkActive('/my-application')} />
+                <NavLink to="/my-application" label="My App" isActive={checkActive('/my-application')} />
               </>
             )
           ) : null}
@@ -163,8 +164,11 @@ const Navbar = () => {
           }}
         >
           <div className="flex flex-col p-4 gap-2">
-            <Link to="/" onClick={closeMobile} className="flex items-center space-x-4 p-4 rounded-2xl font-bold transition-all" style={{ backgroundColor: checkActive('/') ? 'var(--accent-glow)' : 'transparent', color: checkActive('/') ? 'var(--accent)' : 'var(--text-primary)' }}>
+            <Link to="/" onClick={closeMobile} className="flex items-center space-x-4 p-4 rounded-2xl font-bold transition-all" style={{ backgroundColor: checkActive('/') && !checkActive('/internships') ? 'var(--accent-glow)' : 'transparent', color: checkActive('/') && !checkActive('/internships') ? 'var(--accent)' : 'var(--text-primary)' }}>
               <BookOpen className="h-5 w-5" /> <span>Courses</span>
+            </Link>
+            <Link to="/internships" onClick={closeMobile} className="flex items-center space-x-4 p-4 rounded-2xl font-bold transition-all" style={{ backgroundColor: checkActive('/internships') ? 'var(--accent-glow)' : 'transparent', color: checkActive('/internships') ? 'var(--accent)' : 'var(--text-primary)' }}>
+              <Briefcase className="h-5 w-5" /> <span>Internships</span>
             </Link>
 
             {user ? (
@@ -174,8 +178,11 @@ const Navbar = () => {
                     <Link to="/admin" onClick={closeMobile} className="flex items-center space-x-4 p-4 rounded-2xl font-bold transition-all" style={{ backgroundColor: checkActive('/admin') && !checkActive('/admin/internships') && !checkActive('/admin/tasks') ? 'var(--accent-glow)' : 'transparent', color: checkActive('/admin') && !checkActive('/admin/internships') && !checkActive('/admin/tasks') ? 'var(--accent)' : 'var(--text-primary)' }}>
                       <Shield className="h-5 w-5" /> <span>Admin</span>
                     </Link>
-                    <Link to="/admin/internships" onClick={closeMobile} className="flex items-center space-x-4 p-4 rounded-2xl font-bold transition-all" style={{ backgroundColor: checkActive('/admin/internships') ? 'var(--accent-glow)' : 'transparent', color: checkActive('/admin/internships') ? 'var(--accent)' : 'var(--text-primary)' }}>
-                      <CheckCircle className="h-5 w-5" /> <span>Internships</span>
+                    <Link to="/admin/internships-manage" onClick={closeMobile} className="flex items-center space-x-4 p-4 rounded-2xl font-bold transition-all" style={{ backgroundColor: checkActive('/admin/internships-manage') ? 'var(--accent-glow)' : 'transparent', color: checkActive('/admin/internships-manage') ? 'var(--accent)' : 'var(--text-primary)' }}>
+                      <Briefcase className="h-5 w-5" /> <span>Manage Interns</span>
+                    </Link>
+                    <Link to="/admin/internships" onClick={closeMobile} className="flex items-center space-x-4 p-4 rounded-2xl font-bold transition-all" style={{ backgroundColor: checkActive('/admin/internships') && !checkActive('/admin/internships-manage') ? 'var(--accent-glow)' : 'transparent', color: checkActive('/admin/internships') && !checkActive('/admin/internships-manage') ? 'var(--accent)' : 'var(--text-primary)' }}>
+                      <CheckCircle className="h-5 w-5" /> <span>Intern Apps</span>
                     </Link>
                     <Link to="/admin/tasks" onClick={closeMobile} className="flex items-center space-x-4 p-4 rounded-2xl font-bold transition-all" style={{ backgroundColor: checkActive('/admin/tasks') ? 'var(--accent-glow)' : 'transparent', color: checkActive('/admin/tasks') ? 'var(--accent)' : 'var(--text-primary)' }}>
                       <LayoutList className="h-5 w-5" /> <span>Tasks</span>
@@ -185,9 +192,6 @@ const Navbar = () => {
                   <>
                     <Link to="/my-courses" onClick={closeMobile} className="flex items-center space-x-4 p-4 rounded-2xl font-bold transition-all" style={{ backgroundColor: checkActive('/my-courses') ? 'var(--accent-glow)' : 'transparent', color: checkActive('/my-courses') ? 'var(--accent)' : 'var(--text-primary)' }}>
                       <User className="h-5 w-5" /> <span>My Courses</span>
-                    </Link>
-                    <Link to="/apply-internship" onClick={closeMobile} className="flex items-center space-x-4 p-4 rounded-2xl font-bold transition-all" style={{ backgroundColor: checkActive('/apply-internship') ? 'var(--accent-glow)' : 'transparent', color: checkActive('/apply-internship') ? 'var(--accent)' : 'var(--text-primary)' }}>
-                      <Briefcase className="h-5 w-5" /> <span>Apply</span>
                     </Link>
                     <Link to="/my-application" onClick={closeMobile} className="flex items-center space-x-4 p-4 rounded-2xl font-bold transition-all" style={{ backgroundColor: checkActive('/my-application') ? 'var(--accent-glow)' : 'transparent', color: checkActive('/my-application') ? 'var(--accent)' : 'var(--text-primary)' }}>
                       <FileText className="h-5 w-5" /> <span>Application</span>

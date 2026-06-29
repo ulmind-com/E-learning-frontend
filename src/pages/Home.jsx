@@ -17,6 +17,8 @@ import {
   Gem,
   Filter
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import SheryiansBg from '../components/SheryiansBg';
 
 const API_URL = 'https://e-learning-backend-1-r539.onrender.com/api';
 
@@ -56,9 +58,10 @@ const Home = () => {
   });
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-black" style={{ backgroundColor: '#000000' }}>
+    <div className="min-h-[calc(100vh-4rem)] bg-transparent" >
+      <SheryiansBg />
       {/* ─── Hero Section ─── */}
-      <section className="relative pt-20 pb-16 px-4 border-b border-transparent overflow-hidden hero-radial-gradient bg-black">
+      <section className="relative pt-20 pb-16 px-4 border-b border-transparent overflow-hidden hero-radial-gradient">
         {/* Background Subtle Dots */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.015]" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
         
@@ -268,4 +271,3 @@ const Home = () => {
 };
 
 export default Home;
-

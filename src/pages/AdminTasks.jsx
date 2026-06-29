@@ -76,12 +76,9 @@ const AdminTasks = () => {
   };
 
   return (
-    <div className="min-h-screen relative text-white" style={{ backgroundColor: '#050505' }}>
+    <div className="min-h-screen relative text-white" >
       <PremiumBg />
-      
-      {/* Orange edge glows */}
-      <div className="fixed top-0 left-0 w-[150px] md:w-[300px] h-full bg-gradient-to-r from-[#E87C41]/10 to-transparent pointer-events-none z-0"></div>
-      <div className="fixed top-0 right-0 w-[150px] md:w-[300px] h-full bg-gradient-to-l from-[#E87C41]/10 to-transparent pointer-events-none z-0"></div>
+
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-12 flex flex-col min-h-screen animate-fade-in">
         

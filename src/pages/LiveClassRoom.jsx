@@ -370,8 +370,8 @@ const LiveClassRoom = () => {
     setChatInput('');
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">Loading Live Class...</div>;
-  if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white"><p className="text-red-500 mb-4">{error}</p><button onClick={() => navigate(-1)} className="bg-red-500 px-4 py-2 rounded">Go Back</button></div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#050505] text-white">Loading Live Class...</div>;
+  if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-[#050505] text-white"><p className="text-red-500 mb-4">{error}</p><button onClick={() => navigate(-1)} className="bg-red-500 px-4 py-2 rounded">Go Back</button></div>;
 
   return (
     <div className="h-screen bg-gray-950 flex overflow-hidden text-gray-100 font-sans">

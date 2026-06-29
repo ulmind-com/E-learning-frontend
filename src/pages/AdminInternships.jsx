@@ -5,6 +5,7 @@ import {
   CheckCircle, Clock, Search, ExternalLink, 
   Code, X, Award, FileText, CheckSquare, Loader2
 } from 'lucide-react';
+import PremiumBg from '../components/PremiumBg';
 
 const API_URL = 'https://e-learning-backend-1-r539.onrender.com/api';
 
@@ -98,7 +99,8 @@ const AdminInternships = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
+    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 animate-fade-in relative z-10">
+      <PremiumBg />
       {/* Header */}
       <div className="flex items-center justify-between mb-10 pb-6 border-b" style={{ borderColor: 'var(--border-color)' }}>
         <div className="flex items-center space-x-4">
@@ -128,6 +130,8 @@ const AdminInternships = () => {
                 <div>
                   <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>{app.resume.name}</h3>
                   <div className="flex items-center space-x-3 text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+                    <span className="flex items-center space-x-1"><Briefcase className="h-3.5 w-3.5 text-[var(--accent)]" /> <span className="font-semibold text-[var(--accent)]">{app.internship?.title || 'General Internship'}</span></span>
+                    <span>•</span>
                     <span className="flex items-center space-x-1"><Mail className="h-3.5 w-3.5" /> <span>{app.resume.email}</span></span>
                     <span>•</span>
                     <span className="flex items-center space-x-1"><GraduationCap className="h-3.5 w-3.5" /> <span>{app.resume.college}</span></span>

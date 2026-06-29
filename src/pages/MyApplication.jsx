@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Certificate from '../components/Certificate';
 import { CheckCircle, Clock, FileText, Send, Award, ArrowRight, ExternalLink, XCircle, Loader2, Code2, Sparkles, AlertCircle, Briefcase, GitBranch, Globe, File } from 'lucide-react';
+import PremiumBg from '../components/PremiumBg';
 
 const API_URL = 'https://e-learning-backend-1-r539.onrender.com/api';
 
@@ -180,74 +181,7 @@ const styles = `
   }
 `;
 
-/* ═══════════════ BACKGROUND ═══════════════ */
-const PremiumBg = ({ scrollY = 0 }) => (
-  <div style={{ position:'fixed', inset:0, overflow:'hidden', pointerEvents:'none', zIndex:0 }}>
-    {/* Aurora mesh */}
-    <div style={{
-      position:'absolute', inset:0,
-      background:'linear-gradient(125deg, rgba(232,124,65,0.08) 0%, transparent 25%, rgba(245,158,11,0.06) 50%, transparent 75%, rgba(232,80,30,0.05) 100%)',
-      backgroundSize:'400% 400%', animation:'ma-aurora 15s ease-in-out infinite',
-    }} />
-    {/* Rotating conic spotlight */}
-    <div style={{
-      position:'absolute', top:'30%', left:'50%',
-      width:'800px', height:'800px',
-      background:'conic-gradient(from 0deg, transparent 0%, rgba(232,124,65,0.04) 10%, transparent 20%, transparent 50%, rgba(245,158,11,0.03) 60%, transparent 70%)',
-      borderRadius:'50%', filter:'blur(40px)',
-      animation:'ma-spotlight 30s linear infinite',
-      transform:`translate(-50%,-50%)`,
-    }} />
-    {/* Orange orb */}
-    <div style={{
-      position:'absolute', top:`calc(-10% + ${scrollY*0.08}px)`, left:'-8%',
-      width:'600px', height:'600px', borderRadius:'50%',
-      background:'radial-gradient(circle, rgba(232,124,65,0.14) 0%, rgba(232,124,65,0.04) 40%, transparent 70%)',
-      filter:'blur(50px)', animation:'ma-orb-1 25s ease-in-out infinite', willChange:'transform',
-    }} />
-    {/* Amber orb */}
-    <div style={{
-      position:'absolute', bottom:`calc(-15% - ${scrollY*0.05}px)`, right:'-5%',
-      width:'550px', height:'550px', borderRadius:'50%',
-      background:'radial-gradient(circle, rgba(245,158,11,0.1) 0%, rgba(245,158,11,0.03) 40%, transparent 70%)',
-      filter:'blur(70px)', animation:'ma-orb-2 30s ease-in-out infinite', willChange:'transform',
-    }} />
-    {/* Crimson orb */}
-    <div style={{
-      position:'absolute', top:`calc(40% - ${scrollY*0.03}px)`, left:'50%', marginLeft:'-250px',
-      width:'500px', height:'500px', borderRadius:'50%',
-      background:'radial-gradient(circle, rgba(180,60,20,0.06) 0%, transparent 65%)',
-      filter:'blur(90px)', animation:'ma-orb-3 35s ease-in-out infinite', willChange:'transform',
-    }} />
-    {/* Grid */}
-    <div style={{
-      position:'absolute', inset:0,
-      backgroundImage:'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
-      backgroundSize:'60px 60px', animation:'ma-grid-pulse 8s ease-in-out infinite',
-      transform:`translateY(${scrollY*0.02}px)`,
-    }} />
-    {/* Streaks */}
-    <div style={{ position:'absolute', top:'20%', left:0, width:'35%', height:'1px', background:'linear-gradient(90deg, transparent, rgba(232,124,65,0.25), rgba(245,158,11,0.15), transparent)', animation:'ma-streak 12s 2s linear infinite' }} />
-    <div style={{ position:'absolute', top:'60%', left:0, width:'25%', height:'1px', background:'linear-gradient(90deg, transparent, rgba(255,255,255,0.12), rgba(232,124,65,0.15), transparent)', animation:'ma-streak 16s 6s linear infinite' }} />
-    <div style={{ position:'absolute', top:'80%', left:0, width:'30%', height:'1px', background:'linear-gradient(90deg, transparent, rgba(245,158,11,0.18), rgba(232,124,65,0.1), transparent)', animation:'ma-streak 14s 9s linear infinite' }} />
-    {/* Glow dots */}
-    {[
-      {top:'15%',left:'12%',delay:'0s',size:4},{top:'40%',left:'88%',delay:'2s',size:3},
-      {top:'65%',left:'6%',delay:'4s',size:3},{top:'80%',left:'75%',delay:'1s',size:4},
-      {top:'28%',left:'60%',delay:'3s',size:3},{top:'90%',left:'35%',delay:'5s',size:3},
-    ].map((d,i) => (
-      <div key={i} style={{ position:'absolute', top:d.top, left:d.left, width:`${d.size}px`, height:`${d.size}px`, borderRadius:'50%', background:'#E87C41', animation:`ma-glow-dot 4s ${d.delay} ease-in-out infinite` }} />
-    ))}
-    {/* Film grain */}
-    <div style={{
-      position:'absolute', inset:'-50%', width:'200%', height:'200%', opacity:0.025,
-      backgroundImage:`url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
-      backgroundSize:'128px 128px', animation:'ma-grain 0.8s steps(8) infinite', pointerEvents:'none',
-    }} />
-    {/* Vignette */}
-    <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 70% 60% at 50% 50%, transparent 0%, rgba(0,0,0,0.4) 100%)' }} />
-  </div>
-);
+
 
 /* ═══════════════ STATUS CONFIGS ═══════════════ */
 const STATUS_CONFIG = {
@@ -415,45 +349,42 @@ const MyApplication = () => {
       <div className="ma-page" style={{ minHeight:'100vh', backgroundColor:'#050505', display:'flex', alignItems:'center', justifyContent:'center', position:'relative', padding:'20px' }}>
         <style>{styles}</style>
         <PremiumBg scrollY={0} />
-        <div style={{
-          maxWidth:'520px', width:'100%', textAlign:'center', padding:'56px 40px',
-          background:'linear-gradient(180deg, rgba(30,20,15,0.6) 0%, #050505 100%)',
-          border:'1px solid rgba(232,124,65,0.12)', borderRadius:'24px', position:'relative', zIndex:1,
-          animation:'ma-card-in 0.6s ease-out both',
-        }}>
-          {/* MacOS dots */}
-          <div style={{ position:'absolute', top:'20px', left:'20px', display:'flex', gap:'6px' }}>
-            <div style={{ width:'10px', height:'10px', borderRadius:'50%', background:'#FF5F56' }} />
-            <div style={{ width:'10px', height:'10px', borderRadius:'50%', background:'#FFBD2E' }} />
-            <div style={{ width:'10px', height:'10px', borderRadius:'50%', background:'#27C93F' }} />
-          </div>
 
+        
+        {/* Animated background rings for empty state */}
+        <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', zIndex:0 }}>
+          <div style={{ position:'absolute', width:'300px', height:'300px', borderRadius:'50%', border:'1px solid rgba(232,124,65,0.2)', animation:'ma-ping-slow 4s cubic-bezier(0, 0, 0.2, 1) infinite' }} />
+          <div style={{ position:'absolute', width:'500px', height:'500px', borderRadius:'50%', border:'1px solid rgba(232,124,65,0.1)', animation:'ma-ping-slow 4s cubic-bezier(0, 0, 0.2, 1) infinite', animationDelay:'1s' }} />
+          <div style={{ position:'absolute', width:'700px', height:'700px', borderRadius:'50%', border:'1px dashed rgba(232,124,65,0.05)', animation:'ma-spin-slow 20s linear infinite' }} />
+        </div>
+
+        <div style={{ maxWidth:'700px', textAlign:'center', padding:'60px 30px', position:'relative', zIndex:1, animation:'ma-slide-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards', background:'rgba(10,5,5,0.6)', backdropFilter:'blur(20px)', borderRadius:'32px', border:'1px solid rgba(232,124,65,0.15)', boxShadow:'0 30px 60px rgba(0,0,0,0.5)' }}>
           <div style={{
-            width:'80px', height:'80px', borderRadius:'50%', margin:'0 auto 24px',
-            background:'rgba(232,124,65,0.08)', border:'1px solid rgba(232,124,65,0.15)',
-            display:'flex', alignItems:'center', justifyContent:'center',
-            animation:'ma-float 3s ease-in-out infinite',
+            width:'100px', height:'100px', margin:'0 auto 32px',
+            background:'linear-gradient(135deg, rgba(232,124,65,0.2), rgba(245,158,11,0.05))',
+            borderRadius:'24px', display:'flex', alignItems:'center', justifyContent:'center',
+            border:'1px solid rgba(232,124,65,0.3)', boxShadow:'0 0 40px rgba(232,124,65,0.2), inset 0 0 20px rgba(255,255,255,0.05)',
+            transform:'rotate(-10deg)', animation:'ma-float 6s ease-in-out infinite'
           }}>
-            <FileText style={{ width:'36px', height:'36px', color:'#E87C41' }} />
+            <FileText style={{ width:'48px', height:'48px', color:'#E87C41', transform:'rotate(10deg)' }} />
           </div>
-          <h2 style={{ fontSize:'28px', fontWeight:800, color:'#fff', marginBottom:'12px', letterSpacing:'-0.02em' }}>
-            Not Applied Yet
+          
+          <h2 style={{ fontSize:'clamp(32px, 5vw, 48px)', fontWeight:800, color:'#fff', marginBottom:'20px', letterSpacing:'-0.03em', lineHeight:1.1 }}>
+            No Active <span style={{ color:'#E87C41' }}>Internship</span> Application
           </h2>
-          <p style={{ fontSize:'15px', color:'rgba(255,255,255,0.45)', lineHeight:1.6, marginBottom:'32px' }}>
-            You haven't submitted an internship application. Start your journey today and gain real-world experience!
+          
+          <p style={{ fontSize:'18px', color:'rgba(255,255,255,0.6)', marginBottom:'40px', lineHeight:1.6, maxWidth:'500px', margin:'0 auto 40px' }}>
+            Kickstart your tech career by applying for an internship. Work on real-world projects, get mentored by experts, and earn your certificate!
           </p>
+          
           <Link
-            to="/apply-internship"
-            className="btn-sweep"
-            style={{
-              display:'inline-flex', alignItems:'center', gap:'10px', padding:'14px 32px',
-              borderRadius:'50px', fontSize:'14px', fontWeight:700, textDecoration:'none',
-              color:'#fff', background:'#E87C41', border:'none',
-            }}
+            to="/internships"
+            className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-full overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(232,124,65,0.3)] active:scale-95"
+            style={{ background:'linear-gradient(135deg, #E87C41, #F59E0B)', color:'#000', textDecoration:'none' }}
           >
-            <span style={{ position:'relative', zIndex:10, display:'flex', alignItems:'center', gap:'8px' }}>
-              Apply Now <ArrowRight style={{ width:'18px', height:'18px' }} />
-            </span>
+            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
+            <span style={{ position:'relative', zIndex:1, fontSize:'16px', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.05em' }}>Explore Internships</span>
+            <ArrowRight style={{ width:'20px', height:'20px', position:'relative', zIndex:1 }} className="group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
       </div>
@@ -553,10 +484,8 @@ const MyApplication = () => {
 
         {/* ─── Status Card ─── */}
         <div
-          ref={(el) => (sectionRefs.current[0] = el)}
           data-section="status"
-          className={visibleSections.has('status') ? 'ma-section-visible' : 'ma-section-hidden'}
-          style={{ marginBottom:'56px' }}
+          style={{ marginBottom:'56px', animation:'ma-slide-up 0.8s 0.2s cubic-bezier(0.16, 1, 0.3, 1) both' }}
         >
           <div className="ma-status-card" style={{
             borderRadius:'22px', overflow:'hidden', position:'relative',
@@ -630,10 +559,8 @@ const MyApplication = () => {
         {/* ─── Tasks Section ─── */}
         {application.status !== 'Pending' && application.status !== 'Rejected' && (
           <div
-            ref={(el) => (sectionRefs.current[1] = el)}
             data-section="tasks"
-            className={visibleSections.has('tasks') ? 'ma-section-visible' : 'ma-section-hidden'}
-            style={{ marginBottom:'56px' }}
+            style={{ marginBottom:'56px', animation:'ma-slide-up 0.8s 0.4s cubic-bezier(0.16, 1, 0.3, 1) both' }}
           >
             {/* Section header */}
             <div style={{ display:'flex', alignItems:'center', gap:'14px', marginBottom:'32px' }}>

@@ -40,7 +40,7 @@ const AdminTaskDetails = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen relative text-white" style={{ backgroundColor: '#050505' }}>
+      <div className="min-h-screen relative text-white" >
         <PremiumBg />
         <div className="relative z-10 max-w-5xl mx-auto px-4 py-12 flex flex-col w-full h-full">
           <div className="flex items-center space-x-4 mb-10 w-full" style={{ animation: `admin-skeleton-pulse 1.5s infinite ease-in-out` }}>
@@ -58,7 +58,7 @@ const AdminTaskDetails = () => {
 
   if (error || !task) {
     return (
-      <div className="min-h-screen relative text-white flex items-center justify-center" style={{ backgroundColor: '#050505' }}>
+      <div className="min-h-screen relative text-white flex items-center justify-center" >
         <PremiumBg />
         <div className="text-center relative z-10 p-12 bg-white/5 border border-white/10 rounded-[28px] backdrop-blur-md">
           <h2 className="text-2xl font-bold text-red-500 mb-4">{error || 'Task Not Found'}</h2>
@@ -71,7 +71,7 @@ const AdminTaskDetails = () => {
   }
 
   return (
-    <div className="min-h-screen relative text-white" style={{ backgroundColor: '#050505' }}>
+    <div className="min-h-screen relative text-white" >
       <PremiumBg />
       
       {/* Immersive Edge Glows */}

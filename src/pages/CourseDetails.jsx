@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import SheryiansBg from '../components/SheryiansBg';
 
 const API_URL = 'https://e-learning-backend-1-r539.onrender.com/api';
 
@@ -212,8 +213,9 @@ const CourseDetails = () => {
 
   if (loading) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] py-10 px-4 bg-[#0a0a0a]">
-        <div className="max-w-6xl mx-auto animate-pulse">
+    <div className="min-h-[calc(100vh-4rem)] py-10 px-4 bg-transparent relative overflow-hidden">
+      <SheryiansBg />
+      <div className="max-w-6xl mx-auto relative z-10 animate-fade-in">
           {/* Hero Skeleton */}
           <div className="rounded-2xl mb-12 bg-white/5 h-[400px] w-full border border-white/10"></div>
           
@@ -233,7 +235,8 @@ const CourseDetails = () => {
 
   if (error && !course) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 animate-fade-in" style={{ backgroundColor: '#000' }}>
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 animate-fade-in" >
+        <SheryiansBg />
         <AlertCircle className="h-16 w-16 mb-4" style={{ color: 'var(--danger)' }} />
         <h2 className="text-2xl font-bold mb-2" style={{ color: 'white' }}>Course Not Found</h2>
         <p className="mb-6" style={{ color: '#d1d5db' }}>{error}</p>
@@ -496,8 +499,8 @@ const CourseDetails = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] py-10 px-4 bg-grid-hero bg-[#0a0a0a] relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top,rgba(232,124,65,0.15),transparent_70%)] pointer-events-none"></div>
+    <div className="min-h-[calc(100vh-4rem)] py-10 px-4 bg-transparent relative overflow-hidden">
+      <SheryiansBg />
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Back link */}
         <Link

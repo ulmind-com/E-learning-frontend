@@ -21,6 +21,10 @@ import AdminInternships from './pages/AdminInternships';
 import AdminTasks from './pages/AdminTasks';
 import AdminCourseStudents from './pages/AdminCourseStudents';
 import AdminTaskDetails from './pages/AdminTaskDetails';
+import Internships from './pages/Internships';
+import InternshipDetails from './pages/InternshipDetails';
+import AdminInternshipUpload from './pages/AdminInternshipUpload';
+import SheryiansBg from './components/SheryiansBg';
 
 const ConditionalNavbar = () => {
   const location = useLocation();
@@ -39,17 +43,21 @@ function App() {
     <AuthProvider>
       <Router>
         <div
-          className="min-h-screen flex flex-col font-sans antialiased"
-          style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+          className="min-h-screen flex flex-col font-sans antialiased relative"
+          style={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)' }}
         >
-          <ConditionalNavbar />
-          <main className="flex-grow">
-            <Routes>
+
+          <div className="relative z-10 flex flex-col min-h-screen">
+            <ConditionalNavbar />
+            <main className="flex-grow">
+              <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/course/:id" element={<CourseDetails />} />
+              <Route path="/internships" element={<Internships />} />
+              <Route path="/internship/:id" element={<InternshipDetails />} />
 
               {/* Protected Student Routes */}
               <Route
@@ -61,7 +69,7 @@ function App() {
                 }
               />
               <Route
-                path="/apply-internship"
+                path="/apply-internship/:id"
                 element={
                   <ProtectedRoute allowedRoles={['student']}>
                     <ApplyInternship />
@@ -111,6 +119,14 @@ function App() {
                 }
               />
               <Route
+                path="/admin/internships-manage"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminInternshipUpload />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/admin/internships"
                 element={
                   <ProtectedRoute allowedRoles={['admin']}>
@@ -147,6 +163,7 @@ function App() {
             </Routes>
           </main>
           <ConditionalFooter />
+          </div>
         </div>
       </Router>
     </AuthProvider>
