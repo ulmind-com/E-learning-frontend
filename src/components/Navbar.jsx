@@ -34,7 +34,7 @@ const Navbar = () => {
   const NavLink = ({ to, label, isActive }) => (
     <Link
       to={to}
-      className={`relative px-5 py-2 rounded-full text-[13px] font-medium transition-all duration-300 group ${
+      className={`relative px-3 lg:px-4 py-2 rounded-full text-[13px] font-medium whitespace-nowrap transition-all duration-300 group ${
         scrolled ? '' : ''
       }`}
       style={{ color: isActive ? '#ffffff' : '#a1a1aa' }}
@@ -90,7 +90,8 @@ const Navbar = () => {
           className={`hidden lg:flex items-center p-1 transition-all duration-500 rounded-full`} 
           style={{ backgroundColor: 'transparent' }}
         >
-          <NavLink to="/" label="Courses" isActive={checkActive('/') && !checkActive('/internships')} />
+          <NavLink to="/" label="Home" isActive={checkActive('/')} />
+          <NavLink to="/courses" label="Courses" isActive={checkActive('/courses')} />
           <NavLink to="/internships" label="Internships" isActive={checkActive('/internships')} />
 
           {user ? (
@@ -144,79 +145,84 @@ const Navbar = () => {
         <div className="lg:hidden flex items-center pr-2 space-x-2">
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="p-2 rounded-full transition-colors shadow-sm"
-            style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
+            className={`p-2 rounded-full transition-all duration-500 flex items-center justify-center text-white hover:bg-white/10 ${mobileOpen ? 'rotate-90' : 'rotate-0'}`}
           >
-            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
       </nav>
 
       {/* Mobile Menu Dropdown */}
-      {mobileOpen && (
-        <div 
-          className="absolute top-20 right-[5%] w-[90%] max-w-sm rounded-3xl overflow-hidden animate-slide-down pointer-events-auto"
-          style={{
-            backgroundColor: 'var(--navbar-bg)',
-            backdropFilter: 'blur(20px)',
-            border: '1px solid var(--border-color)',
-            boxShadow: '0 30px 60px rgba(0,0,0,0.4)'
-          }}
-        >
-          <div className="flex flex-col p-4 gap-2">
-            <Link to="/" onClick={closeMobile} className="flex items-center space-x-4 p-4 rounded-2xl font-bold transition-all" style={{ backgroundColor: checkActive('/') && !checkActive('/internships') ? 'var(--accent-glow)' : 'transparent', color: checkActive('/') && !checkActive('/internships') ? 'var(--accent)' : 'var(--text-primary)' }}>
-              <BookOpen className="h-5 w-5" /> <span>Courses</span>
-            </Link>
-            <Link to="/internships" onClick={closeMobile} className="flex items-center space-x-4 p-4 rounded-2xl font-bold transition-all" style={{ backgroundColor: checkActive('/internships') ? 'var(--accent-glow)' : 'transparent', color: checkActive('/internships') ? 'var(--accent)' : 'var(--text-primary)' }}>
-              <Briefcase className="h-5 w-5" /> <span>Internships</span>
-            </Link>
+      <div 
+        className={`absolute top-[80px] right-4 sm:right-6 w-[260px] rounded-[32px] overflow-hidden border border-white/10 transition-all duration-500 origin-top-right ${
+          mobileOpen ? 'scale-100 opacity-100 translate-y-0 pointer-events-auto' : 'scale-90 opacity-0 -translate-y-4 pointer-events-none'
+        }`}
+        style={{
+          backgroundColor: '#0a0a0a',
+          boxShadow: '0 40px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(232, 124, 65, 0.15)'
+        }}
+      >
+        <div className="flex flex-col p-3 gap-1.5 relative">
+          {/* Decoration */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#E87C41] opacity-5 blur-[50px] rounded-full pointer-events-none"></div>
 
-            {user ? (
-              <>
-                {user.role === 'admin' ? (
-                  <>
-                    <Link to="/admin" onClick={closeMobile} className="flex items-center space-x-4 p-4 rounded-2xl font-bold transition-all" style={{ backgroundColor: checkActive('/admin') && !checkActive('/admin/internships') && !checkActive('/admin/tasks') ? 'var(--accent-glow)' : 'transparent', color: checkActive('/admin') && !checkActive('/admin/internships') && !checkActive('/admin/tasks') ? 'var(--accent)' : 'var(--text-primary)' }}>
-                      <Shield className="h-5 w-5" /> <span>Admin</span>
-                    </Link>
-                    <Link to="/admin/internships-manage" onClick={closeMobile} className="flex items-center space-x-4 p-4 rounded-2xl font-bold transition-all" style={{ backgroundColor: checkActive('/admin/internships-manage') ? 'var(--accent-glow)' : 'transparent', color: checkActive('/admin/internships-manage') ? 'var(--accent)' : 'var(--text-primary)' }}>
-                      <Briefcase className="h-5 w-5" /> <span>Manage Interns</span>
-                    </Link>
-                    <Link to="/admin/internships" onClick={closeMobile} className="flex items-center space-x-4 p-4 rounded-2xl font-bold transition-all" style={{ backgroundColor: checkActive('/admin/internships') && !checkActive('/admin/internships-manage') ? 'var(--accent-glow)' : 'transparent', color: checkActive('/admin/internships') && !checkActive('/admin/internships-manage') ? 'var(--accent)' : 'var(--text-primary)' }}>
-                      <CheckCircle className="h-5 w-5" /> <span>Intern Apps</span>
-                    </Link>
-                    <Link to="/admin/tasks" onClick={closeMobile} className="flex items-center space-x-4 p-4 rounded-2xl font-bold transition-all" style={{ backgroundColor: checkActive('/admin/tasks') ? 'var(--accent-glow)' : 'transparent', color: checkActive('/admin/tasks') ? 'var(--accent)' : 'var(--text-primary)' }}>
-                      <LayoutList className="h-5 w-5" /> <span>Tasks</span>
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <Link to="/my-courses" onClick={closeMobile} className="flex items-center space-x-4 p-4 rounded-2xl font-bold transition-all" style={{ backgroundColor: checkActive('/my-courses') ? 'var(--accent-glow)' : 'transparent', color: checkActive('/my-courses') ? 'var(--accent)' : 'var(--text-primary)' }}>
-                      <User className="h-5 w-5" /> <span>My Courses</span>
-                    </Link>
-                    <Link to="/my-application" onClick={closeMobile} className="flex items-center space-x-4 p-4 rounded-2xl font-bold transition-all" style={{ backgroundColor: checkActive('/my-application') ? 'var(--accent-glow)' : 'transparent', color: checkActive('/my-application') ? 'var(--accent)' : 'var(--text-primary)' }}>
-                      <FileText className="h-5 w-5" /> <span>Application</span>
-                    </Link>
-                  </>
-                )}
-                
-                <div className="h-px my-2" style={{ background: `linear-gradient(90deg, transparent, var(--border-color), transparent)` }}></div>
-                <button onClick={handleLogout} className="flex items-center space-x-4 p-4 rounded-2xl font-bold w-full text-left transition-colors" style={{ color: 'var(--danger)', backgroundColor: 'var(--danger-bg)' }}>
-                  <LogOut className="h-5 w-5" /> <span>Logout</span>
-                </button>
-              </>
-            ) : (
-              <>
-                <Link to="/login" onClick={closeMobile} className="flex items-center space-x-4 p-4 rounded-2xl font-bold transition-all" style={{ color: 'var(--text-primary)' }}>
-                  <span>Login</span>
-                </Link>
-                <Link to="/register" onClick={closeMobile} className="flex items-center justify-center space-x-4 p-4 rounded-2xl font-bold text-white transition-all shadow-md" style={{ backgroundColor: 'var(--accent)' }}>
-                  <span>Sign Up Free</span>
-                </Link>
-              </>
-            )}
-          </div>
+          <Link to="/" onClick={closeMobile} className={`flex items-center space-x-3 p-3.5 rounded-[24px] font-bold text-[14px] transition-all duration-300 ${checkActive('/') ? 'bg-[#E87C41] text-black shadow-lg shadow-[#E87C41]/20' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}>
+            <BookOpen className="h-[18px] w-[18px]" /> <span>Home</span>
+          </Link>
+          <Link to="/courses" onClick={closeMobile} className={`flex items-center space-x-3 p-3.5 rounded-[24px] font-bold text-[14px] transition-all duration-300 ${checkActive('/courses') ? 'bg-[#E87C41] text-black shadow-lg shadow-[#E87C41]/20' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}>
+            <BookOpen className="h-[18px] w-[18px]" /> <span>Courses</span>
+          </Link>
+          <Link to="/internships" onClick={closeMobile} className={`flex items-center space-x-3 p-3.5 rounded-[24px] font-bold text-[14px] transition-all duration-300 ${checkActive('/internships') ? 'bg-[#E87C41] text-black shadow-lg shadow-[#E87C41]/20' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}>
+            <Briefcase className="h-[18px] w-[18px]" /> <span>Internships</span>
+          </Link>
+
+          {user ? (
+            <>
+              <div className="h-px w-full bg-white/5 my-1"></div>
+              {user.role === 'admin' ? (
+                <>
+                  <Link to="/admin" onClick={closeMobile} className={`flex items-center space-x-3 p-3.5 rounded-[24px] font-bold text-[14px] transition-all duration-300 ${checkActive('/admin') && !checkActive('/admin/internships') && !checkActive('/admin/tasks') ? 'bg-[#E87C41] text-black shadow-lg shadow-[#E87C41]/20' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}>
+                    <Shield className="h-[18px] w-[18px]" /> <span>Admin</span>
+                  </Link>
+                  <Link to="/admin/internships-manage" onClick={closeMobile} className={`flex items-center space-x-3 p-3.5 rounded-[24px] font-bold text-[14px] transition-all duration-300 ${checkActive('/admin/internships-manage') ? 'bg-[#E87C41] text-black shadow-lg shadow-[#E87C41]/20' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}>
+                    <Briefcase className="h-[18px] w-[18px]" /> <span>Manage Interns</span>
+                  </Link>
+                  <Link to="/admin/internships" onClick={closeMobile} className={`flex items-center space-x-3 p-3.5 rounded-[24px] font-bold text-[14px] transition-all duration-300 ${checkActive('/admin/internships') && !checkActive('/admin/internships-manage') ? 'bg-[#E87C41] text-black shadow-lg shadow-[#E87C41]/20' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}>
+                    <CheckCircle className="h-[18px] w-[18px]" /> <span>Intern Apps</span>
+                  </Link>
+                  <Link to="/admin/tasks" onClick={closeMobile} className={`flex items-center space-x-3 p-3.5 rounded-[24px] font-bold text-[14px] transition-all duration-300 ${checkActive('/admin/tasks') ? 'bg-[#E87C41] text-black shadow-lg shadow-[#E87C41]/20' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}>
+                    <LayoutList className="h-[18px] w-[18px]" /> <span>Tasks</span>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/my-courses" onClick={closeMobile} className={`flex items-center space-x-3 p-3.5 rounded-[24px] font-bold text-[14px] transition-all duration-300 ${checkActive('/my-courses') ? 'bg-[#E87C41] text-black shadow-lg shadow-[#E87C41]/20' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}>
+                    <User className="h-[18px] w-[18px]" /> <span>My Courses</span>
+                  </Link>
+                  <Link to="/my-application" onClick={closeMobile} className={`flex items-center space-x-3 p-3.5 rounded-[24px] font-bold text-[14px] transition-all duration-300 ${checkActive('/my-application') ? 'bg-[#E87C41] text-black shadow-lg shadow-[#E87C41]/20' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}>
+                    <FileText className="h-[18px] w-[18px]" /> <span>Application</span>
+                  </Link>
+                </>
+              )}
+              
+              <div className="h-px w-full bg-white/5 my-1"></div>
+              <button onClick={handleLogout} className="flex items-center space-x-3 p-3.5 rounded-[24px] font-bold text-[14px] w-full text-left transition-all duration-300 text-red-500 hover:bg-red-500/10">
+                <LogOut className="h-[18px] w-[18px]" /> <span>Logout</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="h-px w-full bg-white/5 my-1"></div>
+              <Link to="/login" onClick={closeMobile} className="flex items-center justify-center space-x-3 p-3.5 rounded-[24px] font-bold text-[14px] transition-all duration-300 text-white hover:bg-white/5">
+                <span>Login</span>
+              </Link>
+              <Link to="/register" onClick={closeMobile} className="flex items-center justify-center space-x-3 p-3.5 rounded-[24px] font-bold text-[14px] transition-all duration-300 bg-[#E87C41] text-black shadow-lg hover:shadow-xl hover:scale-[1.02]">
+                <span>Sign Up Free</span>
+              </Link>
+            </>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };

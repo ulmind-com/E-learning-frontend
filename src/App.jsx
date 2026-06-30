@@ -7,6 +7,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 // Import Pages
 import Home from './pages/Home';
+import Courses from './pages/Courses';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import CourseDetails from './pages/CourseDetails';
@@ -53,6 +54,7 @@ function App() {
               <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
+              <Route path="/courses" element={<Courses />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/course/:id" element={<CourseDetails />} />

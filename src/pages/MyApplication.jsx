@@ -179,6 +179,27 @@ const styles = `
   .ma-task-card:hover .ma-title-hover {
     color: #E87C41 !important;
   }
+
+  @keyframes premium-slide-up {
+    0% { opacity: 0; transform: translateY(60px) scale(0.95); filter: blur(10px); }
+    100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  }
+  @keyframes premium-fade-in {
+    0% { opacity: 0; filter: blur(5px); }
+    100% { opacity: 1; filter: blur(0); }
+  }
+  @keyframes premium-shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
+  }
+  @keyframes premium-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes premium-pulse-glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(232,124,65,0.2); }
+    50% { box-shadow: 0 0 40px rgba(232,124,65,0.5); }
+  }
 `;
 
 
@@ -186,37 +207,37 @@ const styles = `
 /* ═══════════════ STATUS CONFIGS ═══════════════ */
 const STATUS_CONFIG = {
   Approved: {
-    gradient: 'linear-gradient(135deg, rgba(34,197,94,0.12) 0%, rgba(5,5,5,0.95) 100%)',
-    accent: '#22c55e',
-    border: 'rgba(34,197,94,0.25)',
-    glow: 'rgba(34,197,94,0.08)',
+    gradient: 'linear-gradient(135deg, rgba(232,124,65,0.12) 0%, rgba(5,5,5,0.95) 100%)',
+    accent: '#E87C41',
+    border: 'rgba(232,124,65,0.25)',
+    glow: 'rgba(232,124,65,0.08)',
     label: 'Approved',
     icon: CheckCircle,
     message: 'Congratulations! Your application is approved. Please proceed to complete your assigned tasks below to advance in your internship.',
   },
   Completed: {
-    gradient: 'linear-gradient(135deg, rgba(59,130,246,0.12) 0%, rgba(5,5,5,0.95) 100%)',
-    accent: '#3b82f6',
-    border: 'rgba(59,130,246,0.25)',
-    glow: 'rgba(59,130,246,0.08)',
+    gradient: 'linear-gradient(135deg, rgba(253,251,247,0.12) 0%, rgba(5,5,5,0.95) 100%)',
+    accent: '#FDFBF7',
+    border: 'rgba(253,251,247,0.25)',
+    glow: 'rgba(253,251,247,0.08)',
     label: 'Completed',
     icon: Award,
     message: 'Excellent work! You have successfully completed your internship. Your verified certificate is ready for download below.',
   },
   Rejected: {
-    gradient: 'linear-gradient(135deg, rgba(239,68,68,0.12) 0%, rgba(5,5,5,0.95) 100%)',
-    accent: '#ef4444',
-    border: 'rgba(239,68,68,0.25)',
-    glow: 'rgba(239,68,68,0.08)',
+    gradient: 'linear-gradient(135deg, rgba(160,157,152,0.12) 0%, rgba(5,5,5,0.95) 100%)',
+    accent: '#A09D98',
+    border: 'rgba(160,157,152,0.25)',
+    glow: 'rgba(160,157,152,0.08)',
     label: 'Rejected',
     icon: XCircle,
     message: "Unfortunately, your application was not accepted at this time. Thank you for your interest and we encourage you to apply again in the future.",
   },
   Pending: {
-    gradient: 'linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(5,5,5,0.95) 100%)',
-    accent: '#f59e0b',
-    border: 'rgba(245,158,11,0.25)',
-    glow: 'rgba(245,158,11,0.08)',
+    gradient: 'linear-gradient(135deg, rgba(232,124,65,0.05) 0%, rgba(5,5,5,0.95) 100%)',
+    accent: '#E87C41',
+    border: 'rgba(232,124,65,0.15)',
+    glow: 'rgba(232,124,65,0.05)',
     label: 'Pending',
     icon: Clock,
     message: 'Your application is currently under review by our team. We appreciate your patience and will notify you via email once it is approved!',
@@ -224,9 +245,9 @@ const STATUS_CONFIG = {
 };
 
 const TASK_STATUS = {
-  Verified: { accent: '#22c55e', bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.2)' },
-  Submitted: { accent: '#3b82f6', bg: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.2)' },
-  Pending: { accent: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.2)' },
+  Verified: { accent: '#FDFBF7', bg: 'rgba(253,251,247,0.08)', border: 'rgba(253,251,247,0.2)' },
+  Submitted: { accent: '#E87C41', bg: 'rgba(232,124,65,0.08)', border: 'rgba(232,124,65,0.2)' },
+  Pending: { accent: '#A09D98', bg: 'rgba(160,157,152,0.08)', border: 'rgba(160,157,152,0.2)' },
 };
 
 /* ═══════════════ COMPONENT ═══════════════ */
@@ -269,7 +290,9 @@ const MyApplication = () => {
       const res = await axios.get(`${API_URL}/internship/my-application`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setApplication(res.data);
+      // If backend returns an array, take the first one
+      const appData = Array.isArray(res.data) ? res.data[0] : res.data;
+      setApplication(appData);
     } catch (err) {
       if (err.response?.status !== 404) {
         setError('Failed to load application');
@@ -346,45 +369,39 @@ const MyApplication = () => {
   /* ─── NO APPLICATION ─── */
   if (!application) {
     return (
-      <div className="ma-page" style={{ minHeight:'100vh', backgroundColor:'#050505', display:'flex', alignItems:'center', justifyContent:'center', position:'relative', padding:'20px' }}>
+      <div className="min-h-screen pt-24 pb-16 px-4 flex flex-col items-center justify-center relative bg-[#000000] overflow-hidden">
         <style>{styles}</style>
         <PremiumBg scrollY={0} />
-
         
-        {/* Animated background rings for empty state */}
-        <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', zIndex:0 }}>
-          <div style={{ position:'absolute', width:'300px', height:'300px', borderRadius:'50%', border:'1px solid rgba(232,124,65,0.2)', animation:'ma-ping-slow 4s cubic-bezier(0, 0, 0.2, 1) infinite' }} />
-          <div style={{ position:'absolute', width:'500px', height:'500px', borderRadius:'50%', border:'1px solid rgba(232,124,65,0.1)', animation:'ma-ping-slow 4s cubic-bezier(0, 0, 0.2, 1) infinite', animationDelay:'1s' }} />
-          <div style={{ position:'absolute', width:'700px', height:'700px', borderRadius:'50%', border:'1px dashed rgba(232,124,65,0.05)', animation:'ma-spin-slow 20s linear infinite' }} />
-        </div>
+        {/* Dynamic Grid Overlay for Empty State */}
+        <div className="absolute inset-0 z-0 pointer-events-none" style={{ backgroundImage: 'linear-gradient(rgba(232, 124, 65, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(232, 124, 65, 0.05) 1px, transparent 1px)', backgroundSize: '60px 60px', transform: 'perspective(1000px) rotateX(60deg) scale(2.5) translateY(-200px)', animation: 'grid-move 20s linear infinite' }}></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/90 to-transparent z-0"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] rounded-full opacity-20 blur-[150px] pointer-events-none" style={{ backgroundColor: '#E87C41' }}></div>
 
-        <div style={{ maxWidth:'700px', textAlign:'center', padding:'60px 30px', position:'relative', zIndex:1, animation:'ma-slide-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards', background:'rgba(10,5,5,0.6)', backdropFilter:'blur(20px)', borderRadius:'32px', border:'1px solid rgba(232,124,65,0.15)', boxShadow:'0 30px 60px rgba(0,0,0,0.5)' }}>
-          <div style={{
-            width:'100px', height:'100px', margin:'0 auto 32px',
-            background:'linear-gradient(135deg, rgba(232,124,65,0.2), rgba(245,158,11,0.05))',
-            borderRadius:'24px', display:'flex', alignItems:'center', justifyContent:'center',
-            border:'1px solid rgba(232,124,65,0.3)', boxShadow:'0 0 40px rgba(232,124,65,0.2), inset 0 0 20px rgba(255,255,255,0.05)',
-            transform:'rotate(-10deg)', animation:'ma-float 6s ease-in-out infinite'
-          }}>
-            <FileText style={{ width:'48px', height:'48px', color:'#E87C41', transform:'rotate(10deg)' }} />
+        <div className="relative z-10 max-w-2xl w-full text-center p-12 bg-[#050505] rounded-[2rem] border border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] group animate-slide-up">
+          <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#E87C41]/50 to-transparent"></div>
+          
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[#E87C41]/10 mb-8 border border-[#E87C41]/20 group-hover:scale-110 transition-transform duration-500">
+            <FileText className="h-10 w-10 text-[#E87C41]" />
           </div>
           
-          <h2 style={{ fontSize:'clamp(32px, 5vw, 48px)', fontWeight:800, color:'#fff', marginBottom:'20px', letterSpacing:'-0.03em', lineHeight:1.1 }}>
-            No Active <span style={{ color:'#E87C41' }}>Internship</span> Application
+          <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter mb-4">
+            No Active <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E87C41] to-[#ff9a5a]">Application</span>
           </h2>
           
-          <p style={{ fontSize:'18px', color:'rgba(255,255,255,0.6)', marginBottom:'40px', lineHeight:1.6, maxWidth:'500px', margin:'0 auto 40px' }}>
+          <p className="text-sm md:text-base text-gray-400 font-medium max-w-md mx-auto leading-relaxed mb-10">
             Kickstart your tech career by applying for an internship. Work on real-world projects, get mentored by experts, and earn your certificate!
           </p>
           
           <Link
             to="/internships"
-            className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-full overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(232,124,65,0.3)] active:scale-95"
-            style={{ background:'linear-gradient(135deg, #E87C41, #F59E0B)', color:'#000', textDecoration:'none' }}
+            className="group/btn relative inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-[#E87C41] overflow-hidden transition-all duration-300 hover:shadow-[0_10px_30px_rgba(232,124,65,0.3)] hover:scale-[1.02] active:scale-[0.98]"
           >
-            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
-            <span style={{ position:'relative', zIndex:1, fontSize:'16px', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.05em' }}>Explore Internships</span>
-            <ArrowRight style={{ width:'20px', height:'20px', position:'relative', zIndex:1 }} className="group-hover:translate-x-1 transition-transform" />
+            <span className="relative z-10 text-black font-black uppercase tracking-[0.1em] text-sm flex items-center gap-2">
+              Explore Internships
+              <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+            </span>
+            <div className="absolute inset-0 bg-white opacity-0 group-hover/btn:opacity-20 transform -skew-x-12 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700"></div>
           </Link>
         </div>
       </div>
@@ -404,351 +421,150 @@ const MyApplication = () => {
       <style>{styles}</style>
       <PremiumBg scrollY={scrollY} />
 
-      {/* ═══════════════ HERO ═══════════════ */}
-      <section style={{
-        position:'relative', padding:'72px 20px 64px',
-        overflow:'hidden',
-        background:'radial-gradient(ellipse 80% 60% at 50% -10%, rgba(232,124,65,0.13) 0%, rgba(20,10,5,0.6) 50%, transparent 100%)',
-      }}>
-        <div style={{ maxWidth:'900px', margin:'0 auto', display:'flex', flexDirection:'column', alignItems:'center', textAlign:'center', gap:'24px', position:'relative', zIndex:1 }}>
-          {/* Tag */}
-          <div style={{
-            padding:'7px 22px', border:'1px solid rgba(232,124,65,0.3)', borderRadius:'4px',
-            color:'#E87C41', fontSize:'11px', fontWeight:600, letterSpacing:'0.18em', textTransform:'uppercase',
-            background:'rgba(232,124,65,0.05)', backdropFilter:'blur(8px)',
-            animation:'ma-text-up 0.6s ease-out both',
-          }}>
-            MY APPLICATION
-          </div>
-
-          {/* Title */}
-          <h1 style={{
-            fontSize:'clamp(32px, 5.5vw, 56px)', fontWeight:800, lineHeight:1.08,
-            letterSpacing:'-0.03em', color:'#fff', margin:0,
-            animation:'ma-text-up 0.7s 0.1s ease-out both',
-          }}>
-            Internship <span style={{ background:'linear-gradient(135deg, #E87C41, #F59E0B)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>Tracker</span>
-          </h1>
-
-          {/* Subtitle */}
-          <p style={{
-            fontSize:'16px', color:'rgba(255,255,255,0.45)', maxWidth:'500px', lineHeight:1.7, margin:0,
-            fontWeight:400, animation:'ma-text-up 0.7s 0.2s ease-out both',
-          }}>
-            Track your internship progress, complete tasks, and earn your certificate.
-          </p>
-
-          {/* Stats */}
-          <div style={{
-            display:'flex', alignItems:'center', gap:'36px', marginTop:'16px',
-            padding:'20px 36px', borderRadius:'16px',
-            background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.05)',
-            backdropFilter:'blur(12px)',
-            animation:'ma-text-up 0.7s 0.3s ease-out both',
-          }}>
-            <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'6px' }}>
-              <span style={{ fontSize:'24px', fontWeight:800, color:sc.accent, animation:'ma-count-pop 0.5s 0.6s ease-out both', letterSpacing:'-0.02em' }}>
-                {application.status}
-              </span>
-              <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.35)', textTransform:'uppercase', letterSpacing:'0.12em', fontWeight:600 }}>Status</span>
-            </div>
-            <div style={{ width:'1px', height:'40px', background:'linear-gradient(180deg, transparent, rgba(255,255,255,0.1), transparent)' }} />
-            <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'6px' }}>
-              <span style={{ fontSize:'28px', fontWeight:800, color:'#E87C41', animation:'ma-count-pop 0.5s 0.7s ease-out both', letterSpacing:'-0.02em' }}>
-                {totalTasks}
-              </span>
-              <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.35)', textTransform:'uppercase', letterSpacing:'0.12em', fontWeight:600 }}>Tasks</span>
-            </div>
-            <div style={{ width:'1px', height:'40px', background:'linear-gradient(180deg, transparent, rgba(255,255,255,0.1), transparent)' }} />
-            <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'6px' }}>
-              <span style={{ fontSize:'28px', fontWeight:800, color:'#22c55e', animation:'ma-count-pop 0.5s 0.8s ease-out both', letterSpacing:'-0.02em' }}>
-                {progressPercent}%
-              </span>
-              <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.35)', textTransform:'uppercase', letterSpacing:'0.12em', fontWeight:600 }}>Progress</span>
+      {/* ═══════════════ HEADER & STATUS ═══════════════ */}
+      <section className="relative pt-24 pb-12 w-full border-b border-white/5 bg-[#050505] overflow-hidden">
+        <div className="absolute top-0 right-0 w-[50%] h-[100%] opacity-20 pointer-events-none blur-[120px]" style={{ background: `radial-gradient(circle at 100% 0%, ${sc.accent} 0%, transparent 70%)` }}></div>
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
+          
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-12" style={{ animation: 'premium-slide-up 1s cubic-bezier(0.16, 1, 0.3, 1) both' }}>
+            <div className="flex-1 max-w-2xl">
+              <div className="flex items-center gap-3 mb-6">
+                 <span className="px-3 py-1.5 rounded-lg border text-[10px] font-black uppercase tracking-[0.2em] shadow-sm" style={{ backgroundColor: `${sc.accent}10`, borderColor: `${sc.accent}30`, color: sc.accent, animation: 'premium-fade-in 1.2s ease-out both 0.2s' }}>
+                   APPLICATION ID: {application?._id ? application._id.substring(0, 8) : 'N/A'}
+                 </span>
+              </div>
+              
+              <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-white leading-tight mb-4" style={{ animation: 'premium-slide-up 1s cubic-bezier(0.16, 1, 0.3, 1) both 0.1s' }}>
+                Internship Workspace
+              </h1>
+              
+              <p className="text-sm md:text-base text-gray-400 font-medium leading-relaxed max-w-xl" style={{ animation: 'premium-slide-up 1s cubic-bezier(0.16, 1, 0.3, 1) both 0.2s' }}>
+                Track your progress, submit assignments, and earn your verified certificate upon completion.
+              </p>
             </div>
           </div>
-        </div>
 
-        {/* Shimmer line */}
-        <div style={{ position:'absolute', bottom:0, left:'8%', right:'8%', height:'1px', overflow:'hidden' }}>
-          <div style={{
-            width:'100%', height:'100%',
-            background:'linear-gradient(90deg, transparent 0%, rgba(232,124,65,0.5) 30%, rgba(245,158,11,0.6) 50%, rgba(232,124,65,0.5) 70%, transparent 100%)',
-            backgroundSize:'200% 100%', animation:'ma-shimmer-line 4s linear infinite',
-          }} />
+          {/* ─── Status Alert & Progress ─── */}
+          <div className="bg-[#0a0a0a] rounded-[2rem] border border-white/5 overflow-hidden shadow-2xl" style={{ animation: 'premium-slide-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) both 0.3s' }}>
+             <div className="p-8 sm:p-10 flex flex-col lg:flex-row gap-10 lg:items-center justify-between relative">
+                <div className="absolute top-0 left-0 w-1.5 h-full" style={{ backgroundColor: sc.accent, boxShadow: `0 0 30px ${sc.accent}` }}></div>
+                
+                <div className="flex items-start gap-6 max-w-2xl relative z-10">
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 shadow-inner group transition-transform hover:scale-105" style={{ backgroundColor: `${sc.accent}15`, border: `1px solid ${sc.accent}30` }}>
+                    <StatusIcon className="w-8 h-8 group-hover:scale-110 transition-transform" style={{ color: sc.accent }} />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black text-white tracking-tight mb-2 flex items-center gap-3">
+                      Status: <span style={{ color: sc.accent }}>{application?.status || 'Unknown'}</span>
+                    </h3>
+                    <p className="text-sm text-gray-400 font-medium leading-relaxed">
+                      {sc.message}
+                    </p>
+                  </div>
+                </div>
+
+                {totalTasks > 0 && (
+                  <div className="w-full lg:w-80 bg-[#111] p-6 rounded-2xl border border-white/5 relative z-10">
+                    <div className="flex justify-between items-end mb-4">
+                      <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Overall Progress</span>
+                      <span className="text-2xl font-black tracking-tighter" style={{ color: sc.accent }}>{progressPercent}%</span>
+                    </div>
+                    <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden mb-3 shadow-inner">
+                      <div 
+                        className="h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden"
+                        style={{ width: `${progressPercent}%`, backgroundColor: sc.accent }}
+                      >
+                        <div className="absolute inset-0 bg-white/20" style={{ animation: 'premium-shimmer 2s infinite linear' }}></div>
+                      </div>
+                    </div>
+                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.1em] text-right">
+                      {completedTasks} of {totalTasks} Tasks Completed
+                    </div>
+                  </div>
+                )}
+             </div>
+          </div>
         </div>
       </section>
 
       {/* ═══════════════ MAIN CONTENT ═══════════════ */}
-      <section style={{ maxWidth:'1200px', margin:'0 auto', padding:'48px 24px 96px', position:'relative', zIndex:1 }}>
-
-        {/* ─── Status Card ─── */}
-        <div
-          data-section="status"
-          style={{ marginBottom:'56px', animation:'ma-slide-up 0.8s 0.2s cubic-bezier(0.16, 1, 0.3, 1) both' }}
-        >
-          <div className="ma-status-card" style={{
-            borderRadius:'22px', overflow:'hidden', position:'relative',
-            background: sc.gradient,
-            border:`1px solid ${sc.border}`,
-          }}>
-            {/* MacOS dots */}
-            <div style={{ padding:'18px 22px 0', display:'flex', gap:'7px' }}>
-              <div style={{ width:'10px', height:'10px', borderRadius:'50%', background:'#FF5F56' }} />
-              <div style={{ width:'10px', height:'10px', borderRadius:'50%', background:'#FFBD2E' }} />
-              <div style={{ width:'10px', height:'10px', borderRadius:'50%', background:'#27C93F' }} />
-            </div>
-
-            {/* Status header */}
-            <div style={{
-              padding:'22px 30px', display:'flex', flexWrap:'wrap', gap:'24px',
-              justifyContent:'space-between', alignItems:'center',
-              borderBottom:`1px solid ${sc.border}`,
-            }}>
-              <div style={{ display:'flex', alignItems:'center', gap:'18px' }}>
-                <div style={{
-                  width:'56px', height:'56px', borderRadius:'16px', display:'flex', alignItems:'center', justifyContent:'center',
-                  background: sc.glow, border:`1px solid ${sc.border}`,
-                  animation:'ma-step-glow 3s ease-in-out infinite',
-                }}>
-                  <StatusIcon style={{ width:'28px', height:'28px', color:sc.accent }} />
-                </div>
-                <div>
-                  <div style={{ fontSize:'10px', fontWeight:700, color:'rgba(255,255,255,0.35)', textTransform:'uppercase', letterSpacing:'0.14em', marginBottom:'6px' }}>
-                    Application Status
-                  </div>
-                  <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
-                    <span style={{ fontSize:'24px', fontWeight:800, color:sc.accent, letterSpacing:'-0.02em' }}>{application.status}</span>
-                    <span style={{
-                      fontSize:'10px', padding:'4px 12px', borderRadius:'6px', fontFamily:'"JetBrains Mono", monospace',
-                      background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.06)',
-                      color:'rgba(255,255,255,0.35)', letterSpacing:'0.02em',
-                    }}>
-                      ID: {application._id.substring(0, 8)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Progress bar */}
-              {totalTasks > 0 && (
-                <div style={{ display:'flex', alignItems:'center', gap:'14px', minWidth:'220px' }}>
-                  <div style={{ flex:1, height:'5px', borderRadius:'3px', background:'rgba(255,255,255,0.05)', overflow:'hidden' }}>
-                    <div style={{
-                      width:`${progressPercent}%`, height:'100%', borderRadius:'3px',
-                      background:`linear-gradient(90deg, ${sc.accent}, #E87C41)`,
-                      transition:'width 1.2s cubic-bezier(0.16,1,0.3,1)',
-                      animation:'ma-progress-grow 1.5s 0.5s ease-out both',
-                      boxShadow:`0 0 10px ${sc.accent}40`,
-                    }} />
-                  </div>
-                  <span style={{ fontSize:'12px', fontWeight:800, color:sc.accent, minWidth:'42px', letterSpacing:'-0.01em' }}>{progressPercent}%</span>
-                </div>
-              )}
-            </div>
-
-            {/* Message body */}
-            <div style={{ padding:'26px 30px' }}>
-              <p style={{ fontSize:'15px', color:'rgba(255,255,255,0.5)', lineHeight:1.8, margin:0, fontWeight:400 }}>
-                {sc.message}
-              </p>
-            </div>
-          </div>
-        </div>
+      <section className="max-w-7xl mx-auto px-6 lg:px-8 py-16 relative z-10">
 
         {/* ─── Tasks Section ─── */}
         {application.status !== 'Pending' && application.status !== 'Rejected' && (
-          <div
-            data-section="tasks"
-            style={{ marginBottom:'56px', animation:'ma-slide-up 0.8s 0.4s cubic-bezier(0.16, 1, 0.3, 1) both' }}
-          >
-            {/* Section header */}
-            <div style={{ display:'flex', alignItems:'center', gap:'14px', marginBottom:'32px' }}>
-              <div style={{
-                width:'36px', height:'36px', borderRadius:'10px', display:'flex', alignItems:'center', justifyContent:'center',
-                background:'rgba(232,124,65,0.08)', border:'1px solid rgba(232,124,65,0.15)',
-              }}>
-                <Code2 style={{ width:'18px', height:'18px', color:'#E87C41' }} />
-              </div>
-              <h2 style={{ fontSize:'22px', fontWeight:700, color:'#fff', margin:0, letterSpacing:'-0.01em' }}>Assigned Tasks</h2>
-              <span style={{
-                fontSize:'10px', padding:'4px 14px', borderRadius:'20px',
-                background:'rgba(232,124,65,0.06)', color:'#E87C41',
-                border:'1px solid rgba(232,124,65,0.12)', fontWeight:700, letterSpacing:'0.03em',
-              }}>
-                {completedTasks}/{totalTasks} Done
-              </span>
-            </div>
+          <div data-section="tasks" className="mb-20" style={{ animation: 'premium-slide-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) both 0.4s' }}>
+            <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight mb-8 flex items-center gap-4">
+               <div className="w-2 h-8 rounded-full bg-[#E87C41]"></div>
+               Assigned Tasks
+            </h2>
 
             {application.assignedTasks.length === 0 ? (
-              <div style={{
-                textAlign:'center', padding:'64px 20px', borderRadius:'20px',
-                background:'linear-gradient(180deg, rgba(30,20,15,0.4) 0%, #050505 100%)',
-                border:'1px solid rgba(255,255,255,0.06)',
-              }}>
-                <AlertCircle style={{ width:'48px', height:'48px', color:'rgba(232,124,65,0.3)', margin:'0 auto 16px' }} />
-                <p style={{ fontSize:'18px', fontWeight:600, color:'#fff', marginBottom:'8px' }}>No tasks assigned yet</p>
-                <p style={{ fontSize:'14px', color:'rgba(255,255,255,0.4)' }}>Check back later when your mentor assigns a new project.</p>
+              <div className="text-center py-20 bg-[#0a0a0a] rounded-[2rem] border border-white/5">
+                <AlertCircle className="w-12 h-12 text-[#E87C41]/50 mx-auto mb-4" />
+                <h3 className="text-xl font-black text-white mb-2 tracking-tight">No Tasks Assigned Yet</h3>
+                <p className="text-sm text-gray-500 font-medium">Check back later when your mentor assigns a new project.</p>
               </div>
             ) : (
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(360px, 1fr))', gap:'24px' }}>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {application.assignedTasks.map((t, i) => {
                   const ts = TASK_STATUS[t.status] || TASK_STATUS.Pending;
                   return (
-                    <div
-                      key={t._id}
-                      className="ma-task-card"
-                      style={{
-                        position:'relative', display:'flex', flexDirection:'column',
-                        borderRadius:'18px', overflow:'hidden',
-                        background:'linear-gradient(180deg, rgba(30,20,15,0.6) 0%, #050505 100%)',
-                        border:'1px solid rgba(232,124,65,0.1)',
-                        opacity:0, animation:`ma-card-in 0.6s ${0.1 + i * 0.1}s ease-out forwards`,
-                      }}
-                    >
-                      {/* MacOS dots + step number */}
-                      <div style={{ padding:'16px 20px 0', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                        <div style={{ display:'flex', gap:'7px' }}>
-                          <div style={{ width:'9px', height:'9px', borderRadius:'50%', background:'#FF5F56' }} />
-                          <div style={{ width:'9px', height:'9px', borderRadius:'50%', background:'#FFBD2E' }} />
-                          <div style={{ width:'9px', height:'9px', borderRadius:'50%', background:'#27C93F' }} />
+                    <div key={t._id} className="group flex flex-col bg-[#0a0a0a] rounded-[2rem] border border-white/5 hover:border-white/10 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(232,124,65,0.15)] overflow-hidden relative" style={{ animation: `premium-slide-up 1s cubic-bezier(0.16, 1, 0.3, 1) both ${0.5 + (i * 0.1)}s` }}>
+                      {/* Dynamic left border based on task status */}
+                      <div className="absolute top-0 left-0 w-1.5 h-full opacity-60 group-hover:opacity-100 transition-opacity" style={{ backgroundColor: ts.accent }}></div>
+                      
+                      <div className="p-8 flex-grow flex flex-col">
+                        <div className="flex justify-between items-start gap-6 mb-6">
+                           <div>
+                              <div className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
+                                <span className="w-5 h-5 rounded flex items-center justify-center bg-white/5 text-white">{i + 1}</span>
+                                Task
+                              </div>
+                              <h4 className="text-lg md:text-xl font-bold text-white tracking-tight leading-snug">
+                                {t.task?.title}
+                              </h4>
+                           </div>
+                           <span className="shrink-0 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] shadow-sm" style={{ backgroundColor: ts.bg, color: ts.accent, border: `1px solid ${ts.border}` }}>
+                             {t.status}
+                           </span>
                         </div>
-                        <div style={{
-                          width:'28px', height:'28px', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center',
-                          background:'rgba(232,124,65,0.06)', border:'1px solid rgba(232,124,65,0.1)',
-                          fontSize:'11px', fontWeight:800, color:'#E87C41',
-                          animation:`ma-badge-pop 0.4s ${0.2 + i * 0.1}s ease-out both`,
-                        }}>
-                          {i + 1}
+                        
+                        <div className="bg-[#111] border border-white/5 p-5 rounded-2xl mb-6">
+                           <p className="text-sm text-gray-400 leading-relaxed font-medium">
+                             {t.task?.details}
+                           </p>
                         </div>
-                      </div>
-
-                      {/* Task header */}
-                      <div style={{
-                        padding:'18px 24px 16px', display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:'14px',
-                        borderBottom:'1px solid rgba(255,255,255,0.04)',
-                      }}>
-                        <h4 className="ma-title-hover" style={{
-                          fontSize:'17px', fontWeight:600, color:'#fff', margin:0, lineHeight:1.35,
-                          flex:1, overflow:'hidden', textOverflow:'ellipsis',
-                          display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical',
-                          letterSpacing:'-0.01em',
-                        }}>
-                          {t.task?.title}
-                        </h4>
-                        <span style={{
-                          fontSize:'10px', padding:'5px 14px', borderRadius:'20px', fontWeight:700,
-                          background:ts.bg, color:ts.accent, border:`1px solid ${ts.border}`,
-                          whiteSpace:'nowrap', flexShrink:0, letterSpacing:'0.04em', textTransform:'uppercase',
-                          animation:`ma-badge-pop 0.4s ${0.3 + i * 0.1}s ease-out both`,
-                        }}>
-                          {t.status}
-                        </span>
-                      </div>
-
-                      {/* Task body */}
-                      <div style={{ padding:'22px 24px', flexGrow:1, display:'flex', flexDirection:'column' }}>
-                        <p style={{
-                          fontSize:'13.5px', color:'rgba(255,255,255,0.38)', lineHeight:1.65, marginBottom:'22px',
-                          flexGrow:1, display:'-webkit-box', WebkitLineClamp:3, WebkitBoxOrient:'vertical', overflow:'hidden',
-                          fontWeight:400,
-                        }}>
-                          {t.task?.details}
-                        </p>
 
                         {t.task?.referalLink && (
-                          <a
-                            href={t.task.referalLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              display:'inline-flex', alignItems:'center', gap:'6px', fontSize:'12px',
-                              fontWeight:600, color:'#E87C41', textDecoration:'none',
-                              padding:'8px 16px', borderRadius:'10px',
-                              background:'rgba(232,124,65,0.06)', border:'1px solid rgba(232,124,65,0.12)',
-                              marginBottom:'20px', width:'fit-content', transition:'all 0.3s ease',
-                            }}
-                            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(232,124,65,0.12)'; e.currentTarget.style.borderColor = 'rgba(232,124,65,0.3)'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(232,124,65,0.06)'; e.currentTarget.style.borderColor = 'rgba(232,124,65,0.12)'; }}
-                          >
-                            <ExternalLink style={{ width:'13px', height:'13px' }} /> View Resources
+                          <a href={t.task.referalLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/[0.03] border border-white/5 text-[10px] font-black text-gray-300 hover:text-white hover:bg-white/10 uppercase tracking-[0.15em] transition-all mb-8 w-fit shadow-sm">
+                            <ExternalLink className="w-4 h-4" /> View Resources
                           </a>
                         )}
 
-                        {/* Submit button */}
                         {t.status === 'Pending' && submittingTask !== t.task?._id && (
-                          <button
-                            onClick={() => setSubmittingTask(t.task?._id)}
-                            className="ma-submit-btn"
-                            style={{
-                              width:'100%', marginTop:'auto', display:'flex', alignItems:'center', justifyContent:'center', gap:'8px',
-                              padding:'12px', borderRadius:'12px', fontSize:'13px', fontWeight:700,
-                              color:'#fff', background:'#E87C41', border:'none', cursor:'pointer',
-                              boxShadow:'0 4px 14px rgba(232,124,65,0.3)',
-                            }}
-                          >
-                            <Send style={{ width:'14px', height:'14px' }} /> Submit Task
+                          <button onClick={() => setSubmittingTask(t.task?._id)} className="w-full py-4 rounded-xl bg-[#E87C41] text-black hover:brightness-110 transition-all duration-300 flex items-center justify-center gap-3 text-xs font-black uppercase tracking-[0.2em] mt-auto shadow-[0_10px_20px_rgba(232,124,65,0.2)] hover:-translate-y-1">
+                            <Send className="w-4 h-4" /> Submit Assignment
                           </button>
                         )}
 
-                        {/* Submit form */}
                         {submittingTask === t.task?._id && (
-                          <form
-                            onSubmit={(e) => submitTask(t.task?._id, e)}
-                            style={{
-                              marginTop:'auto', display:'flex', flexDirection:'column', gap:'10px',
-                              padding:'18px', borderRadius:'14px',
-                              background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.06)',
-                              animation:'ma-card-in 0.3s ease-out both',
-                            }}
-                          >
+                          <form onSubmit={(e) => submitTask(t.task?._id, e)} className="mt-auto flex flex-col gap-4 bg-[#111] p-6 rounded-2xl border border-white/10 shadow-inner animate-fade-in">
                             {[
                               { name:'gitRepo', placeholder:'GitHub Repository URL', icon: GitBranch },
-                              { name:'liveLink', placeholder:'Live Demo URL', icon: Globe },
-                              { name:'documentUrl', placeholder:'Document/Report URL', icon: File },
+                              { name:'liveLink', placeholder:'Live Demo URL (Optional)', icon: Globe },
+                              { name:'documentUrl', placeholder:'Document/Report URL (Optional)', icon: File },
                             ].map(({ name, placeholder, icon: Icon }) => (
-                              <div key={name} style={{ position:'relative' }}>
-                                <Icon style={{
-                                  position:'absolute', left:'12px', top:'50%', transform:'translateY(-50%)',
-                                  width:'14px', height:'14px', color:'rgba(255,255,255,0.25)',
-                                }} />
-                                <input
-                                  required
-                                  name={name}
-                                  placeholder={placeholder}
-                                  value={submissionForm[name]}
-                                  onChange={handleSubmissionChange}
-                                  className="ma-input-field"
-                                  style={{
-                                    width:'100%', padding:'11px 12px 11px 36px', fontSize:'13px',
-                                    borderRadius:'10px', border:'1px solid rgba(255,255,255,0.08)',
-                                    background:'rgba(0,0,0,0.4)', color:'#fff', outline:'none',
-                                  }}
-                                />
+                              <div key={name} className="relative">
+                                <Icon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                                <input required={name==='gitRepo'} name={name} placeholder={placeholder} value={submissionForm[name]} onChange={handleSubmissionChange} className="w-full bg-[#0a0a0a] border border-white/5 rounded-xl py-3.5 pl-12 pr-4 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-[#E87C41]/50 focus:bg-white/[0.02] transition-colors shadow-inner" />
                               </div>
                             ))}
-                            <div style={{ display:'flex', gap:'8px', paddingTop:'6px' }}>
-                              <button
-                                type="submit"
-                                style={{
-                                  flex:1, padding:'11px', borderRadius:'10px', fontSize:'13px', fontWeight:700,
-                                  background:'#E87C41', color:'#fff', border:'none', cursor:'pointer',
-                                  display:'flex', alignItems:'center', justifyContent:'center', gap:'6px',
-                                  transition:'all 0.3s ease',
-                                }}
-                              >
-                                <Send style={{ width:'13px', height:'13px' }} /> Submit
+                            <div className="flex gap-3 mt-2">
+                              <button type="submit" className="flex-[2] py-3.5 bg-[#E87C41] text-black rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:brightness-110 transition-all flex items-center justify-center gap-2 shadow-md">
+                                <Send className="w-4 h-4" /> Final Submit
                               </button>
-                              <button
-                                type="button"
-                                onClick={() => setSubmittingTask(null)}
-                                style={{
-                                  flex:1, padding:'11px', borderRadius:'10px', fontSize:'13px', fontWeight:600,
-                                  background:'rgba(255,255,255,0.04)', color:'rgba(255,255,255,0.6)',
-                                  border:'1px solid rgba(255,255,255,0.08)', cursor:'pointer',
-                                  transition:'all 0.3s ease',
-                                }}
-                              >
+                              <button type="button" onClick={() => setSubmittingTask(null)} className="flex-1 py-3.5 bg-white/5 text-gray-400 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white/10 hover:text-white transition-all">
                                 Cancel
                               </button>
                             </div>
@@ -765,49 +581,23 @@ const MyApplication = () => {
 
         {/* ─── Certificate Section ─── */}
         {application.certificateIssued && (
-          <div
-            ref={(el) => (sectionRefs.current[2] = el)}
-            data-section="cert"
-            className={visibleSections.has('cert') ? 'ma-section-visible' : 'ma-section-hidden'}
-          >
-            <div style={{
-              borderRadius:'24px', overflow:'hidden', position:'relative',
-              background:'linear-gradient(135deg, rgba(232,124,65,0.08) 0%, rgba(245,158,11,0.04) 30%, rgba(5,5,5,0.95) 100%)',
-              border:'1px solid rgba(232,124,65,0.15)',
-              padding:'56px 24px', textAlign:'center',
-            }}>
-              {/* Decorative orbs */}
-              <div style={{ position:'absolute', top:'-60px', right:'-60px', width:'200px', height:'200px', borderRadius:'50%', background:'rgba(232,124,65,0.08)', filter:'blur(60px)', pointerEvents:'none' }} />
-              <div style={{ position:'absolute', bottom:'-60px', left:'-60px', width:'200px', height:'200px', borderRadius:'50%', background:'rgba(245,158,11,0.06)', filter:'blur(60px)', pointerEvents:'none' }} />
-
-              <div style={{ position:'relative', zIndex:1 }}>
-                <div style={{
-                  width:'80px', height:'80px', borderRadius:'50%', margin:'0 auto 24px',
-                  background:'rgba(232,124,65,0.1)', border:'1px solid rgba(232,124,65,0.2)',
-                  display:'flex', alignItems:'center', justifyContent:'center',
-                  animation:'ma-float 3s ease-in-out infinite',
-                  boxShadow:'0 0 40px rgba(232,124,65,0.15)',
-                }}>
-                  <Award style={{ width:'36px', height:'36px', color:'#E87C41', filter:'drop-shadow(0 0 10px rgba(232,124,65,0.4))' }} />
-                </div>
-
-                <h2 style={{
-                  fontSize:'clamp(28px, 4vw, 44px)', fontWeight:800, color:'#fff',
-                  marginBottom:'16px', letterSpacing:'-0.02em',
-                }}>
-                  Congratulations! <span style={{ display:'inline-block' }}>🎉</span>
-                </h2>
-
-                <p style={{
-                  fontSize:'15px', color:'rgba(255,255,255,0.5)', maxWidth:'560px', margin:'0 auto 40px',
-                  lineHeight:1.7,
-                }}>
-                  Your dedication and hard work have paid off. Your internship is officially verified and your certificate is ready to showcase your new skills!
-                </p>
-
-                <div style={{ display:'flex', justifyContent:'center' }}>
-                  <Certificate userName={application.resume.name} issueDate={new Date().toLocaleDateString()} />
-                </div>
+          <div data-section="cert" className="mb-20" style={{ animation: 'premium-slide-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) both 0.6s' }}>
+            <div className="relative bg-[#0a0a0a] rounded-[2rem] border border-[#E87C41]/20 p-10 md:p-16 text-center overflow-hidden" style={{ animation: 'premium-pulse-glow 4s ease-in-out infinite' }}>
+              <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#E87C41] to-transparent"></div>
+              
+              <div className="w-24 h-24 mx-auto rounded-full bg-[#E87C41]/10 border border-[#E87C41]/20 flex items-center justify-center mb-8 shadow-[0_0_30px_rgba(232,124,65,0.2)]" style={{ animation: 'premium-float 6s ease-in-out infinite' }}>
+                <Award className="w-12 h-12 text-[#E87C41]" />
+              </div>
+              
+              <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4">
+                Congratulations!
+              </h2>
+              <p className="text-sm md:text-base text-gray-400 font-medium max-w-2xl mx-auto leading-relaxed mb-12">
+                Your dedication and hard work have paid off. Your internship is officially verified and your certificate is ready to showcase your new skills!
+              </p>
+              
+              <div className="flex justify-center bg-[#050505] p-6 md:p-10 rounded-[2rem] border border-white/5">
+                <Certificate userName={application.resume.name} issueDate={new Date().toLocaleDateString()} />
               </div>
             </div>
           </div>

@@ -292,6 +292,10 @@ const LiveClassRoom = () => {
     if (isScreenSharing) {
       stopScreenShare();
     } else {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+        alert("Screen sharing is not supported on this browser or device.");
+        return;
+      }
       try {
         const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "monitor" }, audio: false });
         const screenTrack = screenStream.getVideoTracks()[0];
@@ -324,7 +328,10 @@ const LiveClassRoom = () => {
           stopScreenShare();
         };
       } catch (err) {
-        console.error("Error sharing screen", err);
+        if (err.name !== 'NotAllowedError') {
+          console.error("Error sharing screen", err);
+          alert("Screen sharing failed: " + err.message);
+        }
       }
     }
   };
@@ -374,9 +381,9 @@ const LiveClassRoom = () => {
   if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-[#050505] text-white"><p className="text-red-500 mb-4">{error}</p><button onClick={() => navigate(-1)} className="bg-red-500 px-4 py-2 rounded">Go Back</button></div>;
 
   return (
-    <div className="h-screen bg-gray-950 flex overflow-hidden text-gray-100 font-sans">
+    <div className="h-[100dvh] bg-gray-950 flex flex-col lg:flex-row overflow-hidden text-gray-100 font-sans">
       {/* Main Video Area */}
-      <div className="flex-1 flex flex-col relative">
+      <div className="flex-1 flex flex-col relative min-h-[50dvh] lg:min-h-0">
         <div className="absolute top-4 left-4 z-10 bg-black/50 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 flex items-center space-x-2">
           <div className="h-3 w-3 bg-red-500 rounded-full animate-pulse"></div>
           <h1 className="font-bold">{liveClass?.title}</h1>
@@ -434,7 +441,7 @@ const LiveClassRoom = () => {
               <button onClick={toggleVideo} className={`h-12 w-12 rounded-full flex items-center justify-center transition ${videoEnabled ? 'bg-gray-800 hover:bg-gray-700' : 'bg-red-600 hover:bg-red-700'}`}>
                 {videoEnabled ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
               </button>
-              <button onClick={toggleScreenShare} className={`h-12 w-12 rounded-full flex items-center justify-center transition ${isScreenSharing ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-800 hover:bg-gray-700'}`} title="Share Screen">
+              <button onClick={toggleScreenShare} className={`hidden md:flex h-12 w-12 rounded-full items-center justify-center transition ${isScreenSharing ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-800 hover:bg-gray-700'}`} title="Share Screen">
                 <Monitor className="h-5 w-5" />
               </button>
             </>
@@ -444,7 +451,7 @@ const LiveClassRoom = () => {
       </div>
 
       {/* Sidebar (Admin Participants & Chat) */}
-      <div className="w-80 bg-gray-900 border-l border-gray-800 flex flex-col z-20">
+      <div className="w-full lg:w-96 bg-gray-900 border-t lg:border-t-0 lg:border-l border-gray-800 flex flex-col z-20 h-[45dvh] lg:h-full shrink-0">
         {isAdmin && (() => {
           const uniqueStudents = Array.from(new Map(participants.filter(p => p && p.role !== 'admin').map(p => [p.id, p])).values());
           return (
