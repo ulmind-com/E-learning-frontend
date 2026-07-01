@@ -274,7 +274,7 @@ const LiveClassRoom = () => {
     const peer = new Peer({
       initiator: true,
       trickle: true,
-      stream,
+      stream: stream || undefined,
       offerOptions: {
         offerToReceiveAudio: true,
         offerToReceiveVideo: true,
@@ -293,7 +293,7 @@ const LiveClassRoom = () => {
     const peer = new Peer({
       initiator: false,
       trickle: true,
-      stream,
+      stream: stream || undefined,
     });
 
     peer.on('signal', signal => {
@@ -317,7 +317,7 @@ const LiveClassRoom = () => {
         return;
       }
       try {
-        const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "monitor" }, audio: false });
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
         const screenTrack = screenStream.getVideoTracks()[0];
         
         const currentVideoTrack = streamRef.current?.getVideoTracks()[0];
@@ -589,9 +589,14 @@ const VideoPlayer = ({ peer, user, isLocalUser, isGranted, chatProps }) => {
   useEffect(() => {
     if (!peer) return;
     const handleStream = (stream) => {
-      ref.current.srcObject = stream;
+      if (ref.current && ref.current.srcObject !== stream) {
+        ref.current.srcObject = stream;
+        // Attempt to play the media to overcome autoplay restrictions
+        ref.current.play().catch(err => console.error("Playback failed:", err));
+      }
       setHasStream(true);
-      setHasVideo(stream.getVideoTracks().length > 0 && stream.getVideoTracks()[0].enabled);
+      const videoTracks = stream.getVideoTracks();
+      setHasVideo(videoTracks.length > 0 && videoTracks[0].enabled);
     };
 
     peer.on('stream', handleStream);

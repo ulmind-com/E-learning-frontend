@@ -49,6 +49,8 @@ const Home = () => {
   const [landingData, setLandingData] = useState(null);
   const [loading, setLoading] = useState(true);
   const impactScrollRef = useRef(null);
+  const mobileScrollRef = useRef(null);
+  const [activeImpact, setActiveImpact] = useState(null);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -76,6 +78,29 @@ const Home = () => {
   const comparison = landingData?.comparison || DEFAULT_COMPARISON;
   const impact = landingData?.impact || [];
   const video = landingData?.video || { url: '' };
+
+  useEffect(() => {
+    let interval;
+    if (activeImpact === null) {
+      interval = setInterval(() => {
+        if (window.innerWidth < 768 && impact.length > 0 && mobileScrollRef.current) {
+           const container = mobileScrollRef.current;
+           const scrollLeft = container.scrollLeft;
+           const clientWidth = container.clientWidth;
+           const maxScroll = container.scrollWidth - clientWidth;
+           
+           if (scrollLeft >= maxScroll - 10) {
+              container.scrollTo({ left: 0, behavior: 'smooth' });
+           } else {
+              container.scrollTo({ left: scrollLeft + clientWidth, behavior: 'smooth' });
+           }
+        }
+      }, 1500); // Kept it at 1.5s as 0.7s is too fast to read
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [impact, activeImpact]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -384,73 +409,134 @@ const Home = () => {
 
           {/* Gallery */}
           {impact.length > 0 ? (
-            <div
-              ref={impactScrollRef}
-              className="impact-scroll flex gap-4 md:gap-5 overflow-visible pb-4"
-            >
-              {impact.map((item, i) => {
-                const isFeatured = i === 2;
-                const imgSrc =
-                  typeof item === 'string'
-                    ? (item.startsWith('/uploads') ? `${BASE_URL}${item}` : item)
-                    : (item.imageUrl
-                        ? (item.imageUrl.startsWith('/uploads') ? `${BASE_URL}${item.imageUrl}` : item.imageUrl)
-                        : '');
-                const title = typeof item === 'object' ? item.title || '' : '';
-                const desc = typeof item === 'object' ? item.description || '' : '';
+            <>
+              {/* Desktop View */}
+              <div
+                ref={impactScrollRef}
+                className="impact-scroll hidden md:flex gap-4 md:gap-5 overflow-visible pb-4"
+              >
+                {impact.map((item, i) => {
+                  const isFeatured = i === 2;
+                  const imgSrc =
+                    typeof item === 'string'
+                      ? (item.startsWith('/uploads') ? `${BASE_URL}${item}` : item)
+                      : (item.imageUrl
+                          ? (item.imageUrl.startsWith('/uploads') ? `${BASE_URL}${item.imageUrl}` : item.imageUrl)
+                          : '');
+                  const title = typeof item === 'object' ? item.title || '' : '';
+                  const desc = typeof item === 'object' ? item.description || '' : '';
 
-                return (
-                  <div
-                    key={i}
-                    className="impact-card flex-shrink-0 relative rounded-[24px] overflow-hidden group cursor-pointer"
-                    style={{
-                      width: isFeatured ? '420px' : '360px',
-                      height: isFeatured ? '500px' : '440px',
-                      transition: 'transform 1s cubic-bezier(0.25, 1, 0.5, 1)'
-                    }}
-                  >
-                    {imgSrc && (
-                      <img
-                        src={imgSrc}
-                        alt={title || `Impact ${i + 1}`}
-                        className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
-                      />
-                    )}
-                    {/* Overlay gradient (Burnt Orange style) - Fills from bottom */}
+                  return (
                     <div
-                      className="absolute inset-0 scale-y-0 origin-bottom group-hover:scale-y-100 transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                      key={i}
+                      className="impact-card flex-shrink-0 relative rounded-[24px] overflow-hidden group cursor-pointer"
                       style={{
-                        background: 'linear-gradient(to top, rgba(232,124,65,0.95) 0%, rgba(232,124,65,0.4) 60%, transparent 100%)'
+                        width: isFeatured ? '420px' : '360px',
+                        height: isFeatured ? '500px' : '440px',
+                        transition: 'transform 1s cubic-bezier(0.25, 1, 0.5, 1)'
                       }}
-                    />
-                    
-                    {/* Top elements (Tag + Arrow) */}
-                    <div className="absolute top-6 left-6 right-6 flex justify-between items-start opacity-0 group-hover:opacity-100 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] -translate-y-10 group-hover:translate-y-0 delay-[50ms]">
-                      <div className="bg-[#E87C41] text-white px-4 py-1.5 rounded-full flex items-center gap-2 text-sm font-semibold shadow-lg">
-                        <Star className="w-4 h-4" />
-                        {typeof item === 'object' && item.tag ? item.tag : 'Seminar'}
-                      </div>
+                    >
+                      {imgSrc && (
+                        <img
+                          src={imgSrc}
+                          alt={title || `Impact ${i + 1}`}
+                          className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
+                        />
+                      )}
+                      <div
+                        className="absolute inset-0 scale-y-0 origin-bottom group-hover:scale-y-100 transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                        style={{
+                          background: 'linear-gradient(to top, rgba(232,124,65,0.95) 0%, rgba(232,124,65,0.4) 60%, transparent 100%)'
+                        }}
+                      />
                       
-                      <div className="w-11 h-11 rounded-full bg-black flex items-center justify-center shadow-lg">
-                        <ArrowRight className="w-5 h-5 text-white" />
+                      <div className="absolute top-6 left-6 right-6 flex justify-between items-start opacity-0 group-hover:opacity-100 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] -translate-y-10 group-hover:translate-y-0 delay-[50ms]">
+                        <div className="bg-[#E87C41] text-white px-4 py-1.5 rounded-full flex items-center gap-2 text-sm font-semibold shadow-lg">
+                          <Star className="w-4 h-4" />
+                          {typeof item === 'object' && item.tag ? item.tag : 'Seminar'}
+                        </div>
+                        
+                        <div className="w-11 h-11 rounded-full bg-black flex items-center justify-center shadow-lg">
+                          <ArrowRight className="w-5 h-5 text-white" />
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Bottom overlay text */}
-                    {(title || desc) && (
-                      <div className="absolute bottom-0 left-0 right-0 p-8 opacity-0 group-hover:opacity-100 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] translate-y-16 group-hover:translate-y-0 delay-[100ms]">
-                        {title && (
-                          <h4 className="text-white font-bold text-[24px] mb-2 leading-tight">{title}</h4>
-                        )}
-                        {desc && (
-                          <p className="text-white/95 text-[15px] leading-relaxed line-clamp-3 font-medium">{desc}</p>
-                        )}
+                      {(title || desc) && (
+                        <div className="absolute bottom-0 left-0 right-0 p-8 opacity-0 group-hover:opacity-100 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] translate-y-16 group-hover:translate-y-0 delay-[100ms]">
+                          {title && (
+                            <h4 className="text-white font-bold text-[24px] mb-2 leading-tight">{title}</h4>
+                          )}
+                          {desc && (
+                            <p className="text-white/95 text-[15px] leading-relaxed line-clamp-3 font-medium">{desc}</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Mobile View Slider */}
+              <div
+                ref={mobileScrollRef}
+                className="impact-scroll md:hidden flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 w-full"
+                style={{ scrollBehavior: 'smooth' }}
+              >
+                {impact.map((item, i) => {
+                  const imgSrc =
+                    typeof item === 'string'
+                      ? (item.startsWith('/uploads') ? `${BASE_URL}${item}` : item)
+                      : (item.imageUrl
+                          ? (item.imageUrl.startsWith('/uploads') ? `${BASE_URL}${item.imageUrl}` : item.imageUrl)
+                          : '');
+                  const title = typeof item === 'object' ? item.title || '' : '';
+                  const desc = typeof item === 'object' ? item.description || '' : '';
+                  const isActive = activeImpact === i;
+
+                  return (
+                    <div
+                      key={i}
+                      onClick={() => setActiveImpact(isActive ? null : i)}
+                      className="flex-shrink-0 w-full snap-center relative rounded-[24px] overflow-hidden cursor-pointer"
+                      style={{ height: '400px' }}
+                    >
+                      {imgSrc && (
+                        <img
+                          src={imgSrc}
+                          alt={title || `Impact ${i + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                      
+                      <div
+                        className={`absolute inset-0 origin-bottom transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] ${isActive ? 'scale-y-100' : 'scale-y-0'}`}
+                        style={{
+                          background: 'linear-gradient(to top, rgba(232,124,65,0.95) 0%, rgba(232,124,65,0.4) 60%, transparent 100%)'
+                        }}
+                      />
+                      
+                      <div className={`absolute top-6 left-6 right-6 flex justify-between items-start transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10'}`}>
+                        <div className="bg-[#E87C41] text-white px-4 py-1.5 rounded-full flex items-center gap-2 text-sm font-semibold shadow-lg">
+                          <Star className="w-4 h-4" />
+                          {typeof item === 'object' && item.tag ? item.tag : 'Seminar'}
+                        </div>
                       </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+
+                      {(title || desc) && (
+                        <div className={`absolute bottom-0 left-0 right-0 p-8 transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'}`}>
+                          {title && (
+                            <h4 className="text-white font-bold text-[24px] mb-2 leading-tight">{title}</h4>
+                          )}
+                          {desc && (
+                            <p className="text-white/95 text-[15px] leading-relaxed line-clamp-3 font-medium">{desc}</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </>
           ) : (
             <div className="flex items-center justify-center py-16 rounded-2xl border border-white/5 bg-[#0a0a0a]">
               <div className="text-center">
