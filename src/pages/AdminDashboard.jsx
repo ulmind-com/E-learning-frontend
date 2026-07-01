@@ -2104,14 +2104,18 @@ const AdminDashboard = () => {
                     ) : (
                       <>
                         <span className="text-[28px] leading-none text-[#E87C41]">
-                          Rs.{course.price}
+                          Rs.{course.discountPercentage > 0 ? Math.round(course.price - (course.price * (course.discountPercentage / 100))) : course.price}
                         </span>
-                        <span className="text-[13px] text-white/40 line-through mb-1">
-                          Rs.{Math.round(course.price * 2.1)}
-                        </span>
-                        <div className="ml-auto bg-white text-black text-[11px] font-medium px-2 py-1 rounded-sm">
-                          53.4% OFF
-                        </div>
+                        {course.discountPercentage > 0 && (
+                          <>
+                            <span className="text-[13px] text-white/40 line-through mb-1">
+                              Rs.{course.price}
+                            </span>
+                            <div className="ml-auto bg-white text-black text-[11px] font-medium px-2 py-1 rounded-sm">
+                              {course.discountPercentage}% OFF
+                            </div>
+                          </>
+                        )}
                       </>
                     )}
                   </div>

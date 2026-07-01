@@ -552,9 +552,6 @@ const CourseDetails = () => {
                     <span className="text-[12px] font-bold bg-[#E87C41]/20 text-[#E87C41] px-2 py-0.5 rounded-sm">{course.discountPercentage}% OFF</span>
                   </div>
                 )}
-                {course.price > 0 && !course.discountPercentage && (
-                  <span className="text-gray-500 line-through text-lg">Rs.{Math.round(course.price * 1.5)}</span>
-                )}
                 <span className="text-white text-sm font-medium">(+GST)</span>
               </div>
               
@@ -1371,7 +1368,9 @@ const CourseDetails = () => {
               <div className="flex justify-between text-sm pt-2 relative z-10" style={{ borderTop: '1px dashed rgba(255,255,255,0.1)' }}>
                 <span style={{ color: '#d1d5db' }}>Price</span>
                 <span className="font-bold" style={{ color: 'white' }}>
-                  {course.price > 0 ? `$${course.price}` : 'Free'}
+                  {course.price > 0 
+                    ? `Rs.${course.discountPercentage > 0 ? Math.round(course.price - (course.price * (course.discountPercentage / 100))) : course.price}` 
+                    : 'Free'}
                 </span>
               </div>
             </div>
