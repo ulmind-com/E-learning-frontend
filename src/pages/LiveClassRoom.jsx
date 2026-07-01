@@ -4,10 +4,10 @@ import { io } from 'socket.io-client';
 import Peer from 'simple-peer';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
-import { Video, Mic, MicOff, VideoOff, PhoneOff, MessageSquare, Send, Users, UserPlus, Smile, Maximize, Monitor } from 'lucide-react';
+import { Video, Mic, MicOff, VideoOff, PhoneOff, MessageSquare, Send, Users, UserPlus, Smile, Maximize, Monitor, Minimize } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://e-learning-backend-8avx.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://e-learning-backend-1-r539.onrender.com/api';
 
 const LiveClassRoom = () => {
   const { courseId, chapterId, liveClassId } = useParams();
@@ -26,9 +26,12 @@ const LiveClassRoom = () => {
   const [videoEnabled, setVideoEnabled] = useState(true);
   const [mediaRequest, setMediaRequest] = useState(false);
   const [grantedSet, setGrantedSet] = useState(new Set());
-  const [showFullscreenChat, setShowFullscreenChat] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
+
+  // New UI states
+  const [showChatPanel, setShowChatPanel] = useState(false);
+  const [showStudentsPanel, setShowStudentsPanel] = useState(false);
 
   const socketRef = useRef();
   const userVideo = useRef();
@@ -36,6 +39,8 @@ const LiveClassRoom = () => {
   const streamRef = useRef(null);
   const screenTrackRef = useRef(null);
   const cameraTrackRef = useRef(null);
+  const mainVideoContainerRef = useRef(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const isAdmin = user?.role === 'admin';
 
@@ -106,6 +111,8 @@ const LiveClassRoom = () => {
         socket.on('user-joined', (payload) => {
           const { signal, callerID, user: newUser } = payload;
           if (!newUser) return;
+          // FIX: explicitly assign socketId so requests hit the right socket!
+          newUser.socketId = callerID;
           setParticipants(prev => {
             const validPrev = prev.filter(p => p && p.socketId !== newUser.socketId);
             return [...validPrev, newUser];
@@ -191,6 +198,14 @@ const LiveClassRoom = () => {
     };
   }, [courseId, chapterId, liveClassId, isAdmin, token, user, navigate]);
 
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
   const handleGrantMedia = (socketId, userId) => {
     socketRef.current.emit('grant-media', socketId, userId, liveClassId);
   };
@@ -263,7 +278,8 @@ const LiveClassRoom = () => {
     });
 
     peer.on('signal', signal => {
-      if (activeSocket) activeSocket.emit('sending-signal', { userToSignal, callerID, signal, user });
+      // FIX: ensure we send our own socketId so others can identify us
+      if (activeSocket) activeSocket.emit('sending-signal', { userToSignal, callerID, signal, user: { ...user, socketId: activeSocket.id } });
     });
 
     return peer;
@@ -283,10 +299,6 @@ const LiveClassRoom = () => {
     peer.signal(incomingSignal);
     return peer;
   };
-
-
-
-
 
   const toggleScreenShare = async () => {
     if (isScreenSharing) {
@@ -377,162 +389,258 @@ const LiveClassRoom = () => {
     setChatInput('');
   };
 
+  const toggleMainFullscreen = async (e) => {
+    e.stopPropagation();
+    if (!document.fullscreenElement) {
+      if (mainVideoContainerRef.current) {
+        try {
+          await mainVideoContainerRef.current.requestFullscreen();
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#050505] text-white">Loading Live Class...</div>;
   if (error) return <div className="min-h-screen flex flex-col items-center justify-center bg-[#050505] text-white"><p className="text-red-500 mb-4">{error}</p><button onClick={() => navigate(-1)} className="bg-red-500 px-4 py-2 rounded">Go Back</button></div>;
 
+  // Find the host peer
+  const hostPeerObj = peers.find(p => p.user.role === 'admin');
+  // Identify all students who have their media granted/active
+  const studentPeersObj = peers.filter(p => p.user.role !== 'admin');
+
   return (
-    <div className="h-[100dvh] bg-gray-950 flex flex-col lg:flex-row overflow-hidden text-gray-100 font-sans">
-      {/* Main Video Area */}
-      <div className="flex-1 flex flex-col relative min-h-[50dvh] lg:min-h-0">
-        <div className="absolute top-4 left-4 z-10 bg-black/50 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 flex items-center space-x-2">
-          <div className="h-3 w-3 bg-red-500 rounded-full animate-pulse"></div>
-          <h1 className="font-bold">{liveClass?.title}</h1>
-        </div>
+    <div className="h-[100dvh] bg-[#050505] flex flex-col overflow-hidden text-gray-100 font-sans relative">
+      
+      {/* Top Bar overlay */}
+      <div className="absolute top-6 left-6 z-40 bg-black/50 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/10 flex items-center space-x-3 shadow-lg">
+        <div className="h-2.5 w-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.8)]"></div>
+        <h1 className="font-bold text-sm tracking-wide">{liveClass?.title}</h1>
+      </div>
 
-        <div className="flex-1 p-4 flex flex-wrap gap-4 items-start justify-center h-full overflow-y-auto content-start custom-scrollbar pt-16">
-          {/* Local User Video */}
-          <div className={`relative rounded-2xl overflow-hidden bg-gray-900 border border-gray-800 flex items-center justify-center transition-all duration-300 ${streamRef.current || isAdmin ? 'w-full lg:w-[calc(50%-1rem)] aspect-video shadow-lg' : 'w-32 h-24 border-dashed opacity-70'}`}>
-            <video muted ref={userVideo} autoPlay playsInline className={`w-full h-full object-cover ${(!streamRef.current && !isAdmin) ? 'hidden' : ''}`} />
-            {!streamRef.current && (
-              <div className="flex flex-col items-center justify-center text-gray-500">
-                {!isAdmin && <p className="text-xs font-semibold px-2 text-center break-words w-full">{user.name}</p>}
-                {!isAdmin && <p className="text-[10px] opacity-60">Listening...</p>}
-                {isAdmin && <VideoOff className="h-16 w-16 mb-2 opacity-50" />}
-                {isAdmin && <p className="text-sm font-semibold">Camera Off</p>}
+      {/* Main Big Video Area (Host) */}
+      <div 
+        ref={mainVideoContainerRef}
+        className="flex-1 w-full h-full relative flex items-center justify-center overflow-hidden"
+      >
+        {isAdmin ? (
+          // If local user is admin, their video is the main one
+          <div className="w-full h-full relative group" onClick={toggleMainFullscreen}>
+            <video muted ref={userVideo} autoPlay playsInline className={`w-full h-full object-cover transition-all duration-500 ${!videoEnabled ? 'hidden' : ''}`} />
+            {!videoEnabled && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0a0a]">
+                <VideoOff className="h-20 w-20 mb-4 opacity-50" />
+                <p className="text-lg font-semibold opacity-70">Camera is Off</p>
               </div>
             )}
-            <div className="absolute bottom-4 left-4 bg-black/60 px-3 py-1 rounded-lg text-sm">{user.name} (You)</div>
-            {(isAdmin || streamRef.current) && (
-              <div className="absolute top-4 right-4 bg-black/60 px-2 py-1 rounded-lg flex space-x-2">
-                {!micEnabled && <MicOff className="h-4 w-4 text-red-500" />}
-                {!videoEnabled && <VideoOff className="h-4 w-4 text-red-500" />}
-              </div>
-            )}
+            <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity z-50">
+              <button className="p-3 bg-black/60 rounded-xl text-white hover:bg-black/80 transition-colors backdrop-blur-sm">
+                {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+              </button>
+            </div>
+            <div className="absolute bottom-24 left-6 bg-black/60 px-4 py-2 rounded-xl text-sm font-bold tracking-wide backdrop-blur-sm z-30 flex items-center gap-2">
+              <span>{user.name}</span> <span className="text-[#E87C41]">(Host - You)</span>
+            </div>
           </div>
+        ) : hostPeerObj ? (
+          // If remote user is host, their video is the main one
+          <div className="w-full h-full relative group cursor-pointer" onClick={toggleMainFullscreen}>
+            <VideoPlayerCore peer={hostPeerObj.peer} user={hostPeerObj.user} isFullscreen={isFullscreen} />
+            <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity z-50">
+              <button className="p-3 bg-black/60 rounded-xl text-white hover:bg-black/80 transition-colors backdrop-blur-sm">
+                {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+              </button>
+            </div>
+          </div>
+        ) : (
+          // Host hasn't joined yet
+          <div className="flex flex-col items-center justify-center text-gray-500 w-full h-full">
+            <Users className="h-20 w-20 mb-4 opacity-30" />
+            <p className="text-lg font-semibold tracking-wide">Waiting for Host to join...</p>
+          </div>
+        )}
 
-          {/* Remote Peers Video */}
-          {Array.from(new Map(peers.filter(p => String(p.user.id) !== String(user._id || user.id)).map(p => [p.user.id, p])).values()).map((peerObj) => (
-            <VideoPlayer 
-              key={peerObj.user.id} 
-              peer={peerObj.peer} 
-              user={peerObj.user} 
-              isLocalUser={false}
-              isGranted={grantedSet.has(peerObj.user.id)}
-              chatProps={{
-                chatMessages,
-                chatInput,
-                setChatInput,
-                sendMessage,
-                showEmojiPicker,
-                setShowEmojiPicker,
-                currentUser: user
-              }}
-            />
-          ))}
+        {/* Small Videos Strip (Students) placed just above the controls inside the main area */}
+        <div className="absolute bottom-6 right-6 left-6 z-20 flex justify-end">
+          <div className="flex space-x-4 overflow-x-auto custom-scrollbar pb-2 items-end">
+            {!isAdmin && (
+              <div className="relative w-40 h-28 shrink-0 rounded-2xl overflow-hidden bg-gray-900 border border-white/20 shadow-2xl transition-all">
+                <video muted ref={userVideo} autoPlay playsInline className={`w-full h-full object-cover ${!videoEnabled ? 'hidden' : ''}`} />
+                {!videoEnabled && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900">
+                     <p className="text-xs font-semibold px-2 text-center break-words w-full">{user.name}</p>
+                     <p className="text-[10px] opacity-60">{!streamRef.current ? 'Listening...' : 'Camera Off'}</p>
+                  </div>
+                )}
+                <div className="absolute bottom-2 left-2 bg-black/70 px-2 py-0.5 rounded text-[10px] text-white">You</div>
+                {streamRef.current && (
+                   <div className="absolute top-2 right-2 flex space-x-1">
+                     {!micEnabled && <div className="p-1 bg-red-500/80 rounded-full"><MicOff className="h-3 w-3 text-white" /></div>}
+                     {!videoEnabled && <div className="p-1 bg-red-500/80 rounded-full"><VideoOff className="h-3 w-3 text-white" /></div>}
+                   </div>
+                )}
+              </div>
+            )}
+            
+            {studentPeersObj.map(pObj => (
+              <div key={pObj.user.id} className="relative w-40 h-28 shrink-0 rounded-2xl overflow-hidden bg-gray-900 border border-white/10 shadow-xl">
+                 <VideoPlayerCore peer={pObj.peer} user={pObj.user} isStudent={true} isGranted={grantedSet.has(pObj.user.id)} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Controls Bar */}
+      <div className="h-20 bg-[#050505] border-t border-white/10 flex items-center justify-between px-8 z-50 shrink-0 relative">
+        <div className="w-1/3 flex items-center">
+           <span className="text-xs text-gray-400 font-medium">{new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} | {liveClass?.title}</span>
         </div>
 
-        {/* Controls */}
-        <div className="h-20 bg-gray-900 border-t border-gray-800 flex items-center justify-center space-x-6 z-10">
+        <div className="w-1/3 flex items-center justify-center space-x-4">
           {(isAdmin || streamRef.current) && (
             <>
-              <button onClick={toggleMic} className={`h-12 w-12 rounded-full flex items-center justify-center transition ${micEnabled ? 'bg-gray-800 hover:bg-gray-700' : 'bg-red-600 hover:bg-red-700'}`}>
+              <button onClick={toggleMic} className={`h-12 w-12 rounded-full flex items-center justify-center transition-all shadow-lg ${micEnabled ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-red-500 hover:bg-red-600 text-white'}`} title={micEnabled ? "Mute" : "Unmute"}>
                 {micEnabled ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
               </button>
-              <button onClick={toggleVideo} className={`h-12 w-12 rounded-full flex items-center justify-center transition ${videoEnabled ? 'bg-gray-800 hover:bg-gray-700' : 'bg-red-600 hover:bg-red-700'}`}>
+              <button onClick={toggleVideo} className={`h-12 w-12 rounded-full flex items-center justify-center transition-all shadow-lg ${videoEnabled ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-red-500 hover:bg-red-600 text-white'}`} title={videoEnabled ? "Stop Video" : "Start Video"}>
                 {videoEnabled ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
               </button>
-              <button onClick={toggleScreenShare} className={`hidden md:flex h-12 w-12 rounded-full items-center justify-center transition ${isScreenSharing ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-800 hover:bg-gray-700'}`} title="Share Screen">
+              <button onClick={toggleScreenShare} className={`hidden md:flex h-12 w-12 rounded-full items-center justify-center transition-all shadow-lg ${isScreenSharing ? 'bg-[#E87C41] hover:bg-[#d57039] text-black' : 'bg-white/10 hover:bg-white/20 text-white'}`} title="Share Screen">
                 <Monitor className="h-5 w-5" />
               </button>
             </>
           )}
-          <button onClick={() => navigate(-1)} className="h-12 w-12 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-700 transition"><PhoneOff className="h-5 w-5" /></button>
+          <button onClick={() => navigate(-1)} className="h-12 w-16 rounded-[16px] bg-red-500 flex items-center justify-center hover:bg-red-600 transition-all shadow-[0_0_15px_rgba(239,68,68,0.3)]" title="Leave">
+            <PhoneOff className="h-5 w-5 text-white" />
+          </button>
+        </div>
+
+        <div className="w-1/3 flex items-center justify-end space-x-3">
+           {isAdmin && (
+             <button 
+                onClick={() => setShowStudentsPanel(!showStudentsPanel)} 
+                className={`h-11 px-4 rounded-xl flex items-center space-x-2 transition-all font-semibold text-sm ${showStudentsPanel ? 'bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 'bg-white/5 text-gray-300 hover:bg-white/10'}`}
+              >
+                <Users className="h-4 w-4" />
+                <span>Participants ({participants.length})</span>
+             </button>
+           )}
+           <button 
+              onClick={() => setShowChatPanel(!showChatPanel)} 
+              className={`h-11 w-11 rounded-xl flex items-center justify-center transition-all relative ${showChatPanel ? 'bg-[#E87C41] text-black shadow-[0_0_15px_rgba(232,124,65,0.4)]' : 'bg-white/5 text-gray-300 hover:bg-white/10'}`}
+              title="Chat"
+            >
+              <MessageSquare className="h-5 w-5" />
+           </button>
         </div>
       </div>
 
-      {/* Sidebar (Admin Participants & Chat) */}
-      <div className="w-full lg:w-96 bg-gray-900 border-t lg:border-t-0 lg:border-l border-gray-800 flex flex-col z-20 h-[45dvh] lg:h-full shrink-0">
-        {isAdmin && (() => {
-          const uniqueStudents = Array.from(new Map(participants.filter(p => p && p.role !== 'admin').map(p => [p.id, p])).values());
-          return (
-            <div className="flex-1 flex flex-col border-b border-gray-800 h-1/2">
-              <div className="p-4 border-b border-gray-800 flex items-center space-x-2">
-                <Users className="h-5 w-5 text-blue-400" />
-                <h2 className="font-bold">Students ({uniqueStudents.length})</h2>
-              </div>
-              <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
-                {uniqueStudents.map((p) => (
-                  <div key={p.socketId} className="bg-gray-800 p-3 rounded-xl border border-gray-700 flex justify-between items-center">
-                    <div>
-                      <h4 className="text-sm font-semibold text-white line-clamp-1">{p.name}</h4>
-                      <p className="text-xs text-gray-400 line-clamp-1">{p.email}</p>
-                    </div>
-                    {grantedSet.has(p.id) ? (
-                      <button onClick={() => handleRevokeMedia(p.socketId, p.id)} title="Remove from Call" className="p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/40 transition">
-                        <PhoneOff className="h-4 w-4" />
-                      </button>
-                    ) : (
-                      <button onClick={() => handleGrantMedia(p.socketId, p.id)} title="Turn on Camera/Mic" className="p-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/40 transition">
-                        <UserPlus className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-                ))}
+      {/* Slide-in Chat Panel */}
+      <div className={`absolute top-0 right-0 h-[calc(100dvh-80px)] w-80 sm:w-96 bg-[#0a0a0a]/95 backdrop-blur-xl border-l border-white/10 flex flex-col z-40 transform transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-2xl ${showChatPanel ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="p-5 border-b border-white/5 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-[#E87C41]/20 rounded-lg">
+              <MessageSquare className="h-4 w-4 text-[#E87C41]" />
+            </div>
+            <h2 className="font-bold text-white tracking-wide">Live Chat</h2>
+          </div>
+          <button onClick={() => setShowChatPanel(false)} className="text-gray-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 p-2 rounded-lg">
+             <span className="text-lg leading-none block">&times;</span>
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar">
+          {chatMessages.map((msg, idx) => (
+            <div key={idx} className={`flex flex-col ${msg.sender === user.name ? 'items-end' : 'items-start'}`}>
+              <span className="text-[10px] font-medium text-gray-500 uppercase tracking-widest mb-1.5">{msg.sender} • {msg.time}</span>
+              <div className={`px-4 py-3 rounded-2xl max-w-[85%] text-[13px] leading-relaxed shadow-sm ${msg.sender === user.name ? 'bg-gradient-to-br from-[#E87C41] to-[#d26b34] text-black rounded-br-sm' : 'bg-white/10 text-gray-200 rounded-bl-sm border border-white/5'}`}>
+                {msg.text}
               </div>
             </div>
-          );
-        })()}
+          ))}
+        </div>
+        <form onSubmit={sendMessage} className="p-4 border-t border-white/5 bg-[#050505] flex items-center space-x-3 relative">
+          {showEmojiPicker && (
+            <div className="absolute bottom-full right-4 mb-2 z-50 bg-[#111] border border-white/10 rounded-xl p-2 shadow-2xl">
+              <div className="flex justify-end mb-1">
+                <button type="button" onClick={() => setShowEmojiPicker(false)} className="text-gray-400 hover:text-white text-lg">&times;</button>
+              </div>
+              <EmojiPicker onEmojiClick={(e) => setChatInput(prev => prev + e.emoji)} theme="dark" />
+            </div>
+          )}
+          <button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-gray-400 hover:text-yellow-500 transition-colors bg-white/5 p-2.5 rounded-xl">
+            <Smile className="h-5 w-5" />
+          </button>
+          <input 
+            type="text" 
+            value={chatInput} 
+            onChange={e => setChatInput(e.target.value)} 
+            className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#E87C41]/50 focus:ring-1 focus:ring-[#E87C41]/50 text-white placeholder-gray-500 transition-all" 
+            placeholder="Type a message..." 
+          />
+          <button type="submit" className="p-2.5 bg-[#E87C41] text-black rounded-xl hover:bg-[#d57039] transition-colors shadow-lg">
+            <Send className="h-5 w-5" />
+          </button>
+        </form>
+      </div>
 
-        <div className={`flex flex-col ${isAdmin ? 'h-1/2' : 'h-full'}`}>
-          <div className="p-4 border-b border-gray-800 flex items-center space-x-2">
-            <MessageSquare className="h-5 w-5 text-green-400" />
-            <h2 className="font-bold">Live Chat</h2>
+      {/* Slide-in Students Panel (Admin Only) */}
+      {isAdmin && (
+        <div className={`absolute top-0 right-0 h-[calc(100dvh-80px)] w-80 sm:w-96 bg-[#0a0a0a]/95 backdrop-blur-xl border-l border-white/10 flex flex-col z-50 transform transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-2xl ${showStudentsPanel ? 'translate-x-0' : 'translate-x-full'}`}>
+          <div className="p-5 border-b border-white/5 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-blue-500/20 rounded-lg">
+                <Users className="h-4 w-4 text-blue-400" />
+              </div>
+              <h2 className="font-bold text-white tracking-wide">Manage Students</h2>
+            </div>
+            <button onClick={() => setShowStudentsPanel(false)} className="text-gray-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 p-2 rounded-lg">
+               <span className="text-lg leading-none block">&times;</span>
+            </button>
           </div>
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
-            {chatMessages.map((msg, idx) => (
-              <div key={idx} className={`flex flex-col ${msg.sender === user.name ? 'items-end' : 'items-start'}`}>
-                <span className="text-xs text-gray-500 mb-1">{msg.sender} • {msg.time}</span>
-                <div className={`px-4 py-2 rounded-2xl max-w-[80%] text-sm ${msg.sender === user.name ? 'bg-blue-600 text-white rounded-br-none' : 'bg-gray-800 text-gray-200 rounded-bl-none'}`}>
-                  {msg.text}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+            {Array.from(new Map(participants.filter(p => p && p.role !== 'admin').map(p => [p.id, p])).values()).map((p) => (
+              <div key={p.socketId} className="bg-white/5 p-4 rounded-xl border border-white/5 flex justify-between items-center group hover:bg-white/10 transition-colors">
+                <div>
+                  <h4 className="text-sm font-bold text-white line-clamp-1 tracking-wide">{p.name}</h4>
+                  <p className="text-[11px] text-gray-500 line-clamp-1">{p.email}</p>
                 </div>
+                {grantedSet.has(p.id) ? (
+                  <button onClick={() => handleRevokeMedia(p.socketId, p.id)} title="Revoke Camera/Mic" className="p-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500 hover:text-white transition-colors border border-red-500/20">
+                    <PhoneOff className="h-4 w-4" />
+                  </button>
+                ) : (
+                  <button onClick={() => handleGrantMedia(p.socketId, p.id)} title="Ask to Turn on Camera/Mic" className="p-2 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500 hover:text-white transition-colors border border-blue-500/20">
+                    <UserPlus className="h-4 w-4" />
+                  </button>
+                )}
               </div>
             ))}
-          </div>
-          <form onSubmit={sendMessage} className="p-4 bg-gray-800 flex items-center space-x-2 relative">
-            {showEmojiPicker && (
-              <div className="absolute bottom-full right-4 mb-2 z-50 bg-gray-900 border border-gray-700 rounded-lg p-2 shadow-2xl">
-                <div className="flex justify-end mb-1">
-                  <button type="button" onClick={() => setShowEmojiPicker(false)} className="text-gray-400 hover:text-white">&times;</button>
-                </div>
-                <EmojiPicker onEmojiClick={(e) => setChatInput(prev => prev + e.emoji)} theme="dark" />
-              </div>
+            {participants.filter(p => p && p.role !== 'admin').length === 0 && (
+              <div className="text-center text-gray-500 text-sm py-10">No students have joined yet.</div>
             )}
-            <button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="text-yellow-500 hover:text-yellow-400 transition">
-              <Smile className="h-6 w-6" />
-            </button>
-            <input 
-              type="text" 
-              value={chatInput} 
-              onChange={e => setChatInput(e.target.value)} 
-              className="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-blue-500 text-white" 
-              placeholder="Type message..." 
-            />
-            <button type="submit" className="p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">
-              <Send className="h-4 w-4" />
-            </button>
-          </form>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Media Request Modal */}
       {mediaRequest && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 border border-gray-700 p-6 rounded-2xl max-w-md w-full shadow-2xl">
-            <h3 className="text-xl font-bold text-white mb-2">Media Request</h3>
-            <p className="text-gray-400 mb-6">The Host wants you to turn on your camera and microphone. Do you accept?</p>
-            <div className="flex justify-end space-x-4">
-              <button onClick={() => setMediaRequest(false)} className="px-4 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-gray-800 transition">Decline</button>
-              <button onClick={acceptMediaRequest} className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition">Accept</button>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+          <div className="bg-[#111] border border-white/10 p-8 rounded-[24px] max-w-md w-full shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500"></div>
+            <div className="flex justify-center mb-6">
+              <div className="w-16 h-16 bg-blue-500/20 rounded-2xl flex items-center justify-center">
+                 <Video className="h-8 w-8 text-blue-400" />
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-3 text-center">Media Request</h3>
+            <p className="text-gray-400 mb-8 text-center text-sm leading-relaxed">The Host has invited you to turn on your camera and microphone. Would you like to accept?</p>
+            <div className="flex justify-center space-x-4">
+              <button onClick={() => setMediaRequest(false)} className="flex-1 px-4 py-3 rounded-xl font-bold text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 transition-colors border border-white/5">Decline</button>
+              <button onClick={acceptMediaRequest} className="flex-1 px-4 py-3 rounded-xl font-bold bg-blue-500 text-white hover:bg-blue-600 transition-colors shadow-[0_0_15px_rgba(59,130,246,0.4)]">Accept</button>
             </div>
           </div>
         </div>
@@ -541,15 +649,11 @@ const LiveClassRoom = () => {
   );
 };
 
-const VideoPlayer = ({ peer, user, isLocalUser, isGranted, chatProps }) => {
+const VideoPlayerCore = ({ peer, user, isFullscreen, isStudent, isGranted }) => {
   const ref = useRef();
-  const containerRef = useRef();
   const [hasStream, setHasStream] = useState(false);
   const [hasVideo, setHasVideo] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showChat, setShowChat] = useState(false);
 
-  // If the user's media was explicitly revoked by the admin, force hide their stream
   const effectiveHasStream = hasStream && (isGranted === undefined || isGranted === true || user.role === 'admin');
 
   useEffect(() => {
@@ -559,139 +663,39 @@ const VideoPlayer = ({ peer, user, isLocalUser, isGranted, chatProps }) => {
       setHasStream(true);
       setHasVideo(stream.getVideoTracks().length > 0 && stream.getVideoTracks()[0].enabled);
     };
-
     peer.on('stream', handleStream);
-
-    peer.on('track', (track, stream) => {
-      handleStream(stream);
-    });
-
-    return () => {
-      peer.off('stream', handleStream);
-    };
+    peer.on('track', (track, stream) => handleStream(stream));
+    return () => peer.off('stream', handleStream);
   }, [peer]);
 
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement && document.fullscreenElement === containerRef.current);
-      if (!document.fullscreenElement) {
-        setShowChat(false);
-      }
-    };
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
-
-  const isBig = user.role === 'admin' || effectiveHasStream;
   const showCameraOff = user.role === 'admin' && (!effectiveHasStream || !hasVideo);
 
-  const toggleFullscreen = (e) => {
-    e.stopPropagation();
-    if (user.role === 'admin' && containerRef.current) {
-      if (!document.fullscreenElement) {
-        containerRef.current.requestFullscreen().catch(err => {
-          console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-        });
-      } else {
-        document.exitFullscreen();
-      }
-    }
-  };
-
   return (
-    <div 
-      ref={containerRef}
-      className={`group relative rounded-2xl overflow-hidden bg-gray-900 border border-gray-800 flex items-center justify-center transition-all duration-300 ${isBig ? 'w-full lg:w-[calc(50%-1rem)] aspect-video shadow-lg' : 'w-32 h-24 border-dashed opacity-70'} ${user.role === 'admin' ? 'hover:ring-2 hover:ring-blue-500' : ''}`}
-    >
+    <>
       <video playsInline autoPlay ref={ref} className={`w-full h-full object-cover ${(showCameraOff || (!effectiveHasStream && user.role !== 'admin')) ? 'hidden' : ''}`} />
       
       {showCameraOff && (
-        <div className="flex flex-col items-center justify-center text-gray-500 z-10">
-          <VideoOff className="h-16 w-16 mb-2 opacity-50" />
-          <p className="text-sm font-semibold">Camera Off</p>
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0a0a0a] z-10">
+          <VideoOff className="h-16 w-16 mb-4 opacity-40" />
+          <p className="text-lg font-semibold opacity-60 tracking-wide">Host Camera Off</p>
         </div>
       )}
 
       {!effectiveHasStream && user.role !== 'admin' && (
-        <div className="flex flex-col items-center justify-center text-gray-500 z-10">
-          <p className="text-xs font-semibold px-2 text-center break-words w-full">{user.name}</p>
-          <p className="text-[10px] opacity-60">Listening...</p>
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 z-10">
+          <p className="text-xs font-semibold px-2 text-center break-words w-full text-white">{user.name}</p>
+          <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-widest">Listening...</p>
         </div>
       )}
 
       {(effectiveHasStream || user.role === 'admin') && (
-        <div className="absolute bottom-4 left-4 bg-black/60 px-3 py-1 rounded-lg text-sm z-20 flex items-center space-x-2">
+        <div className={`absolute ${isStudent ? 'bottom-2 left-2 px-2 py-0.5 text-[10px]' : 'bottom-6 left-6 px-4 py-2 text-sm'} bg-black/60 rounded-xl font-bold tracking-wide backdrop-blur-sm z-30 flex items-center gap-2 text-white`}>
           <span>{user.name}</span>
-          {user.role === 'admin' && <span className="text-blue-400 font-bold">(Host)</span>}
-          {isLocalUser && <span className="text-gray-400">(You)</span>}
+          {user.role === 'admin' && <span className="text-[#E87C41]">(Host)</span>}
         </div>
       )}
-
-      {user.role === 'admin' && (
-        <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex space-x-2">
-          {isFullscreen && (
-            <button onClick={(e) => { e.stopPropagation(); setShowChat(!showChat); }} className="p-2 bg-black/60 text-white rounded-lg hover:bg-black/80 transition" title="Toggle Chat">
-              <MessageSquare className="h-5 w-5" />
-            </button>
-          )}
-          <button onClick={toggleFullscreen} className="p-2 bg-black/60 text-white rounded-lg hover:bg-black/80 transition" title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}>
-            <Maximize className="h-5 w-5" />
-          </button>
-        </div>
-      )}
-
-      {/* Sliding Chat Panel in Fullscreen */}
-      {isFullscreen && chatProps && (
-        <div className={`absolute top-0 right-0 h-full w-80 bg-gray-900/95 backdrop-blur-md border-l border-gray-800 flex flex-col z-30 transform transition-transform duration-500 ease-in-out ${showChat ? 'translate-x-0' : 'translate-x-full'}`}>
-          <div className="p-4 border-b border-gray-800 flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <MessageSquare className="h-5 w-5 text-green-400" />
-              <h2 className="font-bold text-white">Live Chat</h2>
-            </div>
-            <button onClick={() => setShowChat(false)} className="text-gray-400 hover:text-white transition">
-              <span className="text-xl leading-none">&times;</span>
-            </button>
-          </div>
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
-            {chatProps.chatMessages.map((msg, idx) => (
-              <div key={idx} className={`flex flex-col ${msg.sender === chatProps.currentUser.name ? 'items-end' : 'items-start'}`}>
-                <span className="text-xs text-gray-400 mb-1">{msg.sender} • {msg.time}</span>
-                <div className={`px-3 py-2 rounded-2xl max-w-[85%] text-sm ${msg.sender === chatProps.currentUser.name ? 'bg-blue-600 text-white rounded-br-none' : 'bg-gray-800 text-gray-200 rounded-bl-none'}`}>
-                  {msg.text}
-                </div>
-              </div>
-            ))}
-          </div>
-          <form onSubmit={chatProps.sendMessage} className="p-3 bg-gray-800/80 flex flex-col relative">
-            {chatProps.showEmojiPicker && (
-              <div className="absolute bottom-full right-0 mb-2 z-50 bg-gray-900 border border-gray-700 rounded-lg p-2 shadow-2xl">
-                <div className="flex justify-end mb-1">
-                  <button type="button" onClick={() => chatProps.setShowEmojiPicker(false)} className="text-gray-400 hover:text-white">&times;</button>
-                </div>
-                <EmojiPicker onEmojiClick={(e) => chatProps.setChatInput(prev => prev + e.emoji)} theme="dark" />
-              </div>
-            )}
-            <div className="flex items-center space-x-2">
-              <button type="button" onClick={() => chatProps.setShowEmojiPicker(!chatProps.showEmojiPicker)} className="text-yellow-500 hover:text-yellow-400 transition">
-                <Smile className="h-6 w-6" />
-              </button>
-              <input 
-                type="text" 
-                value={chatProps.chatInput} 
-                onChange={e => chatProps.setChatInput(e.target.value)} 
-                className="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500 text-white" 
-                placeholder="Type..." 
-              />
-              <button type="submit" className="p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">
-                <Send className="h-4 w-4" />
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-    </div>
+    </>
   );
 };
 
 export default LiveClassRoom;
-
