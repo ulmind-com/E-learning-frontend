@@ -65,6 +65,7 @@ const LiveClassRoom = () => {
             if (userVideo.current) userVideo.current.srcObject = localStream;
           } catch(err) {
             console.error("Camera access denied or not found", err);
+            alert("Please allow Camera and Microphone permissions. Some features will not work without them.");
             try {
               let localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
               streamRef.current = localStream;
@@ -72,6 +73,7 @@ const LiveClassRoom = () => {
               setVideoEnabled(false);
             } catch (audioErr) {
               console.error("Microphone access denied too", audioErr);
+              alert("Microphone access denied. You are broadcasting without audio or video.");
             }
           }
         }
@@ -175,6 +177,14 @@ const LiveClassRoom = () => {
 
         socket.on('revoke-media', () => {
           if (!isAdmin) {
+            // Force stop any screen sharing active to prevent orphaned tracks
+            if (screenTrackRef.current) {
+               screenTrackRef.current.stop();
+               screenTrackRef.current = null;
+            }
+            cameraTrackRef.current = null;
+            setIsScreenSharing(false);
+
             if (streamRef.current) {
               streamRef.current.getTracks().forEach(track => track.stop());
               peersRef.current.forEach(p => {
@@ -327,8 +337,7 @@ const LiveClassRoom = () => {
           if (!p.peer.destroyed) {
             if (currentVideoTrack) {
               try { 
-                p.peer.removeTrack(currentVideoTrack, streamRef.current);
-                p.peer.addTrack(screenTrack, streamRef.current);
+                p.peer.replaceTrack(currentVideoTrack, screenTrack, streamRef.current);
               } catch(err) { console.error(err); }
             } else {
               try { p.peer.addTrack(screenTrack, streamRef.current); } catch(err) { console.error(err); }
@@ -373,8 +382,7 @@ const LiveClassRoom = () => {
       if (!p.peer.destroyed) {
         if (cameraTrack) {
           try { 
-            p.peer.removeTrack(screenTrack, streamRef.current);
-            p.peer.addTrack(cameraTrack, streamRef.current);
+            p.peer.replaceTrack(screenTrack, cameraTrack, streamRef.current);
           } catch(err) { console.error(err); }
         } else {
           try { p.peer.removeTrack(screenTrack, streamRef.current); } catch(err) { console.error(err); }
