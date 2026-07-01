@@ -20,7 +20,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import SheryiansBg from '../components/SheryiansBg';
 
-const API_URL = 'https://e-learning-backend-1-r539.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://e-learning-backend-1-r539.onrender.com/api';
 
 const LEVEL_COLORS = {
   beginner: '#22c55e',

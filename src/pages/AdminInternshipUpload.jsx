@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Plus, Edit2, Trash2, X, Image as ImageIcon, Briefcase, Users, Clock, DollarSign, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
-const API_URL = 'https://e-learning-backend-1-r539.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://e-learning-backend-1-r539.onrender.com/api';
 
 const AdminInternshipUpload = () => {
   const [internships, setInternships] = useState([]);

@@ -5,7 +5,7 @@ import Certificate from '../components/Certificate';
 import { CheckCircle, Clock, FileText, Send, Award, ArrowRight, ExternalLink, XCircle, Loader2, Code2, Sparkles, AlertCircle, Briefcase, GitBranch, Globe, File } from 'lucide-react';
 import PremiumBg from '../components/PremiumBg';
 
-const API_URL = 'https://e-learning-backend-1-r539.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://e-learning-backend-1-r539.onrender.com/api';
 
 /* ═══════════════ INLINE STYLES ═══════════════ */
 const styles = `

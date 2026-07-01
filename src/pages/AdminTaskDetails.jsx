@@ -4,7 +4,7 @@ import axios from 'axios';
 import { ArrowLeft, Loader2, Calendar, FileText, Link as LinkIcon, ExternalLink, CheckCircle2 } from 'lucide-react';
 import PremiumBg from '../components/PremiumBg';
 
-const API_URL = 'https://e-learning-backend-1-r539.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://e-learning-backend-1-r539.onrender.com/api';
 
 const AdminTaskDetails = () => {
   const { id } = useParams();

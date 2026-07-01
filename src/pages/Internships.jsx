@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Briefcase, ArrowRight, Clock, Users, DollarSign, Loader2, Sparkles, Zap, Star } from 'lucide-react';
 
-const API_URL = 'https://e-learning-backend-1-r539.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://e-learning-backend-1-r539.onrender.com/api';
 
 const Internships = () => {
   const [internships, setInternships] = useState([]);

@@ -5,7 +5,7 @@ import { Users, ArrowLeft, Loader2, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import PremiumBg from '../components/PremiumBg';
 
-const API_URL = 'https://e-learning-backend-1-r539.onrender.com/api'; // Or use env var if available
+const API_URL = import.meta.env.VITE_API_URL || 'https://e-learning-backend-1-r539.onrender.com/api'; // Or use env var if available
 
 const AdminCourseStudents = () => {
   const { id: courseId } = useParams();
