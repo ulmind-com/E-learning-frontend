@@ -124,20 +124,12 @@ const Navbar = () => {
               </div>
             </button>
           ) : (
-            <>
-              <Link
-                to="/login"
-                className={`rounded-full font-bold transition-all duration-300 group relative ${scrolled ? 'px-5 py-2 text-sm text-white hover:bg-white/5' : 'px-6 py-2.5 text-[13px] text-white hover:text-gray-300'}`}
-              >
-                <span className="relative z-10">Login</span>
-              </Link>
-              <Link
-                to="/register"
-                className={`btn-sweep rounded-full font-bold transition-all duration-300 hover:-translate-y-0.5 ${scrolled ? 'px-6 py-2 text-sm shadow-md' : 'px-6 py-2.5 text-[13px] shadow-md'}`}
-              >
-                <span className="relative z-10">Sign In</span>
-              </Link>
-            </>
+            <Link
+              to="/login"
+              className={`btn-sweep rounded-full font-bold transition-all duration-300 hover:-translate-y-0.5 ${scrolled ? 'px-6 py-2 text-sm shadow-md' : 'px-6 py-2.5 text-[13px] shadow-md'}`}
+            >
+              <span className="relative z-10">Sign In</span>
+            </Link>
           )}
         </div>
 
@@ -213,11 +205,8 @@ const Navbar = () => {
           ) : (
             <>
               <div className="h-px w-full bg-white/5 my-1"></div>
-              <Link to="/login" onClick={closeMobile} className="flex items-center justify-center space-x-3 p-3.5 rounded-[24px] font-bold text-[14px] transition-all duration-300 text-white hover:bg-white/5">
-                <span>Login</span>
-              </Link>
-              <Link to="/register" onClick={closeMobile} className="flex items-center justify-center space-x-3 p-3.5 rounded-[24px] font-bold text-[14px] transition-all duration-300 bg-[#E87C41] text-black shadow-lg hover:shadow-xl hover:scale-[1.02]">
-                <span>Sign Up Free</span>
+              <Link to="/login" onClick={closeMobile} className="flex items-center justify-center space-x-3 p-3.5 rounded-[24px] font-bold text-[14px] transition-all duration-300 bg-[#E87C41] text-black shadow-lg hover:shadow-xl hover:scale-[1.02]">
+                <span>Sign In</span>
               </Link>
             </>
           )}

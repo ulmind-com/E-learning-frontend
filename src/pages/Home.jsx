@@ -569,8 +569,8 @@ const Home = () => {
               displayCourses.map((course, index) => {
                 const thumbUrl = getThumbnailUrl(course.thumbnail);
                 const isFree = course.courseType === 'free';
-                const price = course.price || 0;
-                const originalPrice = price > 0 ? Math.floor(price * 2.13) : 0;
+                const originalPrice = course.price || 0;
+                const price = course.discountPercentage > 0 ? Math.round(originalPrice - (originalPrice * (course.discountPercentage / 100))) : originalPrice;
                 
                 const styleConfig = (() => {
                   switch(index) {
@@ -645,10 +645,15 @@ const Home = () => {
                           <span className={`text-3xl font-black tracking-tight ${styleConfig.priceColor}`}>
                             {isFree ? 'Free' : `Rs.${price}`}
                           </span>
-                          {!isFree && originalPrice > 0 && (
-                            <span className="text-lg text-gray-500 line-through font-medium ml-2">
-                              Rs.{originalPrice}
-                            </span>
+                          {!isFree && course.discountPercentage > 0 && (
+                            <div className="flex items-center gap-2 ml-2">
+                              <span className="text-lg text-gray-500 line-through font-medium">
+                                Rs.{originalPrice}
+                              </span>
+                              <span className="text-[12px] font-bold bg-[#E87C41]/20 text-[#E87C41] px-2 py-0.5 rounded-sm">
+                                {course.discountPercentage}% OFF
+                              </span>
+                            </div>
                           )}
                         </div>
 

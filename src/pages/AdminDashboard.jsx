@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import axios from 'axios';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -164,8 +165,10 @@ const AdminDashboard = () => {
   const [description, setDescription] = useState('');
   const [courseType, setCourseType] = useState('paid');
   const [price, setPrice] = useState('');
+  const [discountPercentage, setDiscountPercentage] = useState('');
   const [category, setCategory] = useState('General');
   const [customCategory, setCustomCategory] = useState('');
+  const [courseToDelete, setCourseToDelete] = useState(null);
   const [level, setLevel] = useState('beginner');
   const [duration, setDuration] = useState('');
   const [thumbnail, setThumbnail] = useState('');
@@ -494,6 +497,7 @@ const AdminDashboard = () => {
     setDescription('');
     setCourseType('paid');
     setPrice('');
+    setDiscountPercentage('');
     setCategory('General');
     setCustomCategory('');
     setLevel('beginner');
@@ -511,6 +515,7 @@ const AdminDashboard = () => {
     setDescription(course.description);
     setCourseType(course.courseType || 'paid');
     setPrice(course.price?.toString() || '0');
+    setDiscountPercentage(course.discountPercentage?.toString() || '0');
     if (course.category && !CATEGORIES.includes(course.category)) {
       setCategory('Other');
       setCustomCategory(course.category);
@@ -609,6 +614,7 @@ const AdminDashboard = () => {
         description,
         courseType,
         price: courseType === 'free' ? 0 : Number(price),
+        discountPercentage: courseType === 'free' ? 0 : Number(discountPercentage),
         category: finalCategory,
         level,
         duration,
@@ -637,17 +643,23 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleDelete = async (courseId) => {
-    if (!window.confirm('Are you sure you want to delete this course?')) return;
+  const handleDeleteClick = (course) => {
+    setCourseToDelete(course);
+  };
+
+  const confirmDelete = async () => {
+    if (!courseToDelete) return;
     try {
       setError('');
-      await axios.delete(`${API_URL}/courses/${courseId}`, {
+      await axios.delete(`${API_URL}/courses/${courseToDelete._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setSuccess('Course deleted successfully!');
+      setCourseToDelete(null);
       fetchCourses();
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to delete course');
+      setCourseToDelete(null);
     }
   };
 
@@ -902,382 +914,434 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* â”€â”€â”€ Course Form Modal â”€â”€â”€ */}
-        {showForm && (
+        {/* ─── Premium Course Form Modal ─── */}
+        {showForm && createPortal(
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-md"
-            style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+            className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 backdrop-blur-md animate-fade-in"
+            style={{ backgroundColor: 'rgba(0,0,0,0.85)' }}
           >
             <div
-              className="glass-panel w-full max-w-xl rounded-[24px] shadow-2xl p-8 max-h-[90vh] overflow-y-auto"
+              className="w-full max-w-5xl rounded-[24px] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] border border-[#E87C41]/20 relative"
+              style={{ background: '#0a0a0a' }}
             >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                  {editingCourse ? 'Edit Course' : 'Add New Course'}
+              {/* Top accent line */}
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#E87C41] to-transparent opacity-50"></div>
+
+              {/* Header */}
+              <div className="flex items-center justify-between px-8 py-6 border-b border-white/5 bg-[#050505]">
+                <h2 className="text-2xl font-bold text-white flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-[#E87C41]/10 flex items-center justify-center border border-[#E87C41]/20 shadow-[0_0_15px_rgba(232,124,65,0.15)]">
+                    {editingCourse ? <Edit3 className="w-6 h-6 text-[#E87C41]" /> : <Sparkles className="w-6 h-6 text-[#E87C41]" />}
+                  </div>
+                  <span className="tracking-wide">{editingCourse ? 'Edit Course Details' : 'Create New Course'}</span>
                 </h2>
                 <button
                   onClick={resetForm}
-                  className="p-1 rounded-lg transition-colors cursor-pointer hover:bg-[var(--accent-glow)]"
-                  style={{ color: 'var(--text-muted)' }}
+                  className="p-2.5 rounded-xl transition-all cursor-pointer hover:bg-white/5 text-gray-500 hover:text-white"
                 >
                   <X className="h-6 w-6" />
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
-                {/* â”€â”€â”€ Free / Paid Toggle â”€â”€â”€ */}
-                <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-                    Course Type
-                  </label>
-                  <div
-                    className="flex rounded-xl overflow-hidden"
-                    style={{ border: '1px solid var(--border-color)' }}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setCourseType('free')}
-                      className="flex-1 py-2.5 text-sm font-semibold transition-all cursor-pointer flex items-center justify-center space-x-2"
-                      style={{
-                        backgroundColor: courseType === 'free' ? '#22c55e' : 'transparent',
-                        color: courseType === 'free' ? '#fff' : 'var(--text-muted)',
-                      }}
-                    >
-                      <Tv className="h-4 w-4" />
-                      <span>Free Course</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setCourseType('paid')}
-                      className="flex-1 py-2.5 text-sm font-semibold transition-all cursor-pointer flex items-center justify-center space-x-2"
-                      style={{
-                        backgroundColor: courseType === 'paid' ? 'var(--accent)' : 'transparent',
-                        color: courseType === 'paid' ? '#fff' : 'var(--text-muted)',
-                      }}
-                    >
-                      <DollarSign className="h-4 w-4" />
-                      <span>Paid Course</span>
-                    </button>
-                  </div>
-                  <p className="text-xs mt-1.5" style={{ color: 'var(--text-muted)' }}>
-                    {courseType === 'free'
-                      ? 'ðŸŽ¥ Free courses use YouTube video links and are accessible to everyone.'
-                      : 'ðŸ’° Paid courses use direct video URLs and require purchase.'}
-                  </p>
-                </div>
-
-                {/* Title */}
-                <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-                    Course Title
-                  </label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none" style={{ color: 'var(--text-muted)' }}>
-                      <BookOpen className="h-5 w-5" />
-                    </span>
-                    <input
-                      type="text"
-                      required
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all"
-                      style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                      placeholder="e.g. Full Stack Web Development"
-                    />
-                  </div>
-                </div>
-
-                {/* Description */}
-                <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-                    Description
-                  </label>
-                  <div className="relative">
-                    <span className="absolute top-3 left-3 pointer-events-none" style={{ color: 'var(--text-muted)' }}>
-                      <FileText className="h-5 w-5" />
-                    </span>
-                    <textarea
-                      required
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      rows={3}
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all"
-                      style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                      placeholder="Describe what students will learn..."
-                    />
-                  </div>
-                </div>
-
-                {/* Category + Level (side by side) */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-                      Category
-                    </label>
-                    <div className="relative">
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none" style={{ color: 'var(--text-muted)' }}>
-                        <Tag className="h-4 w-4" />
-                      </span>
-                      <select
-                        value={category}
-                        onChange={(e) => setCategory(e.target.value)}
-                        className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all appearance-none cursor-pointer"
-                        style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                      >
-                        {CATEGORIES.map((cat) => (
-                          <option key={cat} value={cat}>{cat}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-                      Level
-                    </label>
-                    <div className="relative">
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none" style={{ color: 'var(--text-muted)' }}>
-                        <BarChart3 className="h-4 w-4" />
-                      </span>
-                      <select
-                        value={level}
-                        onChange={(e) => setLevel(e.target.value)}
-                        className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all appearance-none cursor-pointer"
-                        style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                      >
-                        {LEVELS.map((l) => (
-                          <option key={l.value} value={l.value}>{l.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                {category === 'Other' && (
-                  <div className="animate-slide-down">
-                    <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-                      Custom Category Name
-                    </label>
-                    <div className="relative">
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none" style={{ color: 'var(--text-muted)' }}>
-                        <Tag className="h-5 w-5" />
-                      </span>
-                      <input
-                        type="text"
-                        required
-                        value={customCategory}
-                        onChange={(e) => setCustomCategory(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all"
-                        style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                        placeholder="e.g. Photography"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Duration + Price (side by side) */}
-                <div className={`grid gap-4 ${courseType === 'free' ? 'grid-cols-1' : 'grid-cols-2'}`}>
-                  <div>
-                    <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-                      Duration
-                    </label>
-                    <div className="relative">
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none" style={{ color: 'var(--text-muted)' }}>
-                        <Clock className="h-4 w-4" />
-                      </span>
-                      <input
-                        type="text"
-                        value={duration}
-                        onChange={(e) => setDuration(e.target.value)}
-                        className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all"
-                        style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                        placeholder="e.g. 4h 30m"
-                      />
-                    </div>
-                  </div>
-
-                  {courseType === 'paid' && (
-                    <div className="animate-scale-in">
-                      <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-                        Price ($)
+              {/* Body */}
+              <div className="overflow-y-auto p-8 custom-scrollbar flex-1 bg-[#0a0a0a]">
+                <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                  
+                  {/* Left Column (Main Info) */}
+                  <div className="lg:col-span-7 space-y-8">
+                    
+                    {/* Course Type Toggle */}
+                    <div className="p-5 rounded-2xl bg-[#111] border border-white/5">
+                      <label className="block text-xs uppercase tracking-wider font-bold mb-3 text-gray-400">
+                        Course Type
                       </label>
-                      <div className="relative">
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none" style={{ color: 'var(--text-muted)' }}>
+                      <div className="flex rounded-xl overflow-hidden p-1 bg-black border border-white/10">
+                        <button
+                          type="button"
+                          onClick={() => setCourseType('free')}
+                          className={`flex-1 py-3 text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-2 rounded-lg ${
+                            courseType === 'free' 
+                              ? 'bg-[#E87C41] text-black shadow-[0_0_20px_rgba(232,124,65,0.4)]' 
+                              : 'bg-transparent text-gray-500 hover:text-white'
+                          }`}
+                        >
+                          <Tv className="h-4 w-4" />
+                          <span>Free Course</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCourseType('paid')}
+                          className={`flex-1 py-3 text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-2 rounded-lg ${
+                            courseType === 'paid' 
+                              ? 'bg-[#E87C41] text-black shadow-[0_0_20px_rgba(232,124,65,0.4)]' 
+                              : 'bg-transparent text-gray-500 hover:text-white'
+                          }`}
+                        >
                           <DollarSign className="h-4 w-4" />
+                          <span>Premium Course</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Title */}
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider font-bold mb-2 text-gray-400">
+                        Course Title
+                      </label>
+                      <div className="relative group">
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-600 group-focus-within:text-[#E87C41] transition-colors">
+                          <BookOpen className="h-5 w-5" />
                         </span>
                         <input
-                          type="number"
-                          min="0"
+                          type="text"
                           required
-                          value={price}
-                          onChange={(e) => setPrice(e.target.value)}
-                          className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all"
-                          style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                          placeholder="499"
+                          value={title}
+                          onChange={(e) => setTitle(e.target.value)}
+                          className="w-full pl-12 pr-4 py-3.5 bg-[#111] border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#E87C41]/50 focus:ring-1 focus:ring-[#E87C41]/50 text-white placeholder-gray-600 transition-all shadow-inner"
+                          placeholder="e.g. Master React in 30 Days"
                         />
                       </div>
                     </div>
-                  )}
-                </div>
 
-                {/* Thumbnail Image */}
-                <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-                    Course Thumbnail <span style={{ color: 'var(--text-muted)' }}>(optional)</span>
-                  </label>
-                  <div className="space-y-3">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        if(e.target.files[0]) {
-                          setThumbnailFile(e.target.files[0]);
-                          setThumbnail(''); // Clear URL if file selected
-                        }
-                      }}
-                      className="w-full px-3 py-2 border rounded-md text-sm cursor-pointer"
-                      style={{ backgroundColor: 'var(--bg-input)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
-                    />
-                    <div className="flex items-center text-sm" style={{ color: 'var(--text-muted)' }}>
-                      <span className="px-2">OR provide a URL:</span>
+                    {/* Description */}
+                    <div>
+                      <label className="block text-xs uppercase tracking-wider font-bold mb-2 text-gray-400">
+                        Description
+                      </label>
+                      <div className="relative group">
+                        <span className="absolute top-4 left-4 pointer-events-none text-gray-600 group-focus-within:text-[#E87C41] transition-colors">
+                          <FileText className="h-5 w-5" />
+                        </span>
+                        <textarea
+                          required
+                          value={description}
+                          onChange={(e) => setDescription(e.target.value)}
+                          rows={4}
+                          className="w-full pl-12 pr-4 py-3.5 bg-[#111] border border-white/10 rounded-xl text-sm resize-none focus:outline-none focus:border-[#E87C41]/50 focus:ring-1 focus:ring-[#E87C41]/50 text-white placeholder-gray-600 transition-all shadow-inner"
+                          placeholder="Describe what students will learn..."
+                        />
+                      </div>
                     </div>
-                    <div className="relative">
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none" style={{ color: 'var(--text-muted)' }}>
-                        <Image className="h-5 w-5" />
-                      </span>
-                      <input
-                        type="url"
-                        value={thumbnail}
-                        onChange={(e) => {
-                          setThumbnail(e.target.value);
-                          setThumbnailFile(null); // Clear file if URL typed
-                        }}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all"
-                        style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                        placeholder="https://example.com/thumbnail.jpg"
-                        disabled={!!thumbnailFile}
-                      />
-                    </div>
-                    {thumbnailFile && (
-                      <p className="text-xs mt-1" style={{ color: 'var(--accent)' }}>
-                        Selected file: {thumbnailFile.name}
-                      </p>
-                    )}
-                  </div>
-                </div>
 
-                {/* Videos Array */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                      Course Videos
-                    </label>
-                    <button
-                      type="button"
-                      onClick={handleAddVideo}
-                      className="text-xs px-3 py-1.5 rounded-lg flex items-center space-x-1 cursor-pointer transition-all hover:bg-[var(--accent-glow)]"
-                      style={{ color: 'var(--accent)', border: '1px solid var(--accent)' }}
-                    >
-                      <Plus className="h-3 w-3" />
-                      <span>Add Video</span>
-                    </button>
-                  </div>
-                  
-                  {videos.map((vid, index) => (
-                    <div key={index} className="p-4 rounded-xl relative group animate-slide-up" style={{ backgroundColor: 'var(--bg-primary)', border: '1px solid var(--border-color)' }}>
-                      {videos.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveVideo(index)}
-                          className="absolute top-2 right-2 p-1 rounded-md text-red-500 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      )}
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        <div>
-                          <label className="block text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Video Title</label>
-                          <input
-                            type="text"
-                            required
-                            value={vid.title}
-                            onChange={(e) => handleVideoChange(index, 'title', e.target.value)}
-                            className="w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-all"
-                            style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                            placeholder={`Lesson ${index + 1}`}
-                          />
+                    {/* Grid: Category & Level */}
+                    <div className="grid grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider font-bold mb-2 text-gray-400">
+                          Category
+                        </label>
+                        <div className="relative group">
+                          <span className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-600 group-focus-within:text-[#E87C41] transition-colors">
+                            <Layers className="h-5 w-5" />
+                          </span>
+                          <select
+                            value={category}
+                            onChange={(e) => setCategory(e.target.value)}
+                            className="w-full pl-12 pr-4 py-3.5 bg-[#111] border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#E87C41]/50 focus:ring-1 focus:ring-[#E87C41]/50 text-white appearance-none cursor-pointer transition-all shadow-inner"
+                          >
+                            {CATEGORIES.map((cat) => (
+                              <option key={cat} value={cat} className="bg-[#111]">{cat}</option>
+                            ))}
+                          </select>
                         </div>
-                        <div>
-                          <label className="block text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Duration (optional)</label>
-                          <input
-                            type="text"
-                            value={vid.duration}
-                            onChange={(e) => handleVideoChange(index, 'duration', e.target.value)}
-                            className="w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-all"
-                            style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                            placeholder="10:30"
-                          />
-                        </div>
-                        <div className="sm:col-span-2">
-                          <label className="block text-xs mb-1" style={{ color: 'var(--text-muted)' }}>
-                            {courseType === 'free' ? 'YouTube URL' : 'Upload Video File'}
-                          </label>
-                          <div className="relative">
-                            <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none" style={{ color: 'var(--text-muted)' }}>
-                              {courseType === 'free' ? <Tv className="h-4 w-4" /> : <Video className="h-4 w-4" />}
-                            </span>
-                            {courseType === 'free' ? (
-                              <input
-                                type="url"
-                                required
-                                value={vid.videoUrl}
-                                onChange={(e) => handleVideoChange(index, 'videoUrl', e.target.value)}
-                                className="w-full pl-9 pr-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-all"
-                                style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                                placeholder="https://www.youtube.com/watch?v=..."
-                              />
-                            ) : (
-                              <div className="flex items-center space-x-2">
-                                <input
-                                  type="file"
-                                  accept="video/*"
-                                  required={!vid.videoUrl}
-                                  onChange={(e) => handleVideoChange(index, 'videoFile', e.target.files[0])}
-                                  className="w-full pl-9 pr-3 py-1.5 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-all cursor-pointer"
-                                  style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                                />
-                                {vid.videoUrl && !vid.videoFile && (
-                                  <span className="text-xs shrink-0 px-2 py-1 rounded-md font-medium" style={{ backgroundColor: 'var(--success-bg)', color: 'var(--success)', border: '1px solid var(--success)' }}>
-                                    âœ“ Video Saved
-                                  </span>
-                                )}
-                              </div>
-                            )}
-                          </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider font-bold mb-2 text-gray-400">
+                          Level
+                        </label>
+                        <div className="relative group">
+                          <span className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-600 group-focus-within:text-[#E87C41] transition-colors">
+                            <BarChart3 className="h-5 w-5" />
+                          </span>
+                          <select
+                            value={level}
+                            onChange={(e) => setLevel(e.target.value)}
+                            className="w-full pl-12 pr-4 py-3.5 bg-[#111] border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#E87C41]/50 focus:ring-1 focus:ring-[#E87C41]/50 text-white appearance-none cursor-pointer transition-all shadow-inner"
+                          >
+                            {LEVELS.map((l) => (
+                              <option key={l.value} value={l.value} className="bg-[#111]">{l.label}</option>
+                            ))}
+                          </select>
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
 
-                {/* Submit */}
-                <button
-                  type="submit"
-                  disabled={formLoading}
-                  className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white py-2.5 px-4 rounded-xl font-medium text-sm transition-all focus:outline-none shadow-lg flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-55 btn-press"
-                >
-                  {formLoading ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <>
-                      <Save className="h-5 w-5" />
-                      <span>{editingCourse ? 'Update Course' : 'Create Course'}</span>
-                    </>
-                  )}
-                </button>
-              </form>
+                    {category === 'Other' && (
+                      <div className="animate-slide-down">
+                        <label className="block text-xs uppercase tracking-wider font-bold mb-2 text-gray-400">
+                          Custom Category
+                        </label>
+                        <div className="relative group">
+                          <span className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-600 group-focus-within:text-[#E87C41] transition-colors">
+                            <Tag className="h-5 w-5" />
+                          </span>
+                          <input
+                            type="text"
+                            required
+                            value={customCategory}
+                            onChange={(e) => setCustomCategory(e.target.value)}
+                            className="w-full pl-12 pr-4 py-3.5 bg-[#111] border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#E87C41]/50 focus:ring-1 focus:ring-[#E87C41]/50 text-white placeholder-gray-600 transition-all shadow-inner"
+                            placeholder="e.g. Photography"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Pricing & Duration */}
+                    <div className={`grid gap-6 ${courseType === 'free' ? 'grid-cols-1' : 'grid-cols-3'}`}>
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider font-bold mb-2 text-gray-400">
+                          Duration
+                        </label>
+                        <div className="relative group">
+                          <span className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-600 group-focus-within:text-[#E87C41] transition-colors">
+                            <Clock className="h-5 w-5" />
+                          </span>
+                          <input
+                            type="text"
+                            value={duration}
+                            onChange={(e) => setDuration(e.target.value)}
+                            className="w-full pl-12 pr-4 py-3.5 bg-[#111] border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#E87C41]/50 focus:ring-1 focus:ring-[#E87C41]/50 text-white placeholder-gray-600 transition-all shadow-inner"
+                            placeholder="e.g. 4h 30m"
+                          />
+                        </div>
+                      </div>
+
+                      {courseType === 'paid' && (
+                        <div className="animate-scale-in">
+                          <label className="block text-xs uppercase tracking-wider font-bold mb-2 text-gray-400">
+                            Price ($)
+                          </label>
+                          <div className="relative group">
+                            <span className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-600 group-focus-within:text-[#E87C41] transition-colors">
+                              <DollarSign className="h-5 w-5" />
+                            </span>
+                            <input
+                              type="number"
+                              min="0"
+                              required
+                              value={price}
+                              onChange={(e) => setPrice(e.target.value)}
+                              className="w-full pl-12 pr-4 py-3.5 bg-[#111] border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#E87C41]/50 focus:ring-1 focus:ring-[#E87C41]/50 text-white placeholder-gray-600 transition-all shadow-inner"
+                              placeholder="499"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {courseType === 'paid' && (
+                        <div className="animate-scale-in">
+                          <label className="block text-xs uppercase tracking-wider font-bold mb-2 text-gray-400">
+                            Discount (%)
+                          </label>
+                          <div className="relative group">
+                            <span className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-600 group-focus-within:text-[#E87C41] transition-colors">
+                              <DollarSign className="h-5 w-5" />
+                            </span>
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={discountPercentage}
+                              onChange={(e) => setDiscountPercentage(e.target.value)}
+                              className="w-full pl-12 pr-4 py-3.5 bg-[#111] border border-white/10 rounded-xl text-sm focus:outline-none focus:border-[#E87C41]/50 focus:ring-1 focus:ring-[#E87C41]/50 text-white placeholder-gray-600 transition-all shadow-inner"
+                              placeholder="20"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right Column (Media) */}
+                  <div className="lg:col-span-5 space-y-8">
+                    
+                    {/* Thumbnail Upload with Preview */}
+                    <div className="p-6 rounded-2xl bg-[#111] border border-white/5 relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-[#E87C41] blur-[100px] opacity-10 pointer-events-none"></div>
+                      <label className="block text-xs uppercase tracking-wider font-bold mb-4 text-gray-400">
+                        Course Thumbnail <span className="font-normal opacity-50">(optional)</span>
+                      </label>
+                      
+                      {/* Image Preview Area */}
+                      <div className="mb-5 w-full h-44 rounded-xl overflow-hidden bg-[#050505] border border-white/5 flex items-center justify-center relative group shadow-inner">
+                        {(thumbnail || thumbnailFile) ? (
+                          <img 
+                            src={thumbnailFile ? URL.createObjectURL(thumbnailFile) : (thumbnail.startsWith('http') ? thumbnail : `${API_URL.replace('/api', '')}${thumbnail}`)} 
+                            alt="Preview" 
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center text-gray-600">
+                            <Image className="w-10 h-10 mb-3 opacity-30" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest opacity-50">No Image</span>
+                          </div>
+                        )}
+                        
+                        {/* Overlay for replacing */}
+                        {(thumbnail || thumbnailFile) && (
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                            <span className="text-white text-xs font-bold tracking-wider uppercase bg-black/50 px-4 py-2 rounded-lg border border-white/10">Replace Image</span>
+                          </div>
+                        )}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            if(e.target.files[0]) {
+                              setThumbnailFile(e.target.files[0]);
+                              setThumbnail('');
+                            }
+                          }}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                        />
+                      </div>
+
+                      <div className="flex items-center gap-4 mb-5">
+                        <div className="h-px bg-white/5 flex-1"></div>
+                        <span className="text-[10px] uppercase font-bold text-gray-600 tracking-widest">OR USE URL</span>
+                        <div className="h-px bg-white/5 flex-1"></div>
+                      </div>
+                      
+                      <div className="relative group">
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-600 group-focus-within:text-[#E87C41] transition-colors">
+                          <LinkIcon className="h-4 w-4" />
+                        </span>
+                        <input
+                          type="text"
+                          value={thumbnail}
+                          onChange={(e) => {
+                            setThumbnail(e.target.value);
+                            setThumbnailFile(null);
+                          }}
+                          className="w-full pl-11 pr-4 py-3 bg-[#050505] rounded-xl text-sm focus:outline-none focus:border-[#E87C41]/50 focus:ring-1 focus:ring-[#E87C41]/50 border border-white/10 text-white placeholder-gray-600 transition-all shadow-inner"
+                          placeholder="Paste image URL here..."
+                          disabled={!!thumbnailFile}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Videos Array */}
+                    <div className="p-6 rounded-2xl bg-[#111] border border-white/5 relative overflow-hidden">
+                      <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#E87C41] blur-[100px] opacity-10 pointer-events-none"></div>
+                      <div className="flex items-center justify-between mb-4 relative z-10">
+                        <label className="block text-xs uppercase tracking-wider font-bold text-gray-400">
+                          Course Videos
+                        </label>
+                        <button
+                          type="button"
+                          onClick={handleAddVideo}
+                          className="text-xs px-4 py-2 rounded-lg flex items-center space-x-2 cursor-pointer transition-all bg-[#E87C41]/10 text-[#E87C41] hover:bg-[#E87C41]/20 font-bold border border-[#E87C41]/20"
+                        >
+                          <Plus className="h-3 w-3" />
+                          <span>Add Lesson</span>
+                        </button>
+                      </div>
+                      
+                      <div className="max-h-[350px] overflow-y-auto custom-scrollbar pr-2 space-y-4 relative z-10">
+                        {videos.map((vid, index) => (
+                          <div key={index} className="p-5 rounded-xl relative group animate-slide-up bg-[#050505] border border-white/5 hover:border-[#E87C41]/30 transition-colors">
+                            {videos.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveVideo(index)}
+                                className="absolute top-3 right-3 p-1.5 rounded-lg text-red-400 hover:bg-red-500/20 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            )}
+                            
+                            <div className="flex items-center gap-2 mb-4">
+                              <div className="w-6 h-6 rounded-md bg-[#E87C41]/20 flex items-center justify-center text-[#E87C41] text-[10px] font-black">
+                                {index + 1}
+                              </div>
+                              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Lesson</span>
+                            </div>
+
+                            <div className="grid gap-4">
+                              <div>
+                                <input
+                                  type="text"
+                                  required
+                                  value={vid.title}
+                                  onChange={(e) => handleVideoChange(index, 'title', e.target.value)}
+                                  className="w-full px-4 py-2.5 bg-[#111] border border-white/10 rounded-lg text-sm focus:outline-none focus:border-[#E87C41]/50 text-white placeholder-gray-600 transition-all"
+                                  placeholder="Lesson Title"
+                                />
+                              </div>
+                              <div>
+                                <input
+                                  type="text"
+                                  value={vid.duration}
+                                  onChange={(e) => handleVideoChange(index, 'duration', e.target.value)}
+                                  className="w-full px-4 py-2.5 bg-[#111] border border-white/10 rounded-lg text-sm focus:outline-none focus:border-[#E87C41]/50 text-white placeholder-gray-600 transition-all"
+                                  placeholder="Duration (e.g. 10:30)"
+                                />
+                              </div>
+                              <div>
+                                <div className="relative group">
+                                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-600 group-focus-within:text-[#E87C41]">
+                                    {courseType === 'free' ? <Tv className="h-4 w-4" /> : <Video className="h-4 w-4" />}
+                                  </span>
+                                  {courseType === 'free' ? (
+                                    <input
+                                      type="url"
+                                      required
+                                      value={vid.videoUrl}
+                                      onChange={(e) => handleVideoChange(index, 'videoUrl', e.target.value)}
+                                      className="w-full pl-10 pr-4 py-2.5 bg-[#111] border border-white/10 rounded-lg text-sm focus:outline-none focus:border-[#E87C41]/50 text-white placeholder-gray-600 transition-all"
+                                      placeholder="YouTube URL"
+                                    />
+                                  ) : (
+                                    <div className="flex flex-col space-y-2">
+                                      <input
+                                        type="file"
+                                        accept="video/*"
+                                        required={!vid.videoUrl}
+                                        onChange={(e) => handleVideoChange(index, 'videoFile', e.target.files[0])}
+                                        className="w-full pl-10 pr-4 py-2 bg-[#111] border border-white/10 rounded-lg text-sm focus:outline-none focus:border-[#E87C41]/50 text-gray-400 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:bg-[#E87C41]/20 file:text-[#E87C41] cursor-pointer"
+                                      />
+                                      {vid.videoUrl && !vid.videoFile && (
+                                        <span className="text-[10px] uppercase font-bold px-3 py-1.5 rounded-md inline-block w-fit bg-[#22c55e]/20 text-[#22c55e] border border-[#22c55e]/30 shadow-inner">
+                                          âœ“ Video Uploaded
+                                        </span>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Submit Footer */}
+                  <div className="lg:col-span-12 pt-8 mt-2 border-t border-white/5 flex justify-end">
+                    <button
+                      type="submit"
+                      disabled={formLoading}
+                      className="bg-gradient-to-r from-[#E87C41] to-[#ff945b] text-black py-3.5 px-10 rounded-xl font-bold text-sm transition-all focus:outline-none shadow-[0_0_20px_rgba(232,124,65,0.4)] hover:shadow-[0_0_30px_rgba(232,124,65,0.6)] flex items-center justify-center gap-3 cursor-pointer disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      {formLoading ? (
+                        <>
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          <span>Saving Changes...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Save className="h-5 w-5" />
+                          <span>{editingCourse ? 'Save Course Changes' : 'Publish Course'}</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
 
         {/* â”€â”€â”€ Quick Add Video Modal â”€â”€â”€ */}
@@ -1994,7 +2058,7 @@ const AdminDashboard = () => {
                       <Edit3 className="h-5 w-5" />
                     </button>
                     <button
-                      onClick={() => handleDelete(course._id)}
+                      onClick={() => handleDeleteClick(course)}
                       className="p-3 bg-red-600 text-white rounded-full hover:scale-110 transition-transform shadow-[0_0_15px_rgba(239,68,68,0.5)]"
                       title="Delete Course"
                     >
@@ -2841,6 +2905,35 @@ const AdminDashboard = () => {
               >
                 {savingMockTest ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
                 <span>Save to Course</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Custom Delete Confirmation Modal ─── */}
+      {courseToDelete && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 backdrop-blur-md animate-fade-in" style={{ backgroundColor: 'rgba(0,0,0,0.7)' }}>
+          <div className="glass-panel w-full max-w-sm rounded-[24px] shadow-2xl p-6 relative flex flex-col items-center text-center">
+            <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mb-4">
+              <AlertTriangle className="h-8 w-8 text-red-500" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Delete Course?</h3>
+            <p className="text-sm text-gray-400 mb-6">
+              Are you sure you want to delete <span className="text-white font-semibold">"{courseToDelete.title}"</span>? This action cannot be undone.
+            </p>
+            <div className="flex items-center w-full space-x-3">
+              <button
+                onClick={() => setCourseToDelete(null)}
+                className="flex-1 py-3 rounded-xl font-bold text-sm text-white bg-white/10 hover:bg-white/20 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 py-3 rounded-xl font-bold text-sm text-white bg-red-600 hover:bg-red-700 transition-colors shadow-[0_0_15px_rgba(239,68,68,0.3)]"
+              >
+                Yes, Delete
               </button>
             </div>
           </div>

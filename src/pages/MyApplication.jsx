@@ -261,6 +261,24 @@ const MyApplication = () => {
   const [visibleSections, setVisibleSections] = useState(new Set());
   const sectionRefs = useRef([]);
 
+  const fetchApplication = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get(`${API_URL}/internship/my-application`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      // If backend returns an array, take the first one
+      const appData = Array.isArray(res.data) ? res.data[0] : res.data;
+      setApplication(appData);
+    } catch (err) {
+      if (err.response?.status !== 404) {
+        setError('Failed to load application');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => { fetchApplication(); }, []);
 
   useEffect(() => {
@@ -284,23 +302,6 @@ const MyApplication = () => {
     return () => obs.disconnect();
   }, [loading, application]);
 
-  const fetchApplication = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_URL}/internship/my-application`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      // If backend returns an array, take the first one
-      const appData = Array.isArray(res.data) ? res.data[0] : res.data;
-      setApplication(appData);
-    } catch (err) {
-      if (err.response?.status !== 404) {
-        setError('Failed to load application');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSubmissionChange = (e) => {
     setSubmissionForm({ ...submissionForm, [e.target.name]: e.target.value });

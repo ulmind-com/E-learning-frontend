@@ -544,9 +544,15 @@ const CourseDetails = () => {
               <div className="flex items-center space-x-4 pt-2">
                 <span className="text-white text-3xl font-bold flex items-center space-x-3">
                   <span>Price</span>
-                  <span className="text-[#E87C41]">Rs.{course.price === 0 ? 'Free' : course.price}</span>
+                  <span className="text-[#E87C41]">Rs.{course.price === 0 ? 'Free' : (course.discountPercentage > 0 ? Math.round(course.price - (course.price * (course.discountPercentage / 100))) : course.price)}</span>
                 </span>
-                {course.price > 0 && (
+                {course.price > 0 && course.discountPercentage > 0 && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500 line-through text-lg">Rs.{course.price}</span>
+                    <span className="text-[12px] font-bold bg-[#E87C41]/20 text-[#E87C41] px-2 py-0.5 rounded-sm">{course.discountPercentage}% OFF</span>
+                  </div>
+                )}
+                {course.price > 0 && !course.discountPercentage && (
                   <span className="text-gray-500 line-through text-lg">Rs.{Math.round(course.price * 1.5)}</span>
                 )}
                 <span className="text-white text-sm font-medium">(+GST)</span>
@@ -935,8 +941,18 @@ const CourseDetails = () => {
             <div className="md:w-72 shrink-0">
               <div className="rounded-xl p-5 sticky top-24 bg-[#111] border border-white/10 shadow-xl backdrop-blur-md">
                 <p className="text-3xl font-bold mb-1" style={{ color: isFree ? '#E87C41' : 'white' }}>
-                  {isFree ? 'Free' : `$${course.price}`}
+                  {isFree ? 'Free' : `Rs.${course.discountPercentage > 0 ? Math.round(course.price - (course.price * (course.discountPercentage / 100))) : (course.price || 0)}`}
                 </p>
+                {course.discountPercentage > 0 && !isFree && (
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className="text-sm text-gray-500 line-through">
+                      Rs.{course.price}
+                    </p>
+                    <span className="text-[10px] font-bold bg-[#E87C41]/20 text-[#E87C41] px-2 py-0.5 rounded-sm">
+                      {course.discountPercentage}% OFF
+                    </span>
+                  </div>
+                )}
                 <p className="text-sm mb-5 text-gray-400">
                   {isFree ? 'Free access' : 'One-time payment'}
                 </p>

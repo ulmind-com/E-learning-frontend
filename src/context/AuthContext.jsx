@@ -84,8 +84,27 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
   };
 
+  const googleLoginOrRegister = async (name, email, sub) => {
+    // Attempt login first using the unique google ID (sub) as password
+    const loginResult = await login(email, sub);
+    if (loginResult.success) {
+      return loginResult;
+    }
+    
+    // If login fails (user doesn't exist), register the user automatically
+    const registerResult = await register(name, email, sub, 'student');
+    if (registerResult.success) {
+      return registerResult;
+    }
+
+    return {
+      success: false,
+      message: registerResult.message || 'Google authentication failed',
+    };
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, googleLoginOrRegister }}>
       {children}
     </AuthContext.Provider>
   );
