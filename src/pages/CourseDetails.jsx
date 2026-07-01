@@ -30,7 +30,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import SheryiansBg from '../components/SheryiansBg';
 
-const API_URL = 'https://e-learning-backend-1-r539.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://e-learning-backend-8avx.onrender.com/api';
 
 const LEVEL_COLORS = {
   beginner: '#22c55e',
@@ -493,7 +493,7 @@ const CourseDetails = () => {
 
   const getFullVideoUrl = (url) => {
     if (url && url.startsWith('/uploads')) {
-      return `https://e-learning-backend-1-r539.onrender.com${url}`;
+      return `https://e-learning-backend-8avx.onrender.com${url}`;
     }
     return url;
   };
@@ -600,7 +600,7 @@ const CourseDetails = () => {
                 {/* Thumbnail Image */}
                 <div className="relative aspect-[16/10]">
                   <img 
-                    src={course.thumbnail ? `https://e-learning-backend-1-r539.onrender.com${course.thumbnail}` : "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=2070&auto=format&fit=crop"} 
+                    src={course.thumbnail ? `https://e-learning-backend-8avx.onrender.com${course.thumbnail}` : "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=2070&auto=format&fit=crop"} 
                     alt={course.title} 
                     className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
                   />
@@ -780,9 +780,9 @@ const CourseDetails = () => {
                         {doubt.questionMedia && (
                           <div className="mb-3">
                             {doubt.questionMedia.match(/\.(mp4|webm|ogg)$/i) ? (
-                              <video src={`https://e-learning-backend-1-r539.onrender.com${doubt.questionMedia}`} controls className="max-w-sm w-full rounded-lg" style={{ border: '1px solid rgba(255,255,255,0.1)' }} />
+                              <video src={`https://e-learning-backend-8avx.onrender.com${doubt.questionMedia}`} controls className="max-w-sm w-full rounded-lg" style={{ border: '1px solid rgba(255,255,255,0.1)' }} />
                             ) : (
-                              <img src={`https://e-learning-backend-1-r539.onrender.com${doubt.questionMedia}`} alt="Doubt media" className="max-w-sm w-full rounded-lg object-contain" style={{ border: '1px solid rgba(255,255,255,0.1)' }} />
+                              <img src={`https://e-learning-backend-8avx.onrender.com${doubt.questionMedia}`} alt="Doubt media" className="max-w-sm w-full rounded-lg object-contain" style={{ border: '1px solid rgba(255,255,255,0.1)' }} />
                             )}
                           </div>
                         )}
@@ -797,9 +797,9 @@ const CourseDetails = () => {
                             {doubt.adminReplyMedia && (
                               <div>
                                 {doubt.adminReplyMedia.match(/\.(mp4|webm|ogg)$/i) ? (
-                                  <video src={`https://e-learning-backend-1-r539.onrender.com${doubt.adminReplyMedia}`} controls className="max-w-sm w-full rounded-lg border border-indigo-500/20" />
+                                  <video src={`https://e-learning-backend-8avx.onrender.com${doubt.adminReplyMedia}`} controls className="max-w-sm w-full rounded-lg border border-indigo-500/20" />
                                 ) : (
-                                  <img src={`https://e-learning-backend-1-r539.onrender.com${doubt.adminReplyMedia}`} alt="Admin reply media" className="max-w-sm w-full rounded-lg object-contain border border-indigo-500/20" />
+                                  <img src={`https://e-learning-backend-8avx.onrender.com${doubt.adminReplyMedia}`} alt="Admin reply media" className="max-w-sm w-full rounded-lg object-contain border border-indigo-500/20" />
                                 )}
                               </div>
                             )}

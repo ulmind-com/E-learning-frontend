@@ -3,7 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { ArrowRight, CheckCircle2, User, Mail, Phone, Building2, GraduationCap, Code2, Globe, Link as LinkIcon, ChevronLeft, Loader2 } from 'lucide-react';
 
-const API_URL = 'https://e-learning-backend-1-r539.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://e-learning-backend-8avx.onrender.com/api';
 
 const ApplyInternship = () => {
   const navigate = useNavigate();

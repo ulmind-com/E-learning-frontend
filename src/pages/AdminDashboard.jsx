@@ -38,7 +38,7 @@ import {
   Type
 } from 'lucide-react';
 
-const API_URL = 'https://e-learning-backend-1-r539.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://e-learning-backend-8avx.onrender.com/api';
 
 const CATEGORIES = [
   'General',
@@ -1631,7 +1631,7 @@ const AdminDashboard = () => {
                         {templateFile ? (
                           <img src={URL.createObjectURL(templateFile)} alt="Selected Template" className="w-full h-auto max-h-[400px] object-contain opacity-90 group-hover:opacity-100 transition-opacity" />
                         ) : (
-                          <img src={certificateTemplate.startsWith('http') ? certificateTemplate : `https://e-learning-backend-1-r539.onrender.com${certificateTemplate}`} alt="Current Template" className="w-full h-auto max-h-[400px] object-contain opacity-90 group-hover:opacity-100 transition-opacity" onError={(e) => { e.target.style.display = 'none'; }} />
+                          <img src={certificateTemplate.startsWith('http') ? certificateTemplate : `https://e-learning-backend-8avx.onrender.com${certificateTemplate}`} alt="Current Template" className="w-full h-auto max-h-[400px] object-contain opacity-90 group-hover:opacity-100 transition-opacity" onError={(e) => { e.target.style.display = 'none'; }} />
                         )}
                         
                         {/* Overlay to enforce removal */}
@@ -1874,9 +1874,9 @@ const AdminDashboard = () => {
                       {doubt.questionMedia && (
                         <div className="mt-4 pl-2">
                           {doubt.questionMedia.match(/\.(mp4|webm|ogg)$/i) ? (
-                            <video src={`https://e-learning-backend-1-r539.onrender.com${doubt.questionMedia}`} controls className="max-w-xs w-full rounded-xl border border-white/10 shadow-md" />
+                            <video src={`https://e-learning-backend-8avx.onrender.com${doubt.questionMedia}`} controls className="max-w-xs w-full rounded-xl border border-white/10 shadow-md" />
                           ) : (
-                            <img src={`https://e-learning-backend-1-r539.onrender.com${doubt.questionMedia}`} alt="Doubt media" className="max-w-xs w-full rounded-xl object-contain border border-white/10 shadow-md" />
+                            <img src={`https://e-learning-backend-8avx.onrender.com${doubt.questionMedia}`} alt="Doubt media" className="max-w-xs w-full rounded-xl object-contain border border-white/10 shadow-md" />
                           )}
                         </div>
                       )}

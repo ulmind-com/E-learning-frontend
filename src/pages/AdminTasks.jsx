@@ -4,7 +4,7 @@ import { ClipboardList, PlusCircle, ExternalLink, Link as LinkIcon, FileText, Ch
 import { useNavigate } from 'react-router-dom';
 import PremiumBg from '../components/PremiumBg';
 
-const API_URL = 'https://e-learning-backend-1-r539.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://e-learning-backend-8avx.onrender.com/api';
 
 const AdminTasks = () => {
   const [tasks, setTasks] = useState([]);

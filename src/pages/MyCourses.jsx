@@ -21,7 +21,7 @@ import {
   Radio,
 } from 'lucide-react';
 
-const API_URL = 'https://e-learning-backend-1-r539.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://e-learning-backend-8avx.onrender.com/api';
 
 const getEmbedUrl = (url) => {
   if (!url) return null;
@@ -1496,7 +1496,7 @@ const MyCourses = () => {
                 const firstVideo = activeCourse.videos[0];
                 let url = firstVideo.videoUrl;
                 if (url && url.startsWith('/uploads')) {
-                  url = `https://e-learning-backend-1-r539.onrender.com${url}`;
+                  url = `https://e-learning-backend-8avx.onrender.com${url}`;
                 } else {
                   url = getEmbedUrl(url);
                 }
