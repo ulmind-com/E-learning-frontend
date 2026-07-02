@@ -87,7 +87,16 @@ const LiveClassRoom = () => {
 
         socket.on('all-users', (users) => {
           setParticipants(users.filter(u => u != null));
-          const peers = [];
+          
+          // Clear any existing peers first (critical for reconnection after grant/revoke)
+          peersRef.current.forEach(p => {
+            if (!p.peer.destroyed) {
+              try { p.peer.destroy(); } catch(e) {}
+            }
+          });
+          peersRef.current = [];
+          
+          const newPeers = [];
           users.forEach(u => {
             if (u && u.socketId !== socket.id) {
               const peer = createPeer(u.socketId, socket.id, streamRef.current, socket);
@@ -96,14 +105,14 @@ const LiveClassRoom = () => {
                 peer,
                 user: u
               });
-              peers.push({
+              newPeers.push({
                 peerID: u.socketId,
                 peer,
                 user: u
               });
             }
           });
-          setPeers(peers);
+          setPeers(newPeers);
         });
 
         socket.on('user-joined', (payload) => {
@@ -177,26 +186,35 @@ const LiveClassRoom = () => {
 
         socket.on('revoke-media', () => {
           if (!isAdmin) {
-            // Force stop any screen sharing active to prevent orphaned tracks
+            // Stop screen sharing if active
             if (screenTrackRef.current) {
-               screenTrackRef.current.stop();
-               screenTrackRef.current = null;
+              screenTrackRef.current.stop();
+              screenTrackRef.current = null;
             }
             cameraTrackRef.current = null;
             setIsScreenSharing(false);
 
+            // Stop all media tracks
             if (streamRef.current) {
               streamRef.current.getTracks().forEach(track => track.stop());
-              peersRef.current.forEach(p => {
-                if (!p.peer.destroyed) {
-                  try { p.peer.removeStream(streamRef.current); } catch(e) {}
-                }
-              });
               streamRef.current = null;
-              if (userVideo.current) userVideo.current.srcObject = null;
             }
+            if (userVideo.current) userVideo.current.srcObject = null;
+
             setMicEnabled(false);
             setVideoEnabled(false);
+
+            // Destroy all peers and reconnect without stream (listen-only)
+            peersRef.current.forEach(p => {
+              if (!p.peer.destroyed) {
+                try { p.peer.destroy(); } catch(e) {}
+              }
+            });
+            peersRef.current = [];
+            setPeers([]);
+
+            // Request peer reconnection from server (no stream = listen-only)
+            socketRef.current.emit('peer-reconnect', liveClassId);
           }
         });
 
@@ -224,6 +242,22 @@ const LiveClassRoom = () => {
     socketRef.current.emit('revoke-media', socketId, userId, liveClassId);
   };
 
+  const reconnectPeers = () => {
+    // Destroy all existing peer connections
+    peersRef.current.forEach(p => {
+      if (!p.peer.destroyed) {
+        try { p.peer.destroy(); } catch(e) {}
+      }
+    });
+    peersRef.current = [];
+    setPeers([]);
+
+    // Request reconnection from server — server will emit 'user-disconnected' to
+    // all others (so they clean up old peers), then send us 'all-users' so we
+    // create fresh peer connections with the current stream state
+    socketRef.current.emit('peer-reconnect', liveClassId);
+  };
+
   const acceptMediaRequest = async () => {
     setMediaRequest(false);
     try {
@@ -232,13 +266,12 @@ const LiveClassRoom = () => {
       if (userVideo.current) userVideo.current.srcObject = stream;
       setMicEnabled(true);
       setVideoEnabled(true);
-      peersRef.current.forEach(p => {
-        if (!p.peer.destroyed) {
-          try { p.peer.addStream(stream); } catch(err) {}
-        }
-      });
-      // Tell backend we successfully got media
+
+      // Tell backend we accepted media
       socketRef.current.emit('media-accepted', user._id || user.id, liveClassId);
+
+      // Reconnect all peers so they receive our new stream
+      reconnectPeers();
     } catch(err) {
       console.error("Camera access denied", err);
       try {
@@ -247,13 +280,12 @@ const LiveClassRoom = () => {
         if (userVideo.current) userVideo.current.srcObject = stream;
         setMicEnabled(true);
         setVideoEnabled(false);
-        peersRef.current.forEach(p => {
-          if (!p.peer.destroyed) {
-            try { p.peer.addStream(stream); } catch(err2) {}
-          }
-        });
-        // Tell backend we successfully got audio at least
+
+        // Tell backend we accepted media (audio only)
         socketRef.current.emit('media-accepted', user._id || user.id, liveClassId);
+
+        // Reconnect all peers so they receive our audio stream
+        reconnectPeers();
       } catch(audioErr) {
         alert("Could not access camera or microphone");
       }
