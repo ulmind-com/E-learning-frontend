@@ -152,7 +152,7 @@ const InternshipDetails = () => {
               <div className="relative bg-[#0a0a0a] rounded-[22px] p-8 h-full border border-white/5">
                 <div className="text-center mb-10">
                   <div className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em] mb-3">Processing Fee</div>
-                  <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500 tracking-tighter">
+                  <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500 tracking-tighter" style={{ fontFamily: 'Poppins, sans-serif' }}>
                     {internship.internshipType === 'free' ? 'Free' : `₹${internship.price}`}
                   </div>
                 </div>

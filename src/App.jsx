@@ -10,6 +10,7 @@ import Home from './pages/Home';
 import Courses from './pages/Courses';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
 import CourseDetails from './pages/CourseDetails';
 import MyCourses from './pages/MyCourses';
 import AdminDashboard from './pages/AdminDashboard';
@@ -25,12 +26,23 @@ import AdminTaskDetails from './pages/AdminTaskDetails';
 import Internships from './pages/Internships';
 import InternshipDetails from './pages/InternshipDetails';
 import AdminInternshipUpload from './pages/AdminInternshipUpload';
+import Settings from './pages/Settings';
 import SheryiansBg from './components/SheryiansBg';
 
 const ConditionalNavbar = () => {
   const location = useLocation();
-  if (location.pathname.startsWith('/live/')) return null;
-  return <Navbar />;
+  const hiddenRoutes = ['/login', '/register', '/forgot-password'];
+  
+  if (location.pathname.startsWith('/live/') || hiddenRoutes.includes(location.pathname)) {
+    return null;
+  }
+  
+  return (
+    <>
+      <Navbar />
+      <div className="h-[110px] w-full shrink-0"></div>
+    </>
+  );
 };
 
 const ConditionalFooter = () => {
@@ -45,7 +57,7 @@ function App() {
       <Router>
         <div
           className="min-h-screen flex flex-col font-sans antialiased relative"
-          style={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)' }}
+          style={{ color: 'var(--text-primary)', backgroundColor: '#050505' }}
         >
 
           <div className="relative z-10 flex flex-col min-h-screen">
@@ -57,6 +69,7 @@ function App() {
               <Route path="/courses" element={<Courses />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/course/:id" element={<CourseDetails />} />
               <Route path="/internships" element={<Internships />} />
               <Route path="/internship/:id" element={<InternshipDetails />} />
@@ -83,6 +96,14 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={['student']}>
                     <MyApplication />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute allowedRoles={['student', 'admin']}>
+                    <Settings />
                   </ProtectedRoute>
                 }
               />

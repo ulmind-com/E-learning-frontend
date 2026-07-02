@@ -225,12 +225,12 @@ const Courses = () => {
                       <span className="text-xl font-bold text-green-400">Free</span>
                     ) : (
                       <>
-                        <span className="text-xl font-bold text-white">
+                        <span className="text-xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>
                           ₹{course.discountPercentage > 0 ? Math.round(course.price - (course.price * (course.discountPercentage / 100))) : (course.price || 0)}
                         </span>
                         {course.discountPercentage > 0 && (
                           <>
-                            <span className="text-sm text-gray-400 line-through">
+                            <span className="text-sm text-gray-400 line-through" style={{ fontFamily: 'Poppins, sans-serif' }}>
                               ₹{course.price || 0}
                             </span>
                             <span className="text-[10px] font-bold bg-[#E87C41]/20 text-[#E87C41] px-2 py-0.5 rounded-sm">

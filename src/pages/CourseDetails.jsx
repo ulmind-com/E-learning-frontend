@@ -54,6 +54,8 @@ const CourseDetails = () => {
   // Review states
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingCommentText, setEditingCommentText] = useState('');
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewLoading, setReviewLoading] = useState(false);
   const [visibleReviews, setVisibleReviews] = useState(3);
@@ -460,32 +462,45 @@ const CourseDetails = () => {
   const openReviewModal = () => {
     if (myReview) {
       setRating(myReview.rating);
-      setComment(myReview.comment);
     } else {
       setRating(0);
-      setComment('');
     }
+    setComment('');
+    setEditingCommentId(null);
+    setEditingCommentText('');
     setShowReviewModal(true);
   };
 
-  const handleReviewSubmit = async () => {
-    if (rating === 0 || !comment.trim()) {
-      setError('Please provide a rating and a comment.');
-      setShowReviewModal(false);
+  const handleReviewSubmit = async (action = null, commentId = null, overrideComment = null) => {
+    if (rating === 0) {
+      setError('Please provide a rating.');
       return;
     }
     setReviewLoading(true);
     try {
+      const payload = { 
+        rating, 
+        comment: overrideComment !== null ? overrideComment : comment,
+        action,
+        commentId
+      };
       await axios.post(
         `${API_URL}/courses/${id}/reviews`,
-        { rating, comment },
+        payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       await fetchCourse();
-      setShowReviewModal(false);
+      
+      if (action === 'edit_comment' || action === 'delete_comment') {
+        setEditingCommentId(null);
+        setEditingCommentText('');
+      } else if (action === 'add_comment') {
+        setComment('');
+      } else if (!action && !commentId) {
+        setShowReviewModal(false);
+      }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to submit review');
-      setShowReviewModal(false);
+      setError(err.response?.data?.message || 'Failed to submit review action');
     } finally {
       setReviewLoading(false);
     }
@@ -1034,7 +1049,20 @@ const CourseDetails = () => {
                       ))}
                     </div>
                   </div>
-                  <p className="text-sm mt-3 leading-relaxed" style={{ color: '#d1d5db' }}>{review.comment}</p>
+                  {review.comments && review.comments.length > 0 ? (
+                    <div className="mt-4 space-y-3">
+                      {review.comments.map((c, idx) => (
+                        <div key={c._id || idx} className="p-3 rounded-lg text-sm" style={{ backgroundColor: 'rgba(0,0,0,0.3)' }}>
+                          <p style={{ color: '#d1d5db' }}>{c.text}</p>
+                          <span className="text-[10px] text-gray-500 mt-1 block">
+                            {new Date(c.createdAt || review.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : review.comment ? (
+                    <p className="text-sm mt-3 leading-relaxed" style={{ color: '#d1d5db' }}>{review.comment}</p>
+                  ) : null}
                 </div>
               ))}
 
@@ -1425,14 +1453,62 @@ const CourseDetails = () => {
               </div>
             </div>
 
+            {myReview && myReview.comments && myReview.comments.length > 0 && (
+              <div className="mb-6 space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                <label className="block text-sm font-medium mb-2" style={{ color: '#d1d5db' }}>Your Past Comments</label>
+                {myReview.comments.map((c, idx) => (
+                  <div key={c._id || idx} className="p-3 rounded-lg text-sm relative group" style={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    {editingCommentId === c._id ? (
+                      <div className="space-y-2">
+                        <textarea
+                          value={editingCommentText}
+                          onChange={(e) => setEditingCommentText(e.target.value)}
+                          className="w-full px-3 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#E87C41] text-sm resize-none"
+                          style={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}
+                          rows="2"
+                        ></textarea>
+                        <div className="flex space-x-2 justify-end">
+                          <button onClick={() => setEditingCommentId(null)} className="text-xs px-2 py-1 text-gray-400 hover:text-white">Cancel</button>
+                          <button 
+                            onClick={() => handleReviewSubmit('edit_comment', c._id, editingCommentText)}
+                            className="text-xs px-3 py-1 rounded bg-[#E87C41] text-white font-medium btn-press"
+                            disabled={reviewLoading}
+                          >Save</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <p style={{ color: '#d1d5db' }}>{c.text}</p>
+                        <span className="text-[10px] text-gray-500 mt-1 block">
+                          {new Date(c.createdAt || myReview.createdAt).toLocaleDateString()}
+                        </span>
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1 bg-[#1a1a1a] pl-2 rounded">
+                          <button 
+                            onClick={() => { setEditingCommentId(c._id); setEditingCommentText(c.text); }}
+                            className="text-[10px] text-blue-400 hover:text-blue-300 font-medium px-1"
+                          >Edit</button>
+                          <button 
+                            onClick={() => handleReviewSubmit('delete_comment', c._id)}
+                            className="text-[10px] text-red-400 hover:text-red-300 font-medium px-1"
+                          >Delete</button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="mb-6">
-              <label className="block text-sm font-medium mb-2" style={{ color: '#d1d5db' }}>Comment</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#d1d5db' }}>
+                {myReview ? 'Add a New Comment' : 'Comment (Optional)'}
+              </label>
               <textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#E87C41] transition-all resize-none"
                 style={{ backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', color: 'white' }}
-                rows="4"
+                rows="3"
                 placeholder="What did you think about this course?"
               ></textarea>
             </div>
@@ -1452,10 +1528,16 @@ const CourseDetails = () => {
                   backgroundColor: '#E87C41', 
                   backgroundImage: 'linear-gradient(to right, #E87C41, #d26733)'
                 }}
-                onClick={handleReviewSubmit}
+                onClick={() => {
+                  if (myReview && comment.trim()) {
+                    handleReviewSubmit('add_comment');
+                  } else {
+                    handleReviewSubmit();
+                  }
+                }}
                 disabled={reviewLoading}
               >
-                {reviewLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Submit Review'}
+                {reviewLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Save Changes'}
               </button>
             </div>
           </div>

@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 
 const AuthContext = createContext(null);
+const API_URL = import.meta.env.VITE_API_URL || 'https://e-learning-backend-8avx.onrender.com/api';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -29,7 +30,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const { data } = await axios.post('https://e-learning-backend-8avx.onrender.com/api/auth/login', {
+      const { data } = await axios.post(`${API_URL}/auth/login`, {
         email,
         password,
       });
@@ -39,6 +40,10 @@ export const AuthProvider = ({ children }) => {
         name: data.name,
         email: data.email,
         role: data.role,
+        mobile: data.mobile || '',
+        college: data.college || '',
+        state: data.state || '',
+        profileImage: data.profileImage || '',
       };
       setUser(userObj);
       localStorage.setItem('user', JSON.stringify(userObj));
@@ -53,7 +58,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (name, email, password, role) => {
     try {
-      const { data } = await axios.post('https://e-learning-backend-8avx.onrender.com/api/auth/register', {
+      const { data } = await axios.post(`${API_URL}/auth/register`, {
         name,
         email,
         password,
@@ -65,6 +70,10 @@ export const AuthProvider = ({ children }) => {
         name: data.name,
         email: data.email,
         role: data.role,
+        mobile: data.mobile || '',
+        college: data.college || '',
+        state: data.state || '',
+        profileImage: data.profileImage || '',
       };
       setUser(userObj);
       localStorage.setItem('user', JSON.stringify(userObj));
@@ -82,6 +91,12 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+  };
+
+  const updateUser = (updatedData) => {
+    const newUser = { ...user, ...updatedData };
+    setUser(newUser);
+    localStorage.setItem('user', JSON.stringify(newUser));
   };
 
   const googleLoginOrRegister = async (name, email, sub) => {
@@ -104,7 +119,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, googleLoginOrRegister }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, googleLoginOrRegister, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

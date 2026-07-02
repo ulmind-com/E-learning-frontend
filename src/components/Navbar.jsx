@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Menu, X, BookOpen, Shield, LayoutList, CheckCircle, Briefcase, FileText, User, BrainCircuit } from 'lucide-react';
+import { LogOut, Menu, X, BookOpen, Shield, LayoutList, CheckCircle, Briefcase, FileText, User, BrainCircuit, Settings as SettingsIcon, ChevronDown } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -9,6 +9,20 @@ const Navbar = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setProfileOpen(false);
+      }
+    };
+    if (profileOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [profileOpen]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,20 +70,17 @@ const Navbar = () => {
   );
 
   return (
-    <div className="sticky top-0 z-[100] w-full flex justify-center h-[72px] pointer-events-none transition-all duration-700">
+    <div className="fixed top-0 z-[100] w-full flex justify-center h-[72px] pointer-events-none transition-all duration-700">
       <nav
-        className={`absolute left-1/2 -translate-x-1/2 pointer-events-auto flex items-center justify-between transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden ${
+        className={`absolute left-1/2 -translate-x-1/2 pointer-events-auto flex items-center justify-between transition-all duration-[1200ms] ease-in-out overflow-visible ${
           scrolled 
-            ? 'top-4 p-2 rounded-full w-max max-w-[1000px] gap-8 translate-y-0' 
-            : 'top-0 px-6 py-4 w-full max-w-full gap-4 translate-y-0 border-b'
+            ? 'top-4 py-2 px-6 rounded-full w-max max-w-[900px] gap-6' 
+            : 'top-6 py-4 px-8 rounded-full w-[95%] max-w-[1200px] gap-10'
         }`}
         style={{
-          background: 'linear-gradient(135deg, rgba(30, 15, 5, 0.95) 0%, rgba(5, 5, 5, 0.95) 100%)',
-          borderBottom: !scrolled ? '1px solid rgba(232, 124, 65, 0.2)' : '1px solid rgba(232, 124, 65, 0.2)',
-          borderTop: scrolled ? '1px solid rgba(232, 124, 65, 0.2)' : 'none',
-          borderLeft: scrolled ? '1px solid rgba(232, 124, 65, 0.2)' : 'none',
-          borderRight: scrolled ? '1px solid rgba(232, 124, 65, 0.2)' : 'none',
-          boxShadow: scrolled ? '0 10px 40px rgba(232, 124, 65, 0.15)' : 'none',
+          background: 'linear-gradient(#0a0a0a, #0a0a0a) padding-box, linear-gradient(135deg, rgba(232,124,65,0.8), rgba(255,50,50,0.5), rgba(50,255,100,0.5)) border-box',
+          border: '1.5px solid transparent',
+          boxShadow: scrolled ? '0 10px 30px rgba(0,0,0,0.8)' : '0 20px 50px rgba(232,124,65,0.15)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
         }}
@@ -102,27 +113,54 @@ const Navbar = () => {
                 <NavLink to="/admin/internships" label="Intern Apps" isActive={checkActive('/admin/internships') && !checkActive('/admin/internships-manage')} />
                 <NavLink to="/admin/tasks" label="Tasks" isActive={checkActive('/admin/tasks')} />
               </>
-            ) : (
-              <>
-                <NavLink to="/my-courses" label="My Courses" isActive={checkActive('/my-courses')} />
-                <NavLink to="/my-application" label="My App" isActive={checkActive('/my-application')} />
-              </>
-            )
+            ) : null
           ) : null}
         </div>
 
         {/* Desktop Actions */}
-        <div className={`hidden lg:flex items-center space-x-3 pr-2 transition-all duration-500 ${scrolled ? '' : 'mr-4'}`}>
+        <div className={`hidden lg:flex items-center space-x-3 pr-2 transition-all duration-500 ${scrolled ? '' : 'mr-4'} relative`}>
           {user ? (
-            <button
-              onClick={handleLogout}
-              className={`btn-sweep flex items-center rounded-full font-bold transition-all duration-300 hover:-translate-y-0.5 ${scrolled ? 'px-5 py-2 text-sm' : 'px-6 py-2.5 text-[13px]'}`}
-            >
-              <div className="relative z-10 flex items-center space-x-2">
-                <span>Logout</span>
-                <LogOut className="h-4 w-4" />
-              </div>
-            </button>
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setProfileOpen(!profileOpen)}
+                className="flex items-center space-x-2 focus:outline-none group"
+              >
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#E87C41] shadow-lg flex items-center justify-center bg-[#1a1a1a] group-hover:scale-105 transition-transform">
+                  {user.profileImage ? (
+                    <img src={user.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="font-bold text-[#E87C41] text-lg">{user.name?.charAt(0).toUpperCase()}</span>
+                  )}
+                </div>
+                <ChevronDown className={`h-4 w-4 text-gray-300 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              <>
+                <div className={`fixed inset-0 z-40 transition-opacity duration-1000 ${profileOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setProfileOpen(false)}></div>
+                <div className={`absolute right-0 mt-4 w-64 rounded-2xl overflow-hidden shadow-2xl z-50 origin-top-right border border-white/10 transition-all duration-1000 ${profileOpen ? 'scale-100 opacity-100 pointer-events-auto' : 'scale-95 opacity-0 pointer-events-none'}`}
+                     style={{ backgroundColor: '#111', boxShadow: '0 20px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(232, 124, 65, 0.15)' }}>
+                    <div className="p-4 border-b border-white/5 bg-white/5 flex flex-col gap-0.5">
+                      <p className="font-bold text-white truncate text-sm">{user.name}</p>
+                      <p className="text-xs text-gray-400 truncate">{user.email}</p>
+                    </div>
+                    <div className="p-2 flex flex-col gap-1">
+                      {user.role === 'student' && (
+                        <>
+                          <Link to="/my-courses" onClick={() => setProfileOpen(false)} className="flex items-center space-x-3 p-2.5 rounded-xl text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white transition-colors">
+                            <User className="h-4 w-4" /> <span>My Courses</span>
+                          </Link>
+                          <Link to="/my-application" onClick={() => setProfileOpen(false)} className="flex items-center space-x-3 p-2.5 rounded-xl text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white transition-colors">
+                            <FileText className="h-4 w-4" /> <span>Application</span>
+                          </Link>
+                        </>
+                      )}
+                      <Link to="/settings" onClick={() => setProfileOpen(false)} className="flex items-center space-x-3 p-2.5 rounded-xl text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white transition-colors">
+                        <SettingsIcon className="h-4 w-4" /> <span>Settings</span>
+                      </Link>
+                    </div>
+                  </div>
+              </>
+            </div>
           ) : (
             <Link
               to="/login"
@@ -170,7 +208,20 @@ const Navbar = () => {
 
           {user ? (
             <>
-              <div className="h-px w-full bg-white/5 my-1"></div>
+              <div className="flex items-center space-x-3 p-3 bg-white/5 rounded-[20px] mb-2 border border-white/5">
+                <div className="w-10 h-10 rounded-full overflow-hidden border border-[#E87C41] flex items-center justify-center bg-[#1a1a1a]">
+                  {user.profileImage ? (
+                    <img src={user.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="font-bold text-[#E87C41]">{user.name?.charAt(0).toUpperCase()}</span>
+                  )}
+                </div>
+                <div className="overflow-hidden">
+                  <p className="font-bold text-white text-sm truncate">{user.name}</p>
+                  <p className="text-[11px] text-gray-400 truncate">{user.email}</p>
+                </div>
+              </div>
+
               {user.role === 'admin' ? (
                 <>
                   <Link to="/admin" onClick={closeMobile} className={`flex items-center space-x-3 p-3.5 rounded-[24px] font-bold text-[14px] transition-all duration-300 ${checkActive('/admin') && !checkActive('/admin/internships') && !checkActive('/admin/tasks') ? 'bg-[#E87C41] text-black shadow-lg shadow-[#E87C41]/20' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}>
@@ -197,10 +248,10 @@ const Navbar = () => {
                 </>
               )}
               
-              <div className="h-px w-full bg-white/5 my-1"></div>
-              <button onClick={handleLogout} className="flex items-center space-x-3 p-3.5 rounded-[24px] font-bold text-[14px] w-full text-left transition-all duration-300 text-red-500 hover:bg-red-500/10">
-                <LogOut className="h-[18px] w-[18px]" /> <span>Logout</span>
-              </button>
+              <Link to="/settings" onClick={closeMobile} className={`flex items-center space-x-3 p-3.5 rounded-[24px] font-bold text-[14px] transition-all duration-300 ${checkActive('/settings') ? 'bg-[#E87C41] text-black shadow-lg shadow-[#E87C41]/20' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}>
+                <SettingsIcon className="h-[18px] w-[18px]" /> <span>Settings</span>
+              </Link>
+              
             </>
           ) : (
             <>
