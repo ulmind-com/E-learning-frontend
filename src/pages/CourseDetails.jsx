@@ -157,18 +157,98 @@ const CourseDetails = () => {
     setShowEnrollModal(true);
   };
 
+  const loadRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   const executeEnrollment = async () => {
     try {
       setPaymentLoading(true);
-      await axios.post(
-        `${API_URL}/payment/enroll`,
+      setError('');
+
+      if (course?.courseType === 'free' || !course?.price) {
+        // Direct enroll for free courses
+        await axios.post(
+          `${API_URL}/payment/enroll`,
+          { courseId: id },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        await fetchCourse();
+        setShowEnrollModal(false);
+        return;
+      }
+
+      // Paid course flow using Razorpay
+      const res = await loadRazorpay();
+      if (!res) {
+        throw new Error('Razorpay SDK failed to load. Are you online?');
+      }
+
+      // Create Order
+      const { data: orderData } = await axios.post(
+        `${API_URL}/payment/create-order`,
         { courseId: id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      await fetchCourse();
-      setShowEnrollModal(false);
+
+      const options = {
+        key: orderData.key,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: 'E-Learning Platform',
+        description: `Purchase: ${course.title}`,
+        image: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png', // Fallback logo
+        order_id: orderData.razorpayOrderId,
+        handler: async function (response) {
+          try {
+            setPaymentLoading(true);
+            const verifyRes = await axios.post(
+              `${API_URL}/payment/verify`,
+              {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              },
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            if (verifyRes.data.success) {
+              await fetchCourse();
+              setShowEnrollModal(false);
+            }
+          } catch (err) {
+            setError(err.response?.data?.message || 'Payment verification failed');
+          } finally {
+            setPaymentLoading(false);
+          }
+        },
+        prefill: {
+          name: user.name,
+          email: user.email,
+          contact: user.mobile || '',
+        },
+        theme: {
+          color: '#E87C41',
+        },
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.on('payment.failed', function (response) {
+        setError(response.error.description || 'Payment failed');
+      });
+      paymentObject.open();
+
     } catch (err) {
-      setError(err.response?.data?.message || 'Enrollment failed');
+      const errorMsg = err.response?.data?.error?.description || err.response?.data?.message || err.response?.data?.error || err.message || 'Payment initiation failed';
+      console.error("🔥 DETAILED PAYMENT ERROR 🔥:", err.response?.data || err);
+      setError(typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg));
+      alert("Error: " + (typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg)));
     } finally {
       setPaymentLoading(false);
     }
