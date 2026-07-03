@@ -117,27 +117,27 @@ const Navbar = () => {
           ) : null}
         </div>
 
-        {/* Desktop Actions */}
-        <div className={`hidden lg:flex items-center space-x-3 pr-2 transition-all duration-500 ${scrolled ? '' : 'mr-4'} relative`}>
+        {/* Actions & Mobile Toggle */}
+        <div className={`flex items-center space-x-2 sm:space-x-3 pr-2 transition-all duration-500 ${scrolled ? '' : 'lg:mr-4'} relative`}>
           {user ? (
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setProfileOpen(!profileOpen)}
-                className="flex items-center space-x-2 focus:outline-none group"
+                className="flex items-center space-x-1 sm:space-x-2 focus:outline-none group"
               >
-                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#E87C41] shadow-lg flex items-center justify-center bg-[#1a1a1a] group-hover:scale-105 transition-transform">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 border-[#E87C41] shadow-lg flex items-center justify-center bg-[#1a1a1a] group-hover:scale-105 transition-transform">
                   {user.profileImage ? (
                     <img src={user.profileImage} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
-                    <span className="font-bold text-[#E87C41] text-lg">{user.name?.charAt(0).toUpperCase()}</span>
+                    <span className="font-bold text-[#E87C41] text-base sm:text-lg">{user.name?.charAt(0).toUpperCase()}</span>
                   )}
                 </div>
-                <ChevronDown className={`h-4 w-4 text-gray-300 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`h-4 w-4 text-gray-300 transition-transform hidden sm:block ${profileOpen ? 'rotate-180' : ''}`} />
               </button>
 
               <>
                 <div className={`fixed inset-0 z-40 transition-opacity duration-1000 ${profileOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} onClick={() => setProfileOpen(false)}></div>
-                <div className={`absolute right-0 mt-4 w-64 rounded-2xl overflow-hidden shadow-2xl z-50 origin-top-right border border-white/10 transition-all duration-1000 ${profileOpen ? 'scale-100 opacity-100 pointer-events-auto' : 'scale-95 opacity-0 pointer-events-none'}`}
+                <div className={`absolute right-0 mt-4 w-56 sm:w-64 rounded-2xl overflow-hidden shadow-2xl z-50 origin-top-right border border-white/10 transition-all duration-1000 ${profileOpen ? 'scale-100 opacity-100 pointer-events-auto' : 'scale-95 opacity-0 pointer-events-none'}`}
                      style={{ backgroundColor: '#111', boxShadow: '0 20px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(232, 124, 65, 0.15)' }}>
                     <div className="p-4 border-b border-white/5 bg-white/5 flex flex-col gap-0.5">
                       <p className="font-bold text-white truncate text-sm">{user.name}</p>
@@ -157,6 +157,9 @@ const Navbar = () => {
                       <Link to="/settings" onClick={() => setProfileOpen(false)} className="flex items-center space-x-3 p-2.5 rounded-xl text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white transition-colors">
                         <SettingsIcon className="h-4 w-4" /> <span>Settings</span>
                       </Link>
+                      <button onClick={handleLogout} className="flex w-full items-center space-x-3 p-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-400/10 hover:text-red-300 transition-colors">
+                        <LogOut className="h-4 w-4" /> <span>Logout</span>
+                      </button>
                     </div>
                   </div>
               </>
@@ -164,21 +167,21 @@ const Navbar = () => {
           ) : (
             <Link
               to="/login"
-              className={`btn-sweep rounded-full font-bold transition-all duration-300 hover:-translate-y-0.5 ${scrolled ? 'px-6 py-2 text-sm shadow-md' : 'px-6 py-2.5 text-[13px] shadow-md'}`}
+              className={`hidden lg:block btn-sweep rounded-full font-bold transition-all duration-300 hover:-translate-y-0.5 ${scrolled ? 'px-6 py-2 text-sm shadow-md' : 'px-6 py-2.5 text-[13px] shadow-md'}`}
             >
               <span className="relative z-10">Sign In</span>
             </Link>
           )}
-        </div>
 
-        {/* Mobile Toggle */}
-        <div className="lg:hidden flex items-center pr-2 space-x-2">
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className={`p-2 rounded-full transition-all duration-500 flex items-center justify-center text-white hover:bg-white/10 ${mobileOpen ? 'rotate-90' : 'rotate-0'}`}
-          >
-            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+          {/* Mobile Toggle */}
+          <div className="lg:hidden flex items-center">
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className={`p-2 rounded-full transition-all duration-500 flex items-center justify-center text-white hover:bg-white/10 ${mobileOpen ? 'rotate-90' : 'rotate-0'}`}
+            >
+              {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
         </div>
       </nav>
 
